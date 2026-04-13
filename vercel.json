@@ -1,1 +1,36 @@
-{}
+{
+  "rewrites": [
+    {
+      "source": "/writevideo_final_evaluation.html",
+      "destination": "/api/page?p=writevideo_final_evaluation"
+    },
+    {
+      "source": "/yonekura_analysis.html",
+      "destination": "/api/page?p=yonekura_analysis"
+    },
+    {
+      "source": "/writevideo_customer_analysis.html",
+      "destination": "/api/page?p=writevideo_customer_analysis"
+    },
+    {
+      "source": "/shodan_analysis.html",
+      "destination": "/api/page?p=shodan_analysis"
+    },
+    {
+      "source": "/exhibition_analysis.html",
+      "destination": "/api/page?p=exhibition_analysis"
+    },
+    {
+      "source": "/writevideo_revaluation.html",
+      "destination": "/api/page?p=writevideo_revaluation"
+    },
+    {
+      "source": "/writevideo_sales_analysis.html",
+      "destination": "/api/page?p=writevideo_sales_analysis"
+    },
+    {
+      "source": "/channel_list.html",
+      "destination": "/api/page?p=channel_list"
+    }
+  ]
+}
