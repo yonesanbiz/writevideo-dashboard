@@ -242,7 +242,8 @@ function goBack() {
   document.getElementById('step2Error').textContent = '';
 }
 
-function logout() {
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
   show('step1');
   document.getElementById('emailInput').value = '';
   document.getElementById('passwordInput').value = '';
