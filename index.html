@@ -199,6 +199,22 @@ function moveNext(el, idx) {
   if (idx === 6) verifyCode();
 }
 
+// ペースト対応
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.code-input').forEach(function(input, i) {
+    input.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+      const inputs = document.querySelectorAll('.code-input');
+      pasted.split('').forEach(function(char, j) {
+        if (inputs[j]) inputs[j].value = char;
+      });
+      if (pasted.length === 6) verifyCode();
+      else if (inputs[pasted.length]) inputs[pasted.length].focus();
+    });
+  });
+});
+
 async function verifyCode() {
   const inputs = document.querySelectorAll('.code-input');
   const code = Array.from(inputs).map(i => i.value).join('');
