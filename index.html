@@ -6,7 +6,7 @@
 <title>WriteVideo.ai Dashboard</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f2ec; color: #0f0e0d; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f2ec; color: #0f0e0d; min-height: 100vh; visibility: hidden; }
 
 .screen { display: none; }
 .screen.active { display: flex; }
@@ -51,7 +51,7 @@ h1 { font-size: 24px; font-weight: 700; }
 <body>
 
 <!-- STEP1: メール＋パスワード -->
-<div class="screen auth-wrap active" id="step1">
+<div class="screen auth-wrap" id="step1">
   <div class="auth-box">
     <div class="auth-logo">WriteVideo.ai</div>
     <div class="auth-sub">Strategic Dashboard — Confidential</div>
@@ -266,13 +266,19 @@ async function logout() {
   document.getElementById('step1Error').textContent = '';
 }
 
-// セッションチェック
+// セッションチェック - チラつき防止
 fetch('/api/check-session').then(r => r.json()).then(data => {
   if (data.auth) {
     document.getElementById('userEmail').textContent = data.email;
     show('mainScreen');
+  } else {
+    show('step1');
   }
-}).catch(() => {});
+  document.body.style.visibility = 'visible';
+}).catch(() => {
+  show('step1');
+  document.body.style.visibility = 'visible';
+});
 </script>
 </body>
 </html>
