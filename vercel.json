@@ -3,8 +3,5 @@
     "api/*.js": {
       "runtime": "nodejs20.x"
     }
-  },
-  "env": {
-    "RESEND_API_KEY": "@resend_api_key"
   }
 }
