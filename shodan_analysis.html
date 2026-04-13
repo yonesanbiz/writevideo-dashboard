@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商談履歴 分析ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 24px; font-size: 14px; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+.cards4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.card { background: white; border-radius: 10px; padding: 16px 18px; border: 1px solid #e5e5e0; }
+.card-label { font-size: 11px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+.card-value { font-size: 26px; font-weight: 600; color: #111; line-height: 1; }
+.card-sub { font-size: 12px; color: #999; margin-top: 6px; }
+.card-sub b { color: #555; }
+.section { background: white; border-radius: 10px; padding: 20px; border: 1px solid #e5e5e0; margin-bottom: 16px; }
+.section-title { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; font-weight: 600; color: #888; padding: 5px 10px 8px; border-bottom: 1px solid #eee; }
+th.r { text-align: right; }
+td { padding: 8px 10px; border-bottom: 1px solid #f2f2f0; }
+tr:last-child td { border-bottom: none; }
+td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+.b-green { background: #E1F5EE; color: #0F6E56; }
+.b-blue  { background: #E6F1FB; color: #185FA5; }
+.b-amber { background: #FAEEDA; color: #854F0B; }
+.b-red   { background: #FCEBEB; color: #A32D2D; }
+.b-gray  { background: #F1EFE8; color: #5F5E5A; }
+.alert { border-left: 3px solid; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.al-green { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
+.al-amber { border-color: #BA7517; background: #FAEEDA; color: #633806; }
+.al-red   { border-color: #E24B4A; background: #FCEBEB; color: #501313; }
+.al-blue  { border-color: #185FA5; background: #E6F1FB; color: #0C447C; }
+.win-bar { height: 6px; border-radius: 3px; background: #e8e8e8; margin-top: 4px; overflow: hidden; }
+.win-fill { height: 100%; border-radius: 3px; background: #1D9E75; }
+</style>
+</head>
+<body>
+<h1>商談履歴 分析ダッシュボード</h1>
+<p class="sub">商談履歴.xlsx | 有効商談 1,208件　2024年〜2026年4月</p>
+
+<div class="cards4">
+  <div class="card">
+    <div class="card-label">有効商談数</div>
+    <div class="card-value">1,208件</div>
+    <div class="card-sub">受注208 / 失注102 / 進行中等898</div>
+  </div>
+  <div class="card">
+    <div class="card-label">受注率（受注/全商談）</div>
+    <div class="card-value">17.2%</div>
+    <div class="card-sub">受注208件 ÷ 全商談1,208件</div>
+  </div>
+  <div class="card">
+    <div class="card-label">商談担当者</div>
+    <div class="card-value">13名</div>
+    <div class="card-sub">南部さん1名で<b>56%</b>（676件）</div>
+  </div>
+  <div class="card">
+    <div class="card-label">最多チャネル</div>
+    <div class="card-value">資料請求</div>
+    <div class="card-sub">111件 受注率20.7%　次点：代理店85件 29.4%</div>
+  </div>
+</div>
+
+<!-- 月次トレンド -->
+<div class="section">
+  <div class="section-title">月次 初回アポ数・受注数推移</div>
+  <div style="position:relative;height:260px"><canvas id="trendChart" role="img" aria-label="月次トレンド">月次トレンド</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※2026年4月以降は集計途中</p>
+</div>
+
+<div class="grid2">
+  <!-- 担当者別 -->
+  <div class="section">
+    <div class="section-title">商談担当者別 受注率（n≥10）</div>
+    <table>
+      <thead><tr><th>担当者</th><th class="r">商談数</th><th class="r">受注</th><th class="r">受注率</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>ヴェクソン</td><td class="r">13</td><td class="r">8</td><td class="r"><span class="badge b-green">61.5%</span></td><td><div class="win-bar"><div class="win-fill" style="width:100%"></div></div></td></tr>
+        <tr><td>米倉</td><td class="r">77</td><td class="r">16</td><td class="r"><span class="badge b-green">20.8%</span></td><td><div class="win-bar"><div class="win-fill" style="width:60%"></div></div></td></tr>
+        <tr><td>南部 亜由佳</td><td class="r">676</td><td class="r">140</td><td class="r"><span class="badge b-green">20.7%</span></td><td><div class="win-bar"><div class="win-fill" style="width:59%"></div></div></td></tr>
+        <tr><td>菅谷 麻帆</td><td class="r">205</td><td class="r">33</td><td class="r"><span class="badge b-blue">16.1%</span></td><td><div class="win-bar"><div class="win-fill" style="width:46%;background:#378ADD"></div></div></td></tr>
+        <tr><td>高橋 優輝</td><td class="r">14</td><td class="r">1</td><td class="r"><span class="badge b-amber">7.1%</span></td><td><div class="win-bar"><div class="win-fill" style="width:20%;background:#BA7517"></div></div></td></tr>
+        <tr><td>NEO（代理店）</td><td class="r">39</td><td class="r">3</td><td class="r"><span class="badge b-amber">7.7%</span></td><td><div class="win-bar"><div class="win-fill" style="width:22%;background:#BA7517"></div></div></td></tr>
+        <tr><td>戸田 雅</td><td class="r">57</td><td class="r">4</td><td class="r"><span class="badge b-amber">7.0%</span></td><td><div class="win-bar"><div class="win-fill" style="width:20%;background:#BA7517"></div></div></td></tr>
+        <tr><td>龍河 悠花</td><td class="r">28</td><td class="r">1</td><td class="r"><span class="badge b-red">3.6%</span></td><td><div class="win-bar"><div class="win-fill" style="width:10%;background:#E24B4A"></div></div></td></tr>
+        <tr><td>山本 良蔵</td><td class="r">47</td><td class="r">1</td><td class="r"><span class="badge b-red">2.1%</span></td><td><div class="win-bar"><div class="win-fill" style="width:6%;background:#E24B4A"></div></div></td></tr>
+        <tr><td>早川</td><td class="r">16</td><td class="r">0</td><td class="r"><span class="badge b-red">0%</span></td><td><div class="win-bar"><div class="win-fill" style="width:0%"></div></div></td></tr>
+        <tr><td>杉本 直樹</td><td class="r">16</td><td class="r">0</td><td class="r"><span class="badge b-red">0%</span></td><td><div class="win-bar"><div class="win-fill" style="width:0%"></div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 業界別 -->
+  <div class="section">
+    <div class="section-title">業界別 受注率（n≥5）</div>
+    <table>
+      <thead><tr><th>業界</th><th class="r">商談数</th><th class="r">受注</th><th class="r">受注率</th></tr></thead>
+      <tbody>
+        <tr><td>金融</td><td class="r">7</td><td class="r">2</td><td class="r"><span class="badge b-green">28.6%</span></td></tr>
+        <tr><td>業者</td><td class="r">20</td><td class="r">5</td><td class="r"><span class="badge b-green">25.0%</span></td></tr>
+        <tr><td>病院</td><td class="r">190</td><td class="r">47</td><td class="r"><span class="badge b-green">24.7%</span></td></tr>
+        <tr><td>建設</td><td class="r">26</td><td class="r">6</td><td class="r"><span class="badge b-green">23.1%</span></td></tr>
+        <tr><td>医療</td><td class="r">9</td><td class="r">2</td><td class="r"><span class="badge b-green">22.2%</span></td></tr>
+        <tr><td>行政</td><td class="r">8</td><td class="r">1</td><td class="r"><span class="badge b-blue">12.5%</span></td></tr>
+        <tr><td>不動産</td><td class="r">8</td><td class="r">1</td><td class="r"><span class="badge b-blue">12.5%</span></td></tr>
+        <tr><td>製造業</td><td class="r">9</td><td class="r">1</td><td class="r"><span class="badge b-blue">11.1%</span></td></tr>
+        <tr><td>その他</td><td class="r">37</td><td class="r">3</td><td class="r"><span class="badge b-amber">8.1%</span></td></tr>
+        <tr><td>製造業界</td><td class="r">12</td><td class="r">1</td><td class="r"><span class="badge b-amber">8.3%</span></td></tr>
+        <tr><td>介護</td><td class="r">6</td><td class="r">0</td><td class="r"><span class="badge b-red">0%</span></td></tr>
+        <tr><td>サービス</td><td class="r">9</td><td class="r">0</td><td class="r"><span class="badge b-red">0%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- チャネル別 -->
+<div class="section">
+  <div class="section-title">チャネル別 商談数・受注率（n≥10）</div>
+  <div style="position:relative;height:340px"><canvas id="channelChart" role="img" aria-label="チャネル別受注率">チャネル別</canvas></div>
+</div>
+
+<!-- インサイト -->
+<div class="section">
+  <div class="section-title">主要インサイト</div>
+  <div class="alert al-green"><strong>代理店チャネルが最強：</strong>受注率29.4%（85件中25件）で全チャネルトップ。自社顧客の既存深耕も58.8%と突出。インバウンド（資料請求）も20.7%と全体平均17.2%を上回る。</div>
+  <div class="alert al-green"><strong>病院業界は受注率24.7%：</strong>商談数190件とボリューム最大で受注率も高水準。医療特化展示会（24RX 33.3%、24DXPO夏 34.8%）の継続投資が正当化される。</div>
+  <div class="alert al-amber"><strong>担当者間の受注率格差が大きい：</strong>南部・米倉は約21%に対し、戸田7%・山本2%・龍河4%・早川/杉本0%。商談数が多い担当者ほど高い受注率を出しており、経験・ノウハウ移転が急務。</div>
+  <div class="alert al-amber"><strong>24IVS・DXPO福岡'25は受注率0%：</strong>商談数47件・21件あるが成約なし。ターゲット層のミスマッチか、フォロー体制の問題が疑われる。</div>
+
+</div>
+
+<script>
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)';
+const lc = isDark ? '#bbb' : '#666';
+
+// 月次トレンド
+const months = ['24-06','24-07','24-08','24-09','24-10','24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'];
+const apoVals = [15,49,24,16,30,40,57,38,49,83,58,49,62,83,64,73,52,60,83,73,48,43,21];
+const wonVals = [0,0,2,1,4,14,12,11,12,6,14,9,6,18,9,16,15,12,21,6,8,7,3];
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'bar',
+  data: { labels: months, datasets: [
+    { type:'bar', label:'初回アポ数', data: apoVals, backgroundColor:'rgba(55,138,221,0.2)', borderColor:'#378ADD', borderWidth:1, borderRadius:2, yAxisID:'y' },
+    { type:'line', label:'受注数', data: wonVals, borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2.5, pointRadius:3, tension:0.3, yAxisID:'y2' }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:16, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}, maxRotation:45} },
+      y:{ position:'left', ticks:{color:'#378ADD', font:{size:11}}, grid:{color:gc}, beginAtZero:true, title:{display:true, text:'初回アポ数', color:'#378ADD', font:{size:10}} },
+      y2:{ position:'right', ticks:{color:'#1D9E75', font:{size:11}}, grid:{display:false}, beginAtZero:true, title:{display:true, text:'受注数', color:'#1D9E75', font:{size:10}} }
+    }
+  }
+});
+
+// チャネル別
+const channels = ['代理店','自社顧客','仙台医療マネジメント','ODEX','長崎病院学会','DXPO名古屋','DXPO東京夏25','ジャパンビルド','資料請求・問合せ','ホスピタルショウ','BREX','24RX','菅谷担当ビズ','24DXPO夏','24DXPO秋','DX総合','24DXPO大阪','テレアポ'];
+const chWon = [29.4,58.8,46.2,34.8,33.3,30.4,30.0,28.6,22.0,20.7,20.0,20.0,19.6,21.6,14.5,12.1,4.0,0.0];
+const chVol = [85,17,17,17,14,13,20,55,111,58,30,45,50,23,23,56,30,50];
+
+new Chart(document.getElementById('channelChart'), {
+  type: 'bar',
+  data: { labels: channels, datasets: [
+    { type:'bar', label:'商談数', data: chVol, backgroundColor:'rgba(55,138,221,0.2)', borderColor:'#378ADD', borderWidth:1, borderRadius:2, yAxisID:'y2' },
+    { type:'line', label:'受注率(%)', data: chWon, borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2, pointRadius:4, pointBackgroundColor: chWon.map(v=>v>=80?'#1D9E75':v>=60?'#BA7517':'#E24B4A'), tension:0, yAxisID:'y' }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:16, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}, maxRotation:45} },
+      y:{ position:'left', min:0, max:110, ticks:{color:'#1D9E75', font:{size:11}, callback:v=>v+'%'}, grid:{color:gc}, title:{display:true, text:'受注率', color:'#1D9E75', font:{size:10}} },
+      y2:{ position:'right', ticks:{color:'#378ADD', font:{size:11}}, grid:{display:false}, beginAtZero:true, title:{display:true, text:'商談数', color:'#378ADD', font:{size:10}} }
+    }
+  }
+});
+</script>
+</body>
+</html>

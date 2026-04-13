@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteVideo.ai 営業データ分析</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 24px; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: white; border-radius: 10px; padding: 16px; border: 1px solid #e8e8e8; }
+  .card-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .card-value { font-size: 26px; font-weight: 600; color: #111; }
+  .card-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+  .section { background: white; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; margin-bottom: 16px; }
+  .section-title { font-size: 13px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+  .alert { border-left: 3px solid; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+  .alert-green { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
+  .alert-amber { border-color: #BA7517; background: #FAEEDA; color: #633806; }
+  .alert-blue { border-color: #185FA5; background: #E6F1FB; color: #0C447C; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 600; font-size: 11px; color: #888; padding: 6px 10px; border-bottom: 1px solid #eee; }
+  td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .b-green { background: #E1F5EE; color: #0F6E56; }
+  .b-amber { background: #FAEEDA; color: #854F0B; }
+  .b-red { background: #FCEBEB; color: #A32D2D; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chart-wrap { position: relative; height: 300px; }
+  .chart-wrap-h { position: relative; height: 320px; }
+</style>
+</head>
+<body>
+<h1>WriteVideo.ai 営業データ分析</h1>
+<p class="sub">資料.xlsx | Sheet1（CRM: 1,208件）+ Sheet2（チャネルKPI: 75チャネル）</p>
+
+<div class="cards">
+  <div class="card"><div class="card-label">総商談数</div><div class="card-value">1,208</div><div class="card-sub">有効レコード合計</div></div>
+  <div class="card"><div class="card-label">累計受注</div><div class="card-value">208件</div><div class="card-sub">受注率 67%（vs 失注）</div></div>
+  <div class="card"><div class="card-label">総マーケ投資</div><div class="card-value">6,149万円</div><div class="card-sub">全チャネル累計</div></div>
+  <div class="card"><div class="card-label">平均CAC</div><div class="card-value">29.6万円</div><div class="card-sub">6,149万 ÷ 208件</div></div>
+</div>
+
+<div class="section">
+  <div class="section-title">総合評価</div>
+  <div class="alert alert-green"><strong>強み：</strong>受注 vs 失注の勝率67%は高水準。資料請求・問合せ（インバウンド）と代理店が件数を牽引し、自社顧客からの転換率は58.8%でトップ。代理店チャネルはCAC 3.5万円と非常に効率的。</div>
+  <div class="alert alert-amber"><strong>課題①チャネル効率：</strong>展示会投資が総コストの大半を占める一方、ケアテックス福岡（CAC 100万）・バックオフィスワールド（CAC 175万）・InterBEE（CAC 47万）は費用対効果が極めて低い。選択と集中が急務。</div>
+  <div class="alert alert-amber"><strong>課題②人的集中リスク：</strong>南部さん1名に商談の56%（676件）が集中。属人化が組織リスクとなっており、担当分散・ナレッジ移転が必要。</div>
+  <div class="alert alert-blue"><strong>着目点：</strong>2025年7〜12月に受注が月15〜21件まで加速。ただし2026年1〜4月は月6〜8件に減速。直近パイプライン（0.3: 269件、0.4: 67件）の質確認が必要。</div>
+</div>
+
+<div class="grid2">
+  <div class="section">
+    <div class="section-title">月別受注件数推移</div>
+    <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="月別受注件数の棒グラフ">月別受注数の推移</canvas></div>
+    <p style="font-size:11px;color:#aaa;margin-top:8px;">※ 2026年3〜4月は集計途中の可能性あり</p>
+  </div>
+  <div class="section">
+    <div class="section-title">パイプライン構成（現在）</div>
+    <div class="chart-wrap"><canvas id="pipeChart" role="img" aria-label="商談ステージ別件数の横棒グラフ">パイプライン</canvas></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">チャネル別 成約単価・3ヶ月損益（代表14チャネル）</div>
+  <table>
+    <thead><tr><th>チャネル</th><th>投資額（万）</th><th>成約数</th><th>成約単価（万）</th><th>3ヶ月損益</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td>テレアポiU</td><td>1.8</td><td>2</td><td>0.9</td><td style="color:#0F6E56">+28.6万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>自社顧客</td><td>16.2</td><td>10</td><td>1.6</td><td style="color:#0F6E56">+135.8万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>代理店</td><td>86.5</td><td>25</td><td>3.5</td><td style="color:#0F6E56">+101.5万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>資料請求・問合せ</td><td>138.6</td><td>23</td><td>6.0</td><td style="color:#0F6E56">+210.9万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>dxpo名古屋</td><td>73.5</td><td>6</td><td>12.3</td><td style="color:#0F6E56">+40.2万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>DXPO東京夏25</td><td>76.9</td><td>6</td><td>12.8</td><td style="color:#0F6E56">+36.9万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>24RX(病院EXPO)</td><td>166.8</td><td>15</td><td>11.1</td><td style="color:#0F6E56">+32.4万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>24DXPO夏</td><td>74.8</td><td>8</td><td>9.3</td><td style="color:#0F6E56">+31.5万</td><td><span class="badge b-green">優良</span></td></tr>
+      <tr><td>ジャパンビルド</td><td>302.7</td><td>8</td><td>37.8</td><td style="color:#A32D2D">-126.0万</td><td><span class="badge b-amber">要見直し</span></td></tr>
+      <tr><td>ホスピタルショウ</td><td>181.9</td><td>7</td><td>26.0</td><td style="color:#A32D2D">-49.2万</td><td><span class="badge b-amber">要見直し</span></td></tr>
+      <tr><td>テレアポ（旧）</td><td>83.1</td><td>2</td><td>41.6</td><td style="color:#A32D2D">-52.7万</td><td><span class="badge b-red">撤退検討</span></td></tr>
+      <tr><td>InterBEE</td><td>93.3</td><td>2</td><td>46.6</td><td style="color:#A32D2D">-63.7万</td><td><span class="badge b-red">撤退検討</span></td></tr>
+      <tr><td>ケアテックス福岡</td><td>100.3</td><td>1</td><td>100.3</td><td style="color:#A32D2D">-81.3万</td><td><span class="badge b-red">撤退検討</span></td></tr>
+      <tr><td>バックオフィスワールド</td><td>174.7</td><td>1</td><td>174.7</td><td style="color:#A32D2D">-155.7万</td><td><span class="badge b-red">撤退検討</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-title">商談担当者別件数</div>
+  <div class="chart-wrap-h"><canvas id="repChart" role="img" aria-label="担当者別商談件数の棒グラフ">担当者別商談件数</canvas></div>
+  <div class="alert alert-amber" style="margin-top:12px;"><strong>集中リスク：</strong>南部さん1名に全体の56%（676件）が集中。NEO（代理店）39件を除く社内5名で1,082件（90%）を担う。採用・育成による分散が必要。</div>
+</div>
+
+<script>
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gridC = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)';
+const labelC = isDark ? '#aaa' : '#666';
+
+// Trend
+const months = ['24-08','24-09','24-10','24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'];
+const wonData = [2,1,4,14,12,11,12,6,14,9,6,18,9,16,15,12,21,6,8,7,3];
+new Chart(document.getElementById('trendChart'), {
+  type: 'bar',
+  data: { labels: months, datasets: [{ label: '受注件数', data: wonData, backgroundColor: wonData.map(v => v>=15?'#1D9E75':v>=10?'#5DCAA5':'#9FE1CB'), borderRadius: 3 }] },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales: { x:{ticks:{color:labelC,font:{size:10},maxRotation:45,autoSkip:false},grid:{display:false}}, y:{ticks:{color:labelC,font:{size:11}},grid:{color:gridC},beginAtZero:true} } }
+});
+
+// Pipeline
+new Chart(document.getElementById('pipeChart'), {
+  type: 'bar',
+  data: { labels: ['0.2 初期接触','0.3 商談中','0.4 提案','0.5 稟議中','0.6 最終','受注済','失注','対象外'],
+    datasets: [{ label:'件数', data:[177,269,67,59,9,208,102,108], backgroundColor:['#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C','#1D9E75','#E24B4A','#B4B2A9'], borderRadius:3 }] },
+  options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales: { x:{ticks:{color:labelC,font:{size:11}},grid:{color:gridC}}, y:{ticks:{color:labelC,font:{size:11}},grid:{display:false}} } }
+});
+
+// Rep
+new Chart(document.getElementById('repChart'), {
+  type: 'bar',
+  data: { labels: ['南部亜由佳','菅谷麻帆','米倉','戸田雅','山本良蔵','NEO','龍河悠花','杉本直樹','早川'],
+    datasets: [{ label:'商談件数', data:[676,205,77,57,47,39,28,16,16], backgroundColor:['#378ADD','#85B7EB','#5DCAA5','#9FE1CB','#AFA9EC','#CED7F0','#D3D1C7','#D3D1C7','#D3D1C7'], borderRadius:3 }] },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales: { x:{ticks:{color:labelC,font:{size:11}},grid:{color:gridC}}, y:{ticks:{color:labelC,font:{size:11}},grid:{display:false}} } }
+});
+</script>
+</body>
+</html>

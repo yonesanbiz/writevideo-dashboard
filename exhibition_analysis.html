@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>展示会分析ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 24px; font-size: 14px; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+.cards4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.card { background: white; border-radius: 10px; padding: 16px 18px; border: 1px solid #e5e5e0; }
+.card-label { font-size: 11px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+.card-value { font-size: 24px; font-weight: 600; color: #111; line-height: 1; }
+.card-sub { font-size: 12px; color: #999; margin-top: 6px; }
+.card-sub b { color: #555; }
+.section { background: white; border-radius: 10px; padding: 20px; border: 1px solid #e5e5e0; margin-bottom: 16px; }
+.section-title { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; font-weight: 600; color: #888; padding: 5px 10px 8px; border-bottom: 1px solid #eee; white-space: nowrap; }
+th.r { text-align: right; }
+td { padding: 7px 10px; border-bottom: 1px solid #f2f2f0; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 99px; font-weight: 500; white-space: nowrap; }
+.b-teal  { background: #E1F5EE; color: #085041; }
+.b-blue  { background: #E6F1FB; color: #185FA5; }
+.b-amber { background: #FAEEDA; color: #854F0B; }
+.b-red   { background: #FCEBEB; color: #A32D2D; }
+.b-gray  { background: #F1EFE8; color: #5F5E5A; }
+.pos  { color: #0F6E56; font-weight: 500; }
+.neg  { color: #b03a2e; }
+.dim  { color: #aaa; font-size: 12px; }
+.alert { border-left: 3px solid; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.al-green { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
+.al-amber { border-color: #BA7517; background: #FAEEDA; color: #633806; }
+.al-red   { border-color: #E24B4A; background: #FCEBEB; color: #501313; }
+.al-blue  { border-color: #185FA5; background: #E6F1FB; color: #0C447C; }
+.legend-row { display:flex; gap:16px; margin-bottom:12px; font-size:12px; color:#666; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:5px; }
+.legend-box { width:12px; height:12px; border-radius:2px; }
+</style>
+</head>
+<body>
+<h1>展示会分析ダッシュボード</h1>
+<p class="sub">展示会.xlsx | 34展示会　コスト=M列（合計税抜）　12ヶ月予測=受注曲線補正（現達成率÷曲線中央値×70%）</p>
+
+<div class="cards4">
+  <div class="card"><div class="card-label">総投資額（M列）</div><div class="card-value">2,734万円</div><div class="card-sub">平均<b>80万円</b>/展示会</div></div>
+  <div class="card"><div class="card-label">総成約数</div><div class="card-value">127件</div><div class="card-sub">総商談731件・平均CAC <b>21.5万円</b></div></div>
+  <div class="card"><div class="card-label">12ヶ月予測 黒字</div><div class="card-value">26件 / 34件</div><div class="card-sub">現時点17件 → 予測<b>26件</b>（76%）</div></div>
+  <div class="card"><div class="card-label">50%成約達成まで</div><div class="card-value">4ヶ月</div><div class="card-sub">受注曲線中央値。12ヶ月でも<b>70%</b>止まり</div></div>
+</div>
+
+<div class="section">
+  <div class="section-title">展示会別 現時点損益 vs 12ヶ月予測損益（受注曲線補正）</div>
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-box" style="background:rgba(29,158,117,0.8)"></div>現時点（黒字）</div>
+    <div class="legend-item"><div class="legend-box" style="background:rgba(226,75,74,0.65)"></div>現時点（赤字）</div>
+    <div class="legend-item"><div class="legend-box" style="border:2px solid #0F6E56;background:transparent"></div>12ヶ月予測（黒字）</div>
+    <div class="legend-item"><div class="legend-box" style="border:2px solid #A32D2D;background:transparent"></div>12ヶ月予測（赤字）</div>
+  </div>
+  <div style="position:relative;height:320px"><canvas id="mainChart" role="img" aria-label="展示会別現時点損益と12ヶ月予測損益">損益比較</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※経過12ヶ月以上は現在値＝確定値。未満は受注曲線補正: 現達成率 ÷ 曲線中央値(経過月) × 70%</p>
+</div>
+
+<div class="section">
+  <div class="section-title">全展示会 損益一覧（12ヶ月予測順）</div>
+  <table>
+    <thead>
+      <tr>
+        <th>展示会名</th>
+        <th class="r">投資（万）</th>
+        <th class="r">成約</th>
+        <th class="r">現時点損益</th>
+        <th class="r">12ヶ月予測損益</th>
+        <th class="r">現達成率→予測</th>
+        <th class="r">経過</th>
+        <th>ステータス</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>ジャパンビルド</td><td class="r">236.9</td><td class="r">8</td><td class="r neg">-16.2万</td><td class="r pos">+493.7万</td><td class="r dim">57%→80%</td><td class="r dim">4ヶ月</td><td><span class="badge b-amber">集計中</span></td></tr>
+      <tr><td>24RX(病院EXPO)</td><td class="r">131.7</td><td class="r">15</td><td class="r pos">+117.3万</td><td class="r pos">+341.5万</td><td class="r dim">100%→100%</td><td class="r dim">18ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>DX総合</td><td class="r">127.0</td><td class="r">11</td><td class="r pos">+93.0万</td><td class="r pos">+298.4万</td><td class="r dim">91%→91%</td><td class="r dim">14ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>dxpo名古屋</td><td class="r">62.6</td><td class="r">6</td><td class="r pos">+79.6万</td><td class="r pos">+244.9万</td><td class="r dim">150%→154%</td><td class="r dim">10ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>ホスピタルショウ</td><td class="r">127.5</td><td class="r">7</td><td class="r pos">+38.4万</td><td class="r pos">+236.7万</td><td class="r dim">70%→73%</td><td class="r dim">9ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>24DXPO福岡</td><td class="r">86.6</td><td class="r">8</td><td class="r pos">+59.0万</td><td class="r pos">+232.2万</td><td class="r dim">89%→89%</td><td class="r dim">18ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>24DXPO秋</td><td class="r">70.5</td><td class="r">7</td><td class="r pos">+56.9万</td><td class="r pos">+208.9万</td><td class="r dim">117%→117%</td><td class="r dim">17ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>24DXPO大阪</td><td class="r">99.2</td><td class="r">6</td><td class="r pos">+35.2万</td><td class="r pos">+187.3万</td><td class="r dim">86%→86%</td><td class="r dim">13ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>24DXPO夏</td><td class="r">58.1</td><td class="r">8</td><td class="r pos">+74.7万</td><td class="r pos">+160.3万</td><td class="r dim">100%→100%</td><td class="r dim">21ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>DXPO東京夏25</td><td class="r">59.3</td><td class="r">6</td><td class="r pos">+82.9万</td><td class="r pos">+159.8万</td><td class="r dim">100%→110%</td><td class="r dim">8ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>BREX</td><td class="r">142.3</td><td class="r">6</td><td class="r neg">-0.1万</td><td class="r pos">+116.1万</td><td class="r dim">56%→58%</td><td class="r dim">10ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>ビジネスチャンス</td><td class="r">34.0</td><td class="r">4</td><td class="r pos">+44.0万</td><td class="r pos">+134.0万</td><td class="r dim">100%→100%</td><td class="r dim">16ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>仙台医療マネジメント</td><td class="r">36.8</td><td class="r">3</td><td class="r pos">+34.3万</td><td class="r pos">+119.3万</td><td class="r dim">100%→104%</td><td class="r dim">9ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>長崎病院学会</td><td class="r">112.9</td><td class="r">4</td><td class="r neg">-18.1万</td><td class="r pos">+94.7万</td><td class="r dim">57%→60%</td><td class="r dim">9ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>ファーマIT</td><td class="r">55.4</td><td class="r">3</td><td class="r pos">+15.7万</td><td class="r pos">+94.0万</td><td class="r dim">75%→75%</td><td class="r dim">12ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>静岡展示会</td><td class="r">14.6</td><td class="r">2</td><td class="r pos">+32.8万</td><td class="r pos">+89.5万</td><td class="r dim">200%→209%</td><td class="r dim">9ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>ODEX大阪</td><td class="r">44.3</td><td class="r">2</td><td class="r pos">+3.7万</td><td class="r pos">+81.6万</td><td class="r dim">67%→82%</td><td class="r dim">6ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>ODEX</td><td class="r">75.5</td><td class="r">4</td><td class="r pos">+19.3万</td><td class="r pos">+78.3万</td><td class="r dim">60%→62%</td><td class="r dim">10ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>慢性医療展</td><td class="r">80.4</td><td class="r">3</td><td class="r neg">-9.3万</td><td class="r pos">+69.0万</td><td class="r dim">50%→50%</td><td class="r dim">12ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>DXPO横浜</td><td class="r">52.0</td><td class="r">1</td><td class="r neg">-26.5万</td><td class="r pos">+68.9万</td><td class="r dim">25%→53%</td><td class="r dim">3ヶ月</td><td><span class="badge b-amber">集計中</span></td></tr>
+      <tr><td>産業交流展</td><td class="r">23.7</td><td class="r">2</td><td class="r pos">+15.3万</td><td class="r pos">+60.3万</td><td class="r dim">100%→100%</td><td class="r dim">17ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>札幌全日本病院学会</td><td class="r">73.2</td><td class="r">2</td><td class="r neg">-25.8万</td><td class="r pos">+49.1万</td><td class="r dim">40%→49%</td><td class="r dim">6ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>姫路医療情報学会</td><td class="r">76.4</td><td class="r">2</td><td class="r neg">-28.4万</td><td class="r pos">+48.8万</td><td class="r dim">40%→49%</td><td class="r dim">5ヶ月</td><td><span class="badge b-amber">集計中</span></td></tr>
+      <tr><td>たま未来</td><td class="r">19.2</td><td class="r">1</td><td class="r pos">+0.3万</td><td class="r pos">+22.8万</td><td class="r dim">50%→50%</td><td class="r dim">15ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>大宮診療情報管理学会</td><td class="r">46.3</td><td class="r">1</td><td class="r neg">-22.6万</td><td class="r pos">+7.9万</td><td class="r dim">33%→36%</td><td class="r dim">8ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>Inter BEE</td><td class="r">78.0</td><td class="r">2</td><td class="r neg">-41.0万</td><td class="r pos">+3.2万</td><td class="r dim">33%→33%</td><td class="r dim">17ヶ月</td><td><span class="badge b-teal">確定</span></td></tr>
+      <tr><td>ケアテックス福岡</td><td class="r">81.1</td><td class="r">1</td><td class="r neg">-57.4万</td><td class="r neg">-29.8万</td><td class="r dim">20%→21%</td><td class="r dim">10ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>DXPO大阪'26</td><td class="r">52.0</td><td class="r">0</td><td class="r neg">-52.0万</td><td class="r neg">-52.0万</td><td class="r dim">0%→0%</td><td class="r dim">2ヶ月</td><td><span class="badge b-gray">速報値</span></td></tr>
+      <tr><td>DXPO福岡'25</td><td class="r">57.6</td><td class="r">0</td><td class="r neg">-57.6万</td><td class="r neg">-57.6万</td><td class="r dim">0%→0%</td><td class="r dim">6ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>名古屋日本看護学会</td><td class="r">58.8</td><td class="r">0</td><td class="r neg">-58.8万</td><td class="r neg">-58.8万</td><td class="r dim">0%→0%</td><td class="r dim">7ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+      <tr><td>DXPO東京有明</td><td class="r">64.9</td><td class="r">0</td><td class="r neg">-64.9万</td><td class="r neg">-64.9万</td><td class="r dim">0%→0%</td><td class="r dim">5ヶ月</td><td><span class="badge b-amber">集計中</span></td></tr>
+      <tr><td>RX病院大阪</td><td class="r">133.2</td><td class="r">1</td><td class="r neg">-107.7万</td><td class="r neg">-76.8万</td><td class="r dim">11%→11%</td><td class="r dim">1ヶ月</td><td><span class="badge b-gray">速報値</span></td></tr>
+      <tr><td>FCショー</td><td class="r">94.4</td><td class="r">0</td><td class="r neg">-94.4万</td><td class="r neg">-94.4万</td><td class="r dim">0%→0%</td><td class="r dim">1ヶ月</td><td><span class="badge b-gray">速報値</span></td></tr>
+      <tr><td>バックオフィスワールド</td><td class="r">167.3</td><td class="r">1</td><td class="r neg">-143.6万</td><td class="r neg">-110.1万</td><td class="r dim">11%→13%</td><td class="r dim">7ヶ月</td><td><span class="badge b-blue">概ね確定</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="grid2">
+  <div class="section">
+    <div class="section-title">展示会後の累積成約達成率（受注曲線）</div>
+    <div style="position:relative;height:220px"><canvas id="cumChart" role="img" aria-label="累積成約達成率推移">累積成約達成率</canvas></div>
+    <p style="font-size:11px;color:#aaa;margin-top:8px;">※この曲線を使って12ヶ月予測を補正。4ヶ月中央値50%、12ヶ月70%。</p>
+  </div>
+  <div class="section">
+    <div class="section-title">展示会別 50%達成月（成約実績あり）</div>
+    <div style="position:relative;height:220px"><canvas id="m50Chart" role="img" aria-label="展示会別50%達成月">50%達成月</canvas></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">展示会別 月次成約達成率の推移（成約実績 上位10件）</div>
+  <div style="position:relative;height:280px"><canvas id="lineChart" role="img" aria-label="展示会別月次達成率推移">展示会別達成率推移</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※100%超は目標成約数を上回っていることを示す。</p>
+</div>
+
+<div class="section">
+  <div class="section-title">主要インサイト</div>
+  <div class="alert al-green"><strong>12ヶ月予測で黒字26件（76%）：</strong>受注曲線補正により現時点赤字でも予測黒字に転換する展示会が多い。ジャパンビルドは現時点-16万だが予測+494万と最大ポテンシャル。</div>
+  <div class="alert al-green"><strong>24RXシリーズが予測でも断トツ：</strong>24RX +342万・DX総合 +298万・dxpo名古屋 +245万・ホスピタルショウ +237万がトップ4。</div>
+  <div class="alert al-amber"><strong>速報値・集計中は過小評価に注意：</strong>DXPO大阪'26（2ヶ月）・RX病院大阪・FCショー（各1ヶ月）は経過月数が少なく補正の信頼性が低い。撤退判断は時期尚早。</div>
+  <div class="alert al-red"><strong>予測でも赤字確定の撤退候補：</strong>バックオフィスワールド -110万・FCショー -94万・DXPO東京有明 -65万・名古屋看護学会 -59万・DXPO福岡'25 -58万・ケアテックス -30万。</div>
+</div>
+
+<script>
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)';
+const lc = isDark ? '#bbb' : '#666';
+
+const exNames = ['ジャパンビルド','24RX','DX総合','dxpo名古屋','ホスピタルショウ','24DXPO福岡','24DXPO秋','24DXPO大阪','24DXPO夏','DXPO東京夏25','BREX','ビジネスチャンス','仙台医療','長崎病院学会','ファーマIT','静岡展示会','ODEX大阪','ODEX','慢性医療展','DXPO横浜','産業交流展','札幌全日本病院','姫路医療情報','たま未来','大宮診療情報','InterBEE','ケアテックス','DXPO大阪26','DXPO福岡25','名古屋看護学会','DXPO東京有明','RX病院大阪','FCショー','バックオフィス'];
+const nowVals  = [-16.2,117.3,93.0,79.6,38.4,59.0,56.9,35.2,74.7,82.9,-0.1,44.0,34.3,-18.1,15.7,32.8,3.7,19.3,-9.3,-26.5,15.3,-25.8,-28.4,0.3,-22.6,-41.0,-57.4,-52.0,-57.6,-58.8,-64.9,-107.7,-94.4,-143.6];
+const predVals = [493.7,341.5,298.4,244.9,236.7,232.2,208.9,187.3,160.3,159.8,116.1,134.0,119.3,94.7,94.0,89.5,81.6,78.3,69.0,68.9,60.3,49.1,48.8,22.8,7.9,3.2,-29.8,-52.0,-57.6,-58.8,-64.9,-76.8,-94.4,-110.1];
+
+new Chart(document.getElementById('mainChart'), {
+  type:'bar',
+  data:{ labels:exNames, datasets:[
+    { label:'現時点損益', data:nowVals,
+      backgroundColor:nowVals.map(v=>v>=0?'rgba(29,158,117,0.8)':'rgba(226,75,74,0.65)'),
+      borderRadius:2 },
+    { label:'12ヶ月予測', data:predVals,
+      backgroundColor:'rgba(0,0,0,0)',
+      borderColor:predVals.map(v=>v>=0?'#0F6E56':'#A32D2D'),
+      borderWidth:2, borderRadius:2 }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:9}, maxRotation:45, autoSkip:false} },
+      y:{ ticks:{color:lc, font:{size:11}}, grid:{color:gc}, title:{display:true, text:'損益（万円）', color:lc, font:{size:10}} }
+    }
+  }
+});
+
+const mLabels = ['1ヶ月後','2ヶ月後','3ヶ月後','4ヶ月後','5ヶ月後','6ヶ月後','9ヶ月後','12ヶ月後'];
+new Chart(document.getElementById('cumChart'), {
+  type:'line',
+  data:{ labels:mLabels, datasets:[
+    { label:'中央値', data:[0,25,33,50,57,57,67,70], borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.08)', borderWidth:2.5, pointRadius:4, fill:true, tension:0.3 },
+    { label:'平均値', data:[11,33,41,52,61,67,73,75], borderColor:'#378ADD', backgroundColor:'transparent', borderWidth:1.5, pointRadius:3, borderDash:[4,3], tension:0.3 }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:12, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}} },
+      y:{ ticks:{color:lc, font:{size:11}, callback:v=>v+'%'}, grid:{color:gc}, min:0, max:100 }
+    }
+  }
+});
+
+const m50Data=[['dxpo名古屋',1],['24RX',2],['24DXPO夏',2],['24DXPO秋',2],['24DXPO大阪',2],['産業交流展',2],['静岡展示会',2],['ODEX大阪',2],['ビジネスチャンス',3],['仙台医療',3],['DX総合',4],['24DXPO福岡',4],['ジャパンビルド',4],['ホスピタルショウ',4],['ファーマIT',4],['たま未来',4],['DXPO東京夏25',5],['長崎病院学会',5],['慢性医療展',6],['BREX',9],['ODEX',9]];
+new Chart(document.getElementById('m50Chart'), {
+  type:'bar',
+  data:{ labels:m50Data.map(d=>d[0]), datasets:[{ data:m50Data.map(d=>d[1]), backgroundColor:m50Data.map(d=>d[1]<=2?'#1D9E75':d[1]<=4?'#5DCAA5':d[1]<=6?'#BA7517':'#E24B4A'), borderRadius:3 }]},
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+    scales:{ x:{ticks:{color:lc,font:{size:10},callback:v=>v+'ヶ月'},grid:{color:gc},min:0,max:12}, y:{ticks:{color:lc,font:{size:10}}} }
+  }
+});
+
+const topEvents=[
+  {name:'24RX',data:[46,54,69,77,85,85,100,100],color:'#1D9E75'},
+  {name:'dxpo名古屋',data:[50,125,125,125,150,150,150,150],color:'#0F6E56'},
+  {name:'24DXPO夏',data:[0,50,50,67,67,67,83,100],color:'#5DCAA5'},
+  {name:'24DXPO秋',data:[0,50,83,83,83,100,117,117],color:'#9FE1CB'},
+  {name:'DX総合',data:[18,36,45,64,82,82,91,91],color:'#378ADD'},
+  {name:'DXPO東京夏25',data:[25,25,25,25,75,100,150,150],color:'#185FA5'},
+  {name:'ジャパンビルド',data:[0,14,43,57,57,57,57,57],color:'#BA7517'},
+  {name:'ホスピタルショウ',data:[10,30,30,50,60,60,70,70],color:'#EF9F27'},
+  {name:'BREX',data:[11,33,33,44,44,44,56,67],color:'#E24B4A'},
+  {name:'24DXPO大阪',data:[29,57,71,71,86,86,86,86],color:'#7F77DD'},
+];
+new Chart(document.getElementById('lineChart'), {
+  type:'line',
+  data:{ labels:mLabels, datasets:topEvents.map(e=>({ label:e.name, data:e.data, borderColor:e.color, backgroundColor:'transparent', borderWidth:1.8, pointRadius:2, tension:0.2 }))},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:10}, color:lc, padding:8, boxWidth:10 } } },
+    scales:{ x:{ticks:{color:lc,font:{size:10}}}, y:{ticks:{color:lc,font:{size:10},callback:v=>v+'%'},grid:{color:gc},min:0,title:{display:true,text:'達成率（%）',color:lc,font:{size:10}}} }
+  }
+});
+</script>
+</body>
+</html>

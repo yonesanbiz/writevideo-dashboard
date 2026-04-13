@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>展示会チャネルリスト（実績あり）</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 24px; font-size: 14px; }
+h1 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 20px; }
+.summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.kpi { background: white; border-radius: 8px; padding: 12px 16px; border: 1px solid #e5e5e0; }
+.kpi-label { font-size: 11px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+.kpi-value { font-size: 22px; font-weight: 600; }
+.kpi-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+.filter-btn { padding: 5px 14px; border-radius: 99px; border: 1px solid #ddd; background: white; font-size: 12px; cursor: pointer; color: #555; transition: all 0.15s; }
+.filter-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+.section { background: white; border-radius: 10px; border: 1px solid #e5e5e0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: #f8f8f6; }
+th { padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #888; letter-spacing: 0.04em; border-bottom: 1px solid #eee; cursor: pointer; white-space: nowrap; user-select: none; }
+th.r { text-align: right; }
+th:hover { color: #333; }
+td { padding: 9px 12px; border-bottom: 1px solid #f2f2f0; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafaf8; }
+tr.hidden { display: none; }
+td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; white-space: nowrap; }
+.b-blue  { background: #E6F1FB; color: #185FA5; }
+.b-teal  { background: #E1F5EE; color: #0F6E56; }
+.b-amber { background: #FAEEDA; color: #854F0B; }
+.b-gray  { background: #F1EFE8; color: #5F5E5A; }
+.b-red   { background: #FCEBEB; color: #A32D2D; }
+.pos { color: #0F6E56; font-weight: 500; }
+.neg { color: #b03a2e; }
+.sort-arrow { opacity: 0.3; font-size: 10px; margin-left: 3px; }
+th.sorted .sort-arrow { opacity: 1; }
+</style>
+</head>
+<body>
+<h1>展示会チャネルリスト（実績あり）</h1>
+<p class="sub">資料.xlsx Sheet2 | 非展示会除外・実績あり 34件　※C列日付はバグのため実績有無で判定</p>
+
+<div class="summary">
+  <div class="kpi"><div class="kpi-label">対象展示会</div><div class="kpi-value">34件</div><div class="kpi-sub">民間26 / 学会6 / 行政3</div></div>
+  <div class="kpi"><div class="kpi-label">総投資額</div><div class="kpi-value">3,493万円</div><div class="kpi-sub">平均103万円/展示会</div></div>
+  <div class="kpi"><div class="kpi-label">総成約数</div><div class="kpi-value">127件</div><div class="kpi-sub">総商談731件・平均CAC 27.5万</div></div>
+  <div class="kpi"><div class="kpi-label">3ヶ月黒字</div><div class="kpi-value">8件</div><div class="kpi-sub">赤字26件（黒字率24%）</div></div>
+</div>
+
+<div class="controls">
+  <span style="font-size:12px;color:#888;margin-right:2px;">絞り込み：</span>
+  <button class="filter-btn active" onclick="filterTable('all',this)">すべて</button>
+  <button class="filter-btn" onclick="filterTable('民間',this)">民間展示会</button>
+  <button class="filter-btn" onclick="filterTable('学会',this)">学会</button>
+  <button class="filter-btn" onclick="filterTable('行政',this)">行政展示会</button>
+  <button class="filter-btn" onclick="filterTable('黒字',this)">黒字のみ</button>
+  <button class="filter-btn" onclick="filterTable('赤字',this)">赤字のみ</button>
+  <button class="filter-btn" onclick="filterTable('成約ゼロ',this)">成約ゼロ</button>
+</div>
+
+<div class="section">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">区分 <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable(1)">展示会名 <span class="sort-arrow">↕</span></th>
+      <th class="r" onclick="sortTable(2)">投資額（万） <span class="sort-arrow">↕</span></th>
+      <th class="r" onclick="sortTable(3)">商談数 <span class="sort-arrow">↕</span></th>
+      <th class="r" onclick="sortTable(4)">成約数 <span class="sort-arrow">↕</span></th>
+      <th class="r" onclick="sortTable(5)">成約単価（万） <span class="sort-arrow">↕</span></th>
+      <th class="r" onclick="sortTable(6)">3ヶ月損益（万） <span class="sort-arrow">↕</span></th>
+      <th>判定</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<script>
+const allRows = [
+  ['展示会（民間）','24DXPO夏',74.8,23,8,9.3,31.5],
+  ['展示会（民間）','24RX(病院EXPO)',166.8,45,15,11.1,32.4],
+  ['展示会（民間）','24DXPO福岡',124.5,37,8,15.6,-8.1],
+  ['展示会（民間）','24DXPO秋',92.0,23,7,13.1,9.9],
+  ['展示会（対象外）','Inter BEE',93.3,15,2,46.6,-63.7],
+  ['展示会（行政）','産業交流展',34.5,12,2,17.3,-3.3],
+  ['展示会（行政）','ビジネスチャンス',58.3,27,4,14.6,4.1],
+  ['展示会（行政）','たま未来',27.4,10,1,27.4,-11.8],
+  ['展示会（民間）','DX総合',181.2,56,11,16.5,-5.2],
+  ['展示会（民間）','24DXPO大阪',128.6,30,6,21.4,-21.1],
+  ['展示会（民間）','ファーマIT',77.1,25,3,25.7,-20.2],
+  ['展示会（民間）','慢性医療展',104.8,22,3,34.9,-47.9],
+  ['展示会（民間）','BREX',169.3,30,6,28.2,-55.6],
+  ['展示会（民間）','ODEX',91.6,17,4,22.9,-15.7],
+  ['展示会（民間）','dxpo名古屋',73.5,13,6,12.3,40.2],
+  ['展示会（民間）','ケアテックス福岡',100.3,18,1,100.3,-81.3],
+  ['展示会（民間）','ホスピタルショウ',181.9,58,7,26.0,-49.2],
+  ['学会（民間）','仙台日本医療マネジメント',52.9,17,3,17.6,4.0],
+  ['学会（民間）','長崎病院学会',126.3,14,4,31.6,-50.5],
+  ['展示会（民間）','静岡展示会',26.1,13,2,13.0,11.8],
+  ['展示会（民間）','DXPO東京夏25',76.9,20,6,12.8,36.9],
+  ['学会（民間）','大宮診療情報管理学会',49.7,4,1,49.7,-30.7],
+  ['展示会（民間）','バックオフィスワールド25秋',174.7,8,1,174.7,-155.7],
+  ['学会（民間）','名古屋日本看護学会',75.1,7,0,75.1,-75.1],
+  ['学会（民間）','札幌全日本病院学会',93.5,10,2,46.7,-55.5],
+  ['展示会（民間）','DXPO福岡\'25',73.6,21,0,73.6,-73.6],
+  ['展示会（民間）','ODEX大阪',57.8,26,2,28.9,-19.4],
+  ['学会（民間）','姫路医療情報学会',97.6,31,2,48.8,-59.2],
+  ['展示会（民間）','DXPO東京有明',82.9,6,0,82.9,-82.9],
+  ['展示会（民間）','ジャパンビルド',302.7,55,8,37.8,-126.0],
+  ['展示会（民間）','DXPO横浜',66.4,15,1,66.4,-46.0],
+  ['展示会（民間）','DXPO大阪\'26',66.4,8,0,66.4,-66.4],
+  ['展示会（民間）','FCショー',120.6,9,0,120.6,-120.6],
+  ['展示会（民間）','RX病院大阪',170.1,6,1,170.1,-149.7],
+];
+
+let currentRows = [...allRows];
+let currentFilter = 'all';
+let currentSort = {col: -1, asc: true};
+
+function badgeKu(ku) {
+  if (ku.includes('民間') && ku.includes('展示会')) return '<span class="badge b-blue">民間</span>';
+  if (ku.includes('学会')) return '<span class="badge b-teal">学会</span>';
+  if (ku.includes('行政')) return '<span class="badge b-gray">行政</span>';
+  return '<span class="badge b-gray">その他</span>';
+}
+function verdict(損益, 成約) {
+  if (損益 > 0) return '<span class="badge b-teal">黒字</span>';
+  if (成約 === 0) return '<span class="badge b-red">成約ゼロ</span>';
+  if (損益 < -80) return '<span class="badge b-red">要撤退</span>';
+  return '<span class="badge b-amber">要改善</span>';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = currentRows.map(r => `
+    <tr data-ku="${r[0]}" data-profit="${r[6]}" data-won="${r[4]}">
+      <td>${badgeKu(r[0])}</td>
+      <td><strong>${r[1]}</strong></td>
+      <td class="r">${r[2].toFixed(1)}</td>
+      <td class="r">${r[3]}</td>
+      <td class="r">${r[4]}</td>
+      <td class="r">${r[5].toFixed(1)}</td>
+      <td class="r ${r[6]>0?'pos':'neg'}">${r[6]>0?'+':''}${r[6].toFixed(1)}</td>
+      <td>${verdict(r[6], r[4])}</td>
+    </tr>`).join('');
+  applyFilter();
+}
+
+function applyFilter() {
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    const ku = tr.dataset.ku;
+    const profit = parseFloat(tr.dataset.profit);
+    const won = parseInt(tr.dataset.won);
+    let show = true;
+    if (currentFilter === '民間') show = ku.includes('民間') && ku.includes('展示会');
+    else if (currentFilter === '学会') show = ku.includes('学会');
+    else if (currentFilter === '行政') show = ku.includes('行政');
+    else if (currentFilter === '黒字') show = profit > 0;
+    else if (currentFilter === '赤字') show = profit <= 0;
+    else if (currentFilter === '成約ゼロ') show = won === 0;
+    tr.classList.toggle('hidden', !show);
+  });
+}
+
+function filterTable(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyFilter();
+}
+
+function sortTable(col) {
+  const asc = currentSort.col === col ? !currentSort.asc : true;
+  currentSort = {col, asc};
+  currentRows.sort((a,b) => {
+    const va = a[col], vb = b[col];
+    if (typeof va === 'string') return asc ? va.localeCompare(vb,'ja') : vb.localeCompare(va,'ja');
+    return asc ? va - vb : vb - va;
+  });
+  document.querySelectorAll('th').forEach((th, i) => {
+    th.classList.toggle('sorted', i === col);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = i === col ? (asc ? '↑' : '↓') : '↕';
+  });
+  renderTable();
+}
+
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteVideo.ai 契約顧客分析</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 24px; font-size: 14px; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+.cards4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.card { background: white; border-radius: 10px; padding: 16px 18px; border: 1px solid #e5e5e0; }
+.card.danger { border-color: #f09595; background: #fff8f8; }
+.card.warn { border-color: #FAC775; background: #fffbf2; }
+.card.good { border-color: #9FE1CB; background: #f4fdf9; }
+.card-label { font-size: 11px; color: #888; margin-bottom: 6px; letter-spacing: 0.03em; text-transform: uppercase; }
+.card-value { font-size: 26px; font-weight: 600; color: #111; line-height: 1; }
+.card-sub { font-size: 12px; color: #999; margin-top: 6px; }
+.card-sub b { color: #555; }
+.section { background: white; border-radius: 10px; padding: 20px; border: 1px solid #e5e5e0; margin-bottom: 16px; }
+.section-title { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; font-size: 11px; color: #888; padding: 5px 10px 8px; border-bottom: 1px solid #eee; }
+td { padding: 8px 10px; border-bottom: 1px solid #f2f2f0; }
+tr:last-child td { border-bottom: none; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+.b-red { background: #FCEBEB; color: #A32D2D; }
+.b-amber { background: #FAEEDA; color: #854F0B; }
+.b-green { background: #E1F5EE; color: #0F6E56; }
+.b-blue { background: #E6F1FB; color: #0C447C; }
+.b-gray { background: #F1EFE8; color: #5F5E5A; }
+.alert { border-left: 3px solid; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.al-red { border-color: #E24B4A; background: #FCEBEB; color: #501313; }
+.al-amber { border-color: #BA7517; background: #FAEEDA; color: #633806; }
+.al-green { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
+.al-blue { border-color: #185FA5; background: #E6F1FB; color: #0C447C; }
+.stacked-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.stacked-label { width: 80px; font-size: 12px; color: #555; flex-shrink: 0; }
+.stacked-bar-wrap { flex: 1; background: #f0f0ee; border-radius: 4px; height: 18px; overflow: hidden; }
+.stacked-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 500; }
+</style>
+</head>
+<body>
+<h1>WriteVideo.ai 契約顧客分析</h1>
+<p class="sub">契約顧客.xlsx | 月次追跡列（日付列+1列）ベースで全数値を再集計　2026年4月時点</p>
+
+<div class="cards4">
+  <div class="card good">
+    <div class="card-label">現在MRR</div>
+    <div class="card-value">481.5万円</div>
+    <div class="card-sub">2026年4月時点<br><b>前月比 +8.5%</b>（3月443.9万）</div>
+  </div>
+  <div class="card">
+    <div class="card-label">有料契約社数</div>
+    <div class="card-value">144社</div>
+    <div class="card-sub">2026年4月・MRR計上ベース<br><b>前月比 +7社</b>（3月137社）</div>
+  </div>
+  <div class="card danger">
+    <div class="card-label">チャーンリスク（高・緊急系）</div>
+    <div class="card-value">23社</div>
+    <div class="card-sub">リスクMRR <b>45.1万円/月</b><br>現MRRの約9.4%</div>
+  </div>
+  <div class="card">
+    <div class="card-label">累計解約</div>
+    <div class="card-value">47社</div>
+    <div class="card-sub">CS棚卸しによる一時処理<br><b>現在は落ち着いている</b></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">月次売上（MRR + 初期費用）・契約社数・解約推移</div>
+  <div style="position:relative;height:280px"><canvas id="mainChart" role="img" aria-label="月次売上・契約社数・解約推移">推移グラフ</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※MRR（緑）＋初期費用計上額（青）の積み上げが月次売上合計。初期費用は2025年11月以降データなし。</p>
+</div>
+
+<div class="section">
+  <div class="section-title">月次契約社数・MRR：自社 vs 代理店</div>
+  <div style="position:relative;height:260px"><canvas id="splitChart" role="img" aria-label="自社・代理店別月次推移">自社代理店推移</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※棒グラフ＝累計契約社数（左軸）、折れ線＝MRR（右軸）。代理店は2025年6月から本格稼働。</p>
+</div>
+
+<div class="section">
+  <div class="section-title">月別 新規獲得の平均MRR推移（スタート日ベース）</div>
+  <div style="position:relative;height:260px"><canvas id="arpuChart" role="img" aria-label="月別新規獲得平均MRR推移">平均MRR推移</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※その月にスタートした顧客の現在MRR平均。単価が2024年末の1.9万→2026年4月5.8万へ上昇。</p>
+</div>
+
+<div class="grid2">
+  <div class="section">
+    <div class="section-title">解約分析</div>
+    <table>
+      <thead><tr><th>解約理由</th><th class="num">件数</th><th>分類</th></tr></thead>
+      <tbody>
+        <tr><td>その他・不明</td><td class="num">15</td><td><span class="badge b-gray">要ヒアリング</span></td></tr>
+        <tr><td>使う頻度が少なかった</td><td class="num">4</td><td><span class="badge b-amber">活用定着失敗</span></td></tr>
+        <tr><td>サービス内容が悪かった</td><td class="num">4</td><td><span class="badge b-red">プロダクト課題</span></td></tr>
+        <tr><td>作りたい動画を作り終えた</td><td class="num">3</td><td><span class="badge b-amber">スポット利用</span></td></tr>
+        <tr><td>料金が高かった</td><td class="num">1</td><td><span class="badge b-amber">価格感度</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;">
+      <div class="section-title">解約時在籍月数</div>
+      <div style="position:relative;height:130px"><canvas id="churnTenure" role="img" aria-label="解約時在籍月数">在籍</canvas></div>
+      <p style="font-size:11px;color:#999;margin-top:6px;">3ヶ月以内の早期解約が11社（23%）。最低契約期間満了直後の離脱が集中。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">CS担当者別負荷（有料144社）</div>
+    <div class="stacked-row">
+      <div class="stacked-label">日浅</div>
+      <div class="stacked-bar-wrap"><div class="stacked-fill" style="width:62%;background:#378ADD;color:white;">134社 (62%)</div></div>
+    </div>
+    <div class="stacked-row">
+      <div class="stacked-label">龍河</div>
+      <div class="stacked-bar-wrap"><div class="stacked-fill" style="width:13%;background:#85B7EB;color:white;">27社</div></div>
+    </div>
+    <div class="stacked-row">
+      <div class="stacked-label">菅谷</div>
+      <div class="stacked-bar-wrap"><div class="stacked-fill" style="width:9%;background:#B5D4F4;">20社</div></div>
+    </div>
+    <div class="stacked-row">
+      <div class="stacked-label">南部</div>
+      <div class="stacked-bar-wrap"><div class="stacked-fill" style="width:5%;background:#D3D1C7;">10社</div></div>
+    </div>
+    <div style="margin-top:16px;">
+      <div class="section-title">高リスク顧客（23社）のCS担当</div>
+      <table>
+        <thead><tr><th>担当</th><th class="num">高リスク社数</th><th class="num">リスクMRR</th></tr></thead>
+        <tbody>
+          <tr><td>日浅</td><td class="num">12社</td><td class="num">—</td></tr>
+          <tr><td>菅谷</td><td class="num">8社</td><td class="num">—</td></tr>
+          <tr><td>南部</td><td class="num">2社</td><td class="num">—</td></tr>
+          <tr><td><b>合計</b></td><td class="num"><b>23社</b></td><td class="num"><b>45.1万/月</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">月次NRR（既存顧客MRR維持率）</div>
+  <div style="position:relative;height:240px"><canvas id="nrrChart" role="img" aria-label="月次NRR推移">NRR推移</canvas></div>
+  <p style="font-size:11px;color:#aaa;margin-top:8px;">※NRR = 前月契約中顧客のMRRが当月どれだけ維持・拡大されたか。100%超 = 既存顧客だけでMRRが成長。</p>
+</div>
+
+<div class="grid2">
+  <div class="section">
+    <div class="section-title">業界別 解約率・平均在籍月数</div>
+    <table>
+      <thead><tr><th>業界</th><th class="num">総数</th><th class="num">解約数</th><th class="num">解約率</th><th class="num">平均在籍</th></tr></thead>
+      <tbody>
+        <tr><td>社外研修</td><td class="num">3</td><td class="num">1</td><td class="num"><span class="badge b-red">33.3%</span></td><td class="num">8.0ヶ月</td></tr>
+        <tr><td>医療（病院以外）</td><td class="num">15</td><td class="num">5</td><td class="num"><span class="badge b-red">33.3%</span></td><td class="num">7.3ヶ月</td></tr>
+        <tr><td>不動産</td><td class="num">8</td><td class="num">2</td><td class="num"><span class="badge b-amber">25.0%</span></td><td class="num">6.4ヶ月</td></tr>
+        <tr><td>介護</td><td class="num">8</td><td class="num">2</td><td class="num"><span class="badge b-amber">25.0%</span></td><td class="num">9.5ヶ月</td></tr>
+        <tr><td>金融</td><td class="num">4</td><td class="num">1</td><td class="num"><span class="badge b-amber">25.0%</span></td><td class="num">7.8ヶ月</td></tr>
+        <tr><td>社内研修</td><td class="num">33</td><td class="num">8</td><td class="num"><span class="badge b-amber">24.2%</span></td><td class="num">8.6ヶ月</td></tr>
+        <tr><td>建設</td><td class="num">13</td><td class="num">2</td><td class="num"><span class="badge b-green">15.4%</span></td><td class="num">8.9ヶ月</td></tr>
+        <tr><td>医療（病院）</td><td class="num">55</td><td class="num">6</td><td class="num"><span class="badge b-green">10.9%</span></td><td class="num">6.3ヶ月</td></tr>
+      </tbody>
+    </table>
+    <div class="alert al-blue" style="margin-top:12px;">医療（病院）は最多顧客（55社）で解約率10.9%と最も安定。医療（病院以外）は同じ医療でも33.3%と高く、明確に別セグメント。</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">プラン別 解約率・平均在籍月数</div>
+    <table>
+      <thead><tr><th>プラン</th><th class="num">総数</th><th class="num">解約数</th><th class="num">解約率</th><th class="num">平均在籍</th></tr></thead>
+      <tbody>
+        <tr><td>Light</td><td class="num">40</td><td class="num">18</td><td class="num"><span class="badge b-red">45.0%</span></td><td class="num">10.7ヶ月</td></tr>
+        <tr><td>Pro</td><td class="num">55</td><td class="num">20</td><td class="num"><span class="badge b-red">36.4%</span></td><td class="num">10.6ヶ月</td></tr>
+        <tr><td>Enterprise</td><td class="num">5</td><td class="num">1</td><td class="num"><span class="badge b-amber">20.0%</span></td><td class="num">10.8ヶ月</td></tr>
+        <tr><td>ベーシック</td><td class="num">36</td><td class="num">4</td><td class="num"><span class="badge b-green">11.1%</span></td><td class="num">4.6ヶ月</td></tr>
+        <tr><td>スタンダード</td><td class="num">25</td><td class="num">2</td><td class="num"><span class="badge b-green">8.0%</span></td><td class="num">4.0ヶ月</td></tr>
+        <tr><td>プレミアム</td><td class="num">13</td><td class="num">0</td><td class="num"><span class="badge b-green">0%</span></td><td class="num">3.8ヶ月</td></tr>
+        <tr><td>Team</td><td class="num">4</td><td class="num">0</td><td class="num"><span class="badge b-green">0%</span></td><td class="num">10.8ヶ月</td></tr>
+      </tbody>
+    </table>
+    <div class="alert al-red" style="margin-top:12px;">LightとProの解約率が突出して高い（45%・36%）。在籍期間は両プランとも約10.7ヶ月と長めで、じわじわ解約していることがわかる。プレミアム・Teamは解約ゼロ。</div>
+  </div>
+</div>
+  <div class="alert al-green"><strong>MRRは一貫して右肩上がり：</strong>2024年11月17.8万→2026年4月481.5万と約27倍。新規獲得は月10〜17社で安定しており、成長の勢いは継続中。</div>
+  <div class="alert al-green"><strong>解約急増は構造的問題ではない：</strong>2026年2〜4月の解約増（月6〜8社）はCSが活用できていない顧客を棚卸し・処理した一時的なもの。現在は対応が落ち着いており、死に体顧客を整理した分むしろ健全化している。</div>
+  <div class="alert al-amber"><strong>リスクMRR 45.1万円/月は要ウォッチ：</strong>高・緊急リスク23社が現MRRの9.4%。棚卸し対応が落ち着いた今、これらを丁寧にフォローすることで解約を防ぐフェーズに入っている。</div>
+  <div class="alert al-amber"><strong>CS集中リスクは依然として構造課題：</strong>日浅さん1名で144社中134社（62%）を担当。欠員・異動リスクへの備えとして担当分散は引き続き必要。</div>
+  <div class="alert al-blue"><strong>必要CS人員：</strong>有料144社 ÷ SaaS標準50社/人 ＝ <b>2.9名</b>。現在3名弱でほぼ充足。ただし日浅集中の解消と今後の成長（代理店経由増加）を見越せば、<b>CS+1名</b>は中期的に手当てしておきたい水準。</div>
+</div>
+
+<script>
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)';
+const lc = isDark ? '#bbb' : '#666';
+
+const months = ['24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'];
+const mrrVals =   [22.3, 49.3, 64.0, 89.5,116.7,140.2,171.0,196.0,211.0,253.5,294.6,328.2,353.7,371.3,419.2,422.0,443.9,481.5];
+const iniVals =   [31.5,106.0, 96.0,126.9,157.5,145.0,187.0,124.0,139.0,213.5,210.5,322.9,259.0,222.4,293.2,411.9,232.3,360.0];
+const coVals =    [  6,   16,   20,   28,   35,   43,   52,   57,   63,   75,   85,   97,  105,  111,  127,  131,  136,  143];
+const churnVals = [  0,    0,    0,    0,    1,    3,    5,    8,   11,   14,   16,   18,   22,   25,   26,   32,   39,   47];
+
+new Chart(document.getElementById('mainChart'), {
+  type: 'bar',
+  data: { labels: months, datasets: [
+    { type:'bar',  label:'MRR（万円）',     data: mrrVals, backgroundColor:'rgba(29,158,117,0.7)',  borderColor:'#1D9E75', borderWidth:0, borderRadius:0, stack:'revenue', yAxisID:'y' },
+    { type:'bar',  label:'初期費用（万円）', data: iniVals, backgroundColor:'rgba(55,138,221,0.55)', borderColor:'#378ADD', borderWidth:0, borderRadius:2, stack:'revenue', yAxisID:'y' },
+    { type:'line', label:'有料社数',         data: coVals,  borderColor:'#888', backgroundColor:'transparent', borderWidth:1.5, pointRadius:2, tension:0.3, yAxisID:'y2', borderDash:[3,2] },
+    { type:'line', label:'累計解約社数',     data: churnVals, borderColor:'#E24B4A', borderDash:[4,3], backgroundColor:'transparent', borderWidth:1.5, pointRadius:2, tension:0.3, yAxisID:'y2' }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:16, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}, maxRotation:45} },
+      y:{ position:'left', stacked:true, ticks:{color:'#1D9E75', font:{size:11}}, grid:{color:gc}, beginAtZero:true, title:{display:true, text:'売上（万円）', color:'#1D9E75', font:{size:10}} },
+      y2:{ position:'right', ticks:{color:'#888', font:{size:11}}, grid:{display:false}, beginAtZero:true, title:{display:true, text:'社数', color:'#888', font:{size:10}} }
+    }
+  }
+});
+
+// NRR chart
+const nrrMonths = ['24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'];
+const nrrVals =   [106.7, 100.0, 100.0,  98.3,  96.1,  93.7,  97.4,  95.9,  99.5,  98.7,  97.8,  96.8,  97.3,  99.9,  96.0,  96.0,  92.4];
+new Chart(document.getElementById('nrrChart'), {
+  type: 'line',
+  data: { labels: nrrMonths, datasets: [
+    { label: 'NRR (%)', data: nrrVals,
+      borderColor: nrrVals.map(v => v >= 100 ? '#1D9E75' : v >= 95 ? '#BA7517' : '#E24B4A'),
+      segment: { borderColor: ctx => ctx.p1.parsed.y >= 100 ? '#1D9E75' : ctx.p1.parsed.y >= 95 ? '#BA7517' : '#E24B4A' },
+      backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 4,
+      pointBackgroundColor: nrrVals.map(v => v >= 100 ? '#1D9E75' : v >= 95 ? '#BA7517' : '#E24B4A'),
+      tension: 0.3 }
+  ]},
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      annotation: { annotations: { line100: { type:'line', yMin:100, yMax:100, borderColor:'rgba(0,0,0,0.15)', borderWidth:1, borderDash:[4,4] } } } },
+    scales: {
+      x: { ticks: { color: lc, font: { size: 10 }, maxRotation: 45 } },
+      y: { ticks: { color: lc, font: { size: 11 }, callback: v => v + '%' }, grid: { color: gc }, min: 88, max: 110 }
+    }
+  }
+});
+
+const splitMonths = ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'];
+const directCo  = [27, 38, 47, 55, 65, 69, 72, 81, 88, 97, 99,100,111,109,111,119];
+const partnerCo = [ 0,  0,  0,  0,  0,  1,  1,  3,  7,  9, 13, 17, 22, 24, 26, 25];
+const directMRR  = [64.0, 89.5,116.7,140.2,171.0,181.0,196.0,235.0,264.7,294.1,306.7,314.9,349.0,346.6,362.8,412.5];
+const partnerMRR = [ 0.0,  0.0,  0.0,  0.0,  0.0, 15.0, 15.0, 18.5, 29.9, 34.1, 47.0, 56.4, 70.2, 75.4, 81.0, 69.0];
+
+new Chart(document.getElementById('splitChart'), {
+  type: 'bar',
+  data: { labels: splitMonths, datasets: [
+    { type:'bar',  label:'自社（社数）',   data: directCo,  backgroundColor:'rgba(55,138,221,0.3)',  borderColor:'#378ADD', borderWidth:1, borderRadius:2, stack:'co', yAxisID:'y2' },
+    { type:'bar',  label:'代理店（社数）', data: partnerCo, backgroundColor:'rgba(29,158,117,0.35)', borderColor:'#1D9E75', borderWidth:1, borderRadius:2, stack:'co', yAxisID:'y2' },
+    { type:'line', label:'自社MRR（万）',   data: directMRR,  borderColor:'#378ADD', backgroundColor:'transparent', borderWidth:2, pointRadius:2, tension:0.3, borderDash:[],  yAxisID:'y' },
+    { type:'line', label:'代理店MRR（万）', data: partnerMRR, borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2, pointRadius:2, tension:0.3, borderDash:[4,3], yAxisID:'y' }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:14, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}, maxRotation:45} },
+      y:{ position:'left', ticks:{color:lc, font:{size:11}}, grid:{color:gc}, beginAtZero:true, title:{display:true, text:'MRR（万円）', color:lc, font:{size:10}} },
+      y2:{ position:'right', ticks:{color:lc, font:{size:11}}, grid:{display:false}, beginAtZero:true, stacked:true, title:{display:true, text:'累計社数', color:lc, font:{size:10}} }
+    }
+  }
+});
+
+new Chart(document.getElementById('arpuChart'), {
+  type: 'bar',
+  data: {
+    labels: ['24-10','24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'],
+    datasets: [
+      { type:'bar', label:'新規獲得 平均MRR（万円）',
+        data: [2.0, 4.0, 1.9, 2.4, 2.9, 3.2, 3.4, 2.1, 3.0, 5.3, 2.6, 3.4, 3.4, 3.2, 3.1, 3.1, 3.7, 3.9, 5.8],
+        backgroundColor: [2.0,4.0,1.9,2.4,2.9,3.2,3.4,2.1,3.0,5.3,2.6,3.4,3.4,3.2,3.1,3.1,3.7,3.9,5.8].map(v => v >= 4.0 ? 'rgba(29,158,117,0.8)' : v >= 3.0 ? 'rgba(29,158,117,0.5)' : 'rgba(29,158,117,0.25)'),
+        borderRadius: 3, yAxisID:'y' },
+      { type:'line', label:'新規獲得 社数',
+        data: [2,2,8,4,9,6,12,1,3,5,8,12,12,9,8,16,9,11,7],
+        borderColor:'#378ADD', backgroundColor:'transparent', borderWidth:1.5, pointRadius:2, tension:0.3, borderDash:[3,2], yAxisID:'y2' }
+    ]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11}, color:lc, padding:14, boxWidth:12 } } },
+    scales:{
+      x:{ ticks:{color:lc, font:{size:10}, maxRotation:45} },
+      y:{ position:'left', ticks:{color:lc, font:{size:11}, callback: v => v+'万'}, grid:{color:gc}, beginAtZero:true, max:7,
+          title:{display:true, text:'平均MRR（万円）', color:lc, font:{size:10}} },
+      y2:{ position:'right', ticks:{color:'#378ADD', font:{size:11}}, grid:{display:false}, beginAtZero:true,
+          title:{display:true, text:'新規社数', color:'#378ADD', font:{size:10}} }
+    }
+  }
+});
+
+
+new Chart(document.getElementById('churnTenure'), {
+  type:'bar',
+  data:{ labels:['3ヶ月','4ヶ月','5ヶ月','6ヶ月','7ヶ月','10-12ヶ月'],
+    datasets:[{data:[11,2,3,6,2,3], backgroundColor:'#E24B4A', borderRadius:3}]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+    scales:{ x:{ticks:{color:lc,font:{size:10}}}, y:{ticks:{color:lc,font:{size:10}},grid:{color:gc},beginAtZero:true} } }
+});
+</script>
+</body>
+</html>

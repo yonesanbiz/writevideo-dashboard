@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>米倉暁 × WriteVideo.ai 総合分析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=Space+Mono:wght@400;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0f0e0d;
+  --paper: #f5f2ec;
+  --accent: #c8460a;
+  --gold: #b8963e;
+  --muted: #7a7269;
+  --line: #d8d3cb;
+  --light: #ebe7df;
+}
+
+body {
+  font-family: 'Noto Serif JP', serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.8;
+  padding: 40px 20px 80px;
+}
+
+.container { max-width: 720px; margin: 0 auto; }
+
+/* HEADER */
+.header {
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 32px 0 24px;
+  margin-bottom: 48px;
+  position: relative;
+}
+.header-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+.header h1 span { color: var(--accent); }
+.header-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.header-date {
+  position: absolute;
+  right: 0;
+  top: 32px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 48px;
+}
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.section-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* CAREER TIMELINE */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--line);
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--paper);
+  outline: 1px solid var(--ink);
+}
+.timeline-item.accent::before { background: var(--accent); }
+.timeline-year {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+.timeline-role {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.timeline-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.timeline-insight {
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: var(--light);
+  border-left: 2px solid var(--accent);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+/* PATTERN GRID */
+.pattern-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.pattern-card {
+  background: var(--light);
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+.pattern-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pattern-card-body {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* COMPANY TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  text-align: left;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--light);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.tag {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+.tag-s { background: #1a3a2a; color: #6dd9a0; }
+.tag-a { background: #1a2a3a; color: #6db8d9; }
+.tag-b { background: #2a2a1a; color: #d9c96d; }
+.tag-c { background: #3a1a1a; color: #d9826d; }
+
+/* VERDICT */
+.verdict {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 32px;
+  margin-top: 48px;
+}
+.verdict-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.verdict-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.verdict-title span { color: var(--gold); }
+.verdict-body {
+  font-size: 13px;
+  line-height: 2;
+  color: #c8c3bb;
+  border-top: 1px solid #3a3530;
+  padding-top: 20px;
+}
+
+/* ROADMAP */
+.roadmap { display: flex; flex-direction: column; gap: 0; }
+.roadmap-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.roadmap-item:last-child { border-bottom: none; }
+.roadmap-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.roadmap-content-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.roadmap-content-body {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.roadmap-badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  padding: 1px 6px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-right: 6px;
+}
+
+/* RISK TABLE */
+.risk-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+.risk-item:last-child { border-bottom: none; }
+.risk-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.risk-desc { font-size: 12px; color: var(--muted); }
+.risk-level {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.risk-low { background: #e8f5ee; color: #2d6a4f; }
+.risk-mid { background: #fef3e2; color: #8b5e1a; }
+.risk-high { background: #fde8e8; color: #8b1a1a; }
+
+/* QUOTE */
+.quote {
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin: 24px 0;
+  background: var(--light);
+}
+.quote-text {
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--ink);
+}
+.quote-attr {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 8px;
+  letter-spacing: 0.08em;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 32px 0;
+}
+
+.footnote {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  letter-spacing: 0.08em;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-label">Founder Analysis × Strategic Report</div>
+  <h1>米倉暁 × WriteVideo.ai<br><span>総合分析レポート</span></h1>
+  <div class="header-sub">キャリア分析 / 企業評価 / 今後の示唆</div>
+  <div class="header-date">2026.04.12<br>Confidential</div>
+</div>
+
+<!-- CAREER -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">キャリアの軌跡</span>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">〜2015頃</div>
+      <div class="timeline-role">エンジニア（4.5年）</div>
+      <div class="timeline-desc">コードを書く現場で技術の本質を身体で覚えた。ただし「30〜40代でみんなマネージャーになってつまらそう」と感じ、自ら転換を決意。</div>
+      <div class="timeline-insight">→ 技術を捨てたのではなく「土台」にした。ここが後のプロダクト判断力の源泉。</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-year">リクルート時代</div>
+      <div class="timeline-role">営業・新規事業開発（NEWRING参加）</div>
+      <div class="timeline-desc">「営業力が必要」という自己認識からリクルートを選択。副業制度を活用し、在籍中にドロサツを個人で立ち上げ、軌道に乗せてから独立。</div>
+      <div class="timeline-insight">→ リスク最小化しながら実績を作る構造的思考。WriteVideoの資本効率への執着と同じDNA。</div>
+    </div>
+
+    <div class="timeline-item accent">
+      <div class="timeline-year">2016〜2020</div>
+      <div class="timeline-role">drone supply & control 創業・M&A exit</div>
+      <div class="timeline-desc">「ドローンが好きではなく、市場の発展性を見越して参入」と明言。ドローンレンタル国内シェアNo.1「ドロサツ!!」を築き、2020年末にM&A exit。</div>
+      <div class="timeline-insight">→ 感情ではなく市場分析で参入を決める経営者。1回exitという「勝ち方を知っている」実績。</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-year">2020〜2023</div>
+      <div class="timeline-role">株式会社X創業 / 試行期</div>
+      <div class="timeline-desc">XR・メタバース・AI領域で就活ひろば・apotto等を展開。複数の事業を試しながら学習を積み、WriteVideoのコンセプトへと収束していった。</div>
+      <div class="timeline-insight">→ 「失敗してきている」という自己認識。この期間の学習コストが今の強さの裏側。</div>
+    </div>
+
+    <div class="timeline-item accent">
+      <div class="timeline-year">2024〜現在</div>
+      <div class="timeline-role">WriteVideo.ai でPMF達成</div>
+      <div class="timeline-desc">ARR5,778万円・ほぼ黒字・希薄化5%・LTV/CAC 9.8x。7,500万円の累計投資で日本のスタートアップとして異常な資本効率を実現。iU客員教授も兼任。</div>
+      <div class="timeline-insight">→ 試行期の学習が結実。技術×営業×市場読みの全てが一つのプロダクトに統合された。</div>
+    </div>
+  </div>
+</div>
+
+<!-- PATTERNS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">経営者としての行動パターン</span>
+  </div>
+
+  <div class="pattern-grid">
+    <div class="pattern-card">
+      <div class="pattern-card-title">次の波を先読みする</div>
+      <div class="pattern-card-body">ドローン（2016）→ XR（2020）→ AI動画（2024）。常に市場が立ち上がる直前に参入。好きではなく「勝てる」を選ぶ意思決定軸。</div>
+    </div>
+    <div class="pattern-card">
+      <div class="pattern-card-title">死なない設計をする</div>
+      <div class="pattern-card-body">副業スタート・資本効率重視・希薄化5%・手元キャッシュ維持。すべてに「倒れない」という構造的思考が貫かれている。</div>
+    </div>
+    <div class="pattern-card">
+      <div class="pattern-card-title">技術×営業の二刀流</div>
+      <div class="pattern-card-body">エンジニア出身×リクルート営業という珍しい組み合わせ。技術の本質を理解しながら顧客に売れる。日本のスタートアップでは稀な資質。</div>
+    </div>
+    <div class="pattern-card">
+      <div class="pattern-card-title">失敗から修正できる</div>
+      <div class="pattern-card-body">複数のプロダクト失敗を認め、WriteVideoへ収束させた。失敗を認めながら前進できる経営者は少ない。これが慎重さの正体。</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY EVAL -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">WriteVideo.ai 企業評価</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>評価軸</th>
+        <th>評価</th>
+        <th>根拠</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ユニットエコノミクス</td>
+        <td><span class="tag tag-s">S</span></td>
+        <td>LTV/CAC 9.8x・ペイバック4.5ヶ月。業界中央値を大幅に上回る</td>
+      </tr>
+      <tr>
+        <td>成長速度</td>
+        <td><span class="tag tag-a">A</span></td>
+        <td>YoY+243%・MoM+14.1%・新規単価上昇トレンド</td>
+      </tr>
+      <tr>
+        <td>資本効率</td>
+        <td><span class="tag tag-s">S</span></td>
+        <td>7,500万円でARR5,778万円・希薄化5%。CADDiの1/46の投資で同等の入口</td>
+      </tr>
+      <tr>
+        <td>プロダクト差別化</td>
+        <td><span class="tag tag-a">A</span></td>
+        <td>リアルタイムレンダリング×インタラクティブ。特許登録済み</td>
+      </tr>
+      <tr>
+        <td>リテンション（NRR）</td>
+        <td><span class="tag tag-b">B</span></td>
+        <td>NRR92%。バグ起因の意図的抑制→改善フェーズへ。伸びしろあり</td>
+      </tr>
+      <tr>
+        <td>グローバルポテンシャル</td>
+        <td><span class="tag tag-s">S</span></td>
+        <td>建設安全教育×インタラクティブという競合空白領域。米国800万人市場</td>
+      </tr>
+      <tr>
+        <td>組織・体制</td>
+        <td><span class="tag tag-b">B</span></td>
+        <td>CS充足率50%・南部依存・キーパーソン集中。自走体制が次の課題</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="quote">
+    <div class="quote-text">「地味だけど本物。7,500万円でCADDiが350億円かけてたどり着いた入口に、同じ場所に立っている。」</div>
+    <div class="quote-attr">— 今日の分析より</div>
+  </div>
+</div>
+
+<!-- ROADMAP -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">今後の示唆：18ヶ月ロードマップ</span>
+  </div>
+
+  <div class="roadmap">
+    <div class="roadmap-item">
+      <div class="roadmap-time">今すぐ<br>〜1ヶ月</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">URGENT</span>今月中に動くこと</div>
+        <div class="roadmap-content-body">
+          PCT出願を井上国際特許商標事務所に指示（期限7/15）。GビズIDプライム発行申請。建設顧客から成果数字を1件取る。インターンオンボーディング資料作成開始。
+        </div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-time">5月</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">MAY</span>助成金・採用</div>
+        <div class="roadmap-content-body">
+          東京都外国特許出願助成申請（5/8〜）。市場開拓助成事業申請（5/15〜）。CS+1名採用の求人開始。既存144社へのインタラクティブ案内開始。
+        </div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-time">6〜8月</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">INTERN</span>インターン2名始動</div>
+        <div class="roadmap-content-body">
+          Tyler（財務・競合・市場調査）＋Christian（GTM・CS・マーケ）。英語LP・デモ動画・ケーススタディ・見込み顧客100社リスト・顧客インタビュー20件。実質ゼロコストで米国市場の解像度を一気に上げる。
+        </div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-time">9月〜</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">USA</span>暁さんがアメリカへ</div>
+        <div class="roadmap-content-body">
+          日系建設会社（鹿島・大成・清水・大林のUSA拠点）を最初の入口に。Tyler・Christianが8週間で作った資料・リストを武器に初期10社獲得へ。Procore Marketplace掲載検討。
+        </div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-time">来年</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">SERIES A</span>シリーズA調達</div>
+        <div class="roadmap-content-body">
+          アメリカ10社実績＋インタラクティブPMF取得後が最強のタイミング。「建設安全教育のインタラクティブプラットフォーム。日本でPMF・ほぼ黒字・希薄化5%・アメリカ展開中」。3〜5億円調達。
+        </div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-time">検討中</div>
+      <div>
+        <div class="roadmap-content-title"><span class="roadmap-badge">OPT</span>Tyler・Christianとアメリカ法人設立</div>
+        <div class="roadmap-content-body">
+          8週間で本気度確認後、ストック付与でアメリカ法人共同創業者として迎える選択肢。ベスティング4年・1年クリフ。CADDiがApple・McKinseyネットワークで作ったものを、WriteVideoはインターンから作る。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RISKS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">残存リスクと対処</span>
+  </div>
+
+  <div class="risk-item">
+    <div>
+      <div class="risk-title">インタラクティブPMFが取れない</div>
+      <div class="risk-desc">アップセル開始後も既存顧客に使われなければ、アメリカで持っていくものが動画生成SaaSになる。建設安全教育特化の訴求になれない。</div>
+    </div>
+    <div class="risk-level risk-high">HIGH</div>
+  </div>
+  <div class="risk-item">
+    <div>
+      <div class="risk-title">AIネイティブ競合の参入</div>
+      <div class="risk-desc">今の空白領域に気づいた競合が6〜12ヶ月で参入できる。18ヶ月以内の先行者優位確立が必須。</div>
+    </div>
+    <div class="risk-level risk-high">HIGH</div>
+  </div>
+  <div class="risk-item">
+    <div>
+      <div class="risk-title">日本事業の自走体制未完</div>
+      <div class="risk-desc">暁さんがアメリカに行くと日本が手薄になる。CS+1名採用とインタラクティブPMFが完了するまではアメリカ本格移動はリスク。</div>
+    </div>
+    <div class="risk-level risk-mid">MID</div>
+  </div>
+  <div class="risk-item">
+    <div>
+      <div class="risk-title">NRR92%の構造</div>
+      <div class="risk-desc">バグ起因という説明は理解できるが、インタラクティブが使われ始めても継続習慣が根付かない場合は同じことが繰り返される可能性がある。</div>
+    </div>
+    <div class="risk-level risk-mid">MID</div>
+  </div>
+  <div class="risk-item">
+    <div>
+      <div class="risk-title">アメリカ展開の未検証</div>
+      <div class="risk-desc">日本での受注パターンがアメリカで再現できるかは未検証。ただしインターンの市場調査で検証フェーズへ入ることができる。</div>
+    </div>
+    <div class="risk-level risk-low">LOW（検証中）</div>
+  </div>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <div class="verdict-label">Final Assessment</div>
+  <div class="verdict-title">
+    米倉暁は<span>「見えない実力」</span>を積み上げてきた経営者。<br>
+    WriteVideoは<span>「気づかれていない本命」</span>だ。
+  </div>
+  <div class="verdict-body">
+    エンジニア→リクルート→ドローンexit→AI。このキャリアは一見バラバラに見えるが、一本の線で繋がっている。「技術がわかる・市場を読む・死なない経営をする・勝ち方を知っている」。これが米倉暁という経営者の本質だ。<br><br>
+    WriteVideoは動画生成SaaSではない。リアルタイムレンダリングによるインタラクティブコンテンツ基盤であり、建設安全教育という競合の空白領域に先に立っている。7,500万円・希薄化5%・ほぼ黒字でここまで来た資本効率は日本のスタートアップで類を見ない。<br><br>
+    CADDiが製造業で350億円かけてやったことを、WriteVideoは建設安全教育で7,500万円でやった。チャンスは今ここにある。インターン2名・特許・空白領域・24ヶ月のランウェイ。条件は揃っている。<br><br>
+    「勝つためにやっている。チャンスが来たら一気に攻める。」――この言葉が本物であることは、今日一日の会話で確認できた。攻める時が来た。
+  </div>
+</div>
+
+<div class="footnote">
+  WriteVideo.ai Strategic Analysis — April 2026 — Confidential
+</div>
+
+</div>
+</body>
+</html>
