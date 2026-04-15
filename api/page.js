@@ -1,7 +1,9 @@
+import fs from 'fs';
+import path from 'path';
+
 export default async function handler(req, res) {
   const { p } = req.query;
   
-  // 許可するページ
   const allowed = [
     'writevideo_final_evaluation',
     'yonekura_analysis', 
@@ -37,15 +39,22 @@ export default async function handler(req, res) {
   }
 
   // 認証OK - ファイルを読んで返す
-  const fs = require('fs');
-  const path = require('path');
+  // Vercelではprocess.cwd()ではなくimport.meta.urlベースのパスを使う
   const filePath = path.join(process.cwd(), `${p}.html`);
+  const altPath = path.resolve(`${p}.html`);
   
-  try {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.status(200).send(content);
-  } catch {
-    res.status(404).send('Not found');
+  let content = null;
+  for (const fp of [filePath, altPath, `/var/task/${p}.html`]) {
+    try {
+      content = fs.readFileSync(fp, 'utf-8');
+      break;
+    } catch {}
   }
+
+  if (!content) {
+    return res.status(404).send(`File not found: ${p}.html`);
+  }
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(200).send(content);
 }
