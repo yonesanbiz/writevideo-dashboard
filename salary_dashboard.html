@@ -43,7 +43,8 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="section">
   <div class="stitle">月次人件費合計（外注費含む）<span class="badge">26/05〜 予測</span></div>
   <div class="leg">
-    <span><span class="dot" style="background:#1D9E75"></span>開発（海外エンジニア含む）</span>
+    <span><span class="dot" style="background:#1D9E75"></span>日本人開発</span>
+    <span><span class="dot" style="background:#7F77DD"></span>海外エンジニア</span>
     <span><span class="dot" style="background:#378ADD"></span>営業CS</span>
     <span><span class="dot" style="background:#e5e0d8;border:1px solid #ccc"></span>外注費（外注営業35万＋IS15万）</span>
   </div>
@@ -186,18 +187,20 @@ const cumulative=grandTotal.map(v=>{cum+=v;return Math.round(cum*10)/10;});
 const tk={autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}};
 
 // 月次合計（スタック棒グラフ）
-const devPlusOverseas=L.map((_,i)=>Math.round((devTotal[i]+overseasTotal[i])*10)/10);
 const {actual:sa, forecast:sf}=split(salesTotal);
-const {actual:doa, forecast:dof}=split(devPlusOverseas);
+const {actual:da, forecast:df}=split(devTotal);
+const {actual:ova, forecast:ovf}=split(overseasTotal);
 const {actual:da, forecast:df}=split(devTotal);
 const {actual:oa, forecast:of_}=split(outsource);
 new Chart(document.getElementById('c_monthly'),{
   type:'bar',
   data:{labels:L,datasets:[
-    {label:'開発+海外_実績',data:doa,backgroundColor:'#1D9E7599',borderWidth:0,stack:'s'},
+    {label:'日本人開発_実績',data:da,backgroundColor:'#1D9E7599',borderWidth:0,stack:'s'},
+    {label:'海外エンジニア_実績',data:ova,backgroundColor:'#7F77DD99',borderWidth:0,stack:'s'},
     {label:'営業CS_実績',data:sa,backgroundColor:'#378ADD99',borderWidth:0,stack:'s'},
     {label:'外注費_実績',data:oa,backgroundColor:'#d8d3cb',borderWidth:0,stack:'s'},
-    {label:'開発+海外_予測',data:dof,backgroundColor:'#1D9E7533',borderWidth:1,borderColor:'#1D9E75',stack:'s'},
+    {label:'日本人開発_予測',data:df,backgroundColor:'#1D9E7533',borderWidth:1,borderColor:'#1D9E75',stack:'s'},
+    {label:'海外エンジニア_予測',data:ovf,backgroundColor:'#7F77DD33',borderWidth:1,borderColor:'#7F77DD',stack:'s'},
     {label:'営業CS_予測',data:sf,backgroundColor:'#378ADD33',borderWidth:1,borderColor:'#378ADD',borderDash:[3,3],stack:'s'},
     {label:'外注費_予測',data:of_,backgroundColor:'#e8e3da',borderWidth:0,stack:'s'},
   ]},
@@ -221,12 +224,15 @@ new Chart(document.getElementById('c_cumul'),{
 // 部門別
 const {actual:sa2,forecast:sf2}=split(salesTotal);
 const {actual:da2,forecast:df2}=split(devTotal);
+const {actual:ova2,forecast:ovf2}=split(overseasTotal);
 new Chart(document.getElementById('c_dept'),{
   type:'line',
   data:{labels:L,datasets:[
-    {label:'開発_実績',data:da2,borderColor:'#1D9E75',backgroundColor:'#1D9E7515',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true,spanGaps:false},
-    {label:'開発_予測',data:df2,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
-    {label:'営業CS_実績',data:sa2,borderColor:'#378ADD',backgroundColor:'#378ADD15',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true,spanGaps:false},
+    {label:'日本人開発_実績',data:da2,borderColor:'#1D9E75',backgroundColor:'#1D9E7515',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
+    {label:'日本人開発_予測',data:df2,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'海外エンジニア_実績',data:ova2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
+    {label:'海外エンジニア_予測',data:ovf2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'営業CS_実績',data:sa2,borderColor:'#378ADD',backgroundColor:'#378ADD15',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
     {label:'営業CS_予測',data:sf2,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false}
   ]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
