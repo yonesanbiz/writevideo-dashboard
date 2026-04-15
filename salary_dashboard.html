@@ -98,6 +98,23 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </div>
 
 <div class="section">
+  <div class="stitle">個人別昇給率（入社月=100）<span class="badge">26/05〜 予測</span></div>
+  <div class="leg">
+    <span><span class="dot" style="background:#378ADD"></span>米倉</span>
+    <span><span class="dot" style="background:#1D9E75"></span>及川</span>
+    <span><span class="dot" style="background:#7F77DD"></span>アウン</span>
+    <span><span class="dot" style="background:#BA7517"></span>アーロン</span>
+    <span><span class="dot" style="background:#D85A30"></span>南部</span>
+    <span><span class="dot" style="background:#D4537E"></span>日浅</span>
+    <span><span class="dot" style="background:#639922"></span>龍河</span>
+    <span><span class="dot" style="background:#888780"></span>へいん</span>
+    <span><span class="dot" style="background:#444441"></span>生島</span>
+  </div>
+  <div style="position:relative;width:100%;height:300px"><canvas id="c_growth"></canvas></div>
+  <div class="note">入社月の給与を100として指数化。実線＝実績、点線＝予測。</div>
+</div>
+
+<div class="section">
   <div class="stitle">月別人員別積み上げ（通常月）<span class="badge">26/05〜 予測</span></div>
   <div class="leg">
     <span style="font-weight:500;color:#378ADD">■ 営業CS</span>
@@ -333,6 +350,38 @@ new Chart(document.getElementById('c_normal'),{
   data:{labels:L,datasets:normalDS},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
+
+// 昇給率グラフ（入社月=100に指数化）
+const GROWTH_NAMES=["米倉","及川","アウン","アーロン","南部","日浅","龍河","へいん","生島"];
+const growthDS=[];
+GROWTH_NAMES.forEach(n=>{
+  const nd=getNormalData(n,R[n]);
+  // 最初の有効値を探す
+  const firstIdx=nd.findIndex(v=>v!==null&&v>0);
+  if(firstIdx<0) return;
+  const base=nd[firstIdx];
+  // 指数化
+  const indexed=nd.map(v=>v!==null?Math.round(v/base*1000)/10:null);
+  const act=indexed.map((v,i)=>i>CUTOFF?null:v);
+  const fct=indexed.map((v,i)=>i<=CUTOFF?null:v);
+  if(act[CUTOFF]!==null) fct[CUTOFF]=act[CUTOFF];
+  growthDS.push({label:n,data:act,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
+  growthDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
+});
+new Chart(document.getElementById('c_growth'),{
+  type:'line',
+  data:{labels:L,datasets:growthDS},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{mode:'index',intersect:false}},
+    scales:{
+      x:{ticks:tk},
+      y:{min:80,title:{display:true,text:'指数（入社月=100）',font:{size:10}},
+        ticks:{font:{size:10},callback:v=>v},
+        grid:{color:'rgba(0,0,0,0.05)'}
+      }
+    }
+  }
 });
 
 // 個人別積み上げグラフ（通常月）
