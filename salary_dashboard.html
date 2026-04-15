@@ -158,7 +158,8 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
     <tbody id="tblBody"></tbody>
     <tfoot id="tblFoot"></tfoot>
   </table></div>
-  <button class="btn-update" onclick="applyTableEdits()">グラフを更新</button>
+  <button class="btn-update" onclick="applyTableEdits()">保存してグラフを更新</button>
+  <button class="btn-update" style="background:#888;margin-left:8px" onclick="resetEdits()">リセット</button>
 </div>
 
 <script>
@@ -552,8 +553,56 @@ function renderTable() {
   foot.innerHTML = ftr + '</tr>';
 }
 
+// localStorage保存キー
+const STORAGE_KEY = 'wv_salary_edits';
+
+// 保存済み編集をlocalStorageから読み込む
+function loadEdits() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch { return {}; }
+}
+
+// 編集をlocalStorageに保存
+function saveEdits(edits) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(edits)); } catch {}
+}
+
+// 編集データをR/outsourceに反映
+function applyEditsToData(edits) {
+  Object.keys(edits).forEach(name => {
+    Object.keys(edits[name]).forEach(i => {
+      const idx = parseInt(i);
+      const val = edits[name][idx];
+      if(name === '外注(営業)' || name === '外注(IS)') return;
+      if(R[name] !== undefined) {
+        const bs = BONUS_SPLIT[name] || {};
+        if(bs[idx] !== undefined) {
+          bs[idx] = [val, bs[idx][1]];
+          R[name][idx] = val + bs[idx][1];
+        } else {
+          R[name][idx] = val;
+        }
+      }
+    });
+  });
+  // 外注費
+  const ei = edits['外注(営業)'] || {};
+  const is_ = edits['外注(IS)'] || {};
+  for(let i=0;i<L.length;i++){
+    if(i >= OUTSOURCE_START){
+      outsource[i] = (ei[i]!==undefined?ei[i]:35) + (is_[i]!==undefined?is_[i]:15);
+    }
+  }
+}
+
 // セル変更時にフッター更新
-const tableEdits = {};
+const tableEdits = loadEdits();
+
+// ページ読み込み時に保存済み編集を反映
+applyEditsToData(tableEdits);
+
 function onCellChange(input) {
   const name = input.dataset.name;
   const idx = parseInt(input.dataset.idx);
@@ -563,10 +612,9 @@ function onCellChange(input) {
 
   // フッター再計算
   const data = getTableData();
-  // 編集済みを反映
   Object.keys(tableEdits).forEach(n => {
     Object.keys(tableEdits[n]).forEach(i => {
-      data[n][parseInt(i)] = tableEdits[n][i];
+      if(data[n]) data[n][parseInt(i)] = tableEdits[n][i];
     });
   });
   let total = 0;
@@ -579,52 +627,31 @@ function onCellChange(input) {
 }
 
 // グラフ更新
-let charts = {};
 function applyTableEdits() {
   if(Object.keys(tableEdits).length === 0) { alert('変更がありません'); return; }
-
-  // R配列とoutsourceに反映
-  Object.keys(tableEdits).forEach(name => {
-    Object.keys(tableEdits[name]).forEach(i => {
-      const idx = parseInt(i);
-      const val = tableEdits[name][idx];
-      if(name === '外注(営業)') {
-        // outsource配列の営業部分を更新（外注合計を再計算）
-      } else if(name === '外注(IS)') {
-        // IS部分
-      } else if(R[name] !== undefined) {
-        // BONUS_SPLITがある月は元の値を逆算して更新
-        const bs = BONUS_SPLIT[name] || {};
-        if(bs[idx] !== undefined) {
-          // ボーナス月: 給与部分のみ更新→元値=新給与+ボーナス
-          bs[idx] = [val, bs[idx][1]];
-          R[name][idx] = val + bs[idx][1];
-        } else {
-          R[name][idx] = val;
-        }
-      }
-    });
-  });
-
-  // 外注費再計算
-  const outsourceEdits_ei = tableEdits['外注(営業)'] || {};
-  const outsourceEdits_is = tableEdits['外注(IS)'] || {};
-  for(let i=0;i<L.length;i++){
-    if(i >= OUTSOURCE_START){
-      const ei = outsourceEdits_ei[i] !== undefined ? outsourceEdits_ei[i] : 35;
-      const is = outsourceEdits_is[i] !== undefined ? outsourceEdits_is[i] : 15;
-      outsource[i] = (ei||0) + (is||0);
-    }
-  }
-
-  // 全グラフ再描画
+  applyEditsToData(tableEdits);
+  saveEdits(tableEdits);
   buildCharts();
-  alert('グラフを更新しました');
+  alert('保存してグラフを更新しました');
+}
+
+// リセットボタン
+function resetEdits() {
+  if(!confirm('編集をリセットしますか？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
 }
 
 // 初期化
 renderTable();
-// テーブルを最後の列（最新月）にスクロール
+// 保存済みの値をテーブルに表示
+Object.keys(tableEdits).forEach(name => {
+  Object.keys(tableEdits[name]).forEach(i => {
+    const input = document.querySelector(`input[data-name="${name}"][data-idx="${i}"]`);
+    if(input && tableEdits[name][i] !== null) input.value = tableEdits[name][i];
+  });
+});
+// テーブルを最右列にスクロール
 setTimeout(()=>{
   const wrap = document.querySelector('.tbl-wrap');
   if(wrap) wrap.scrollLeft = wrap.scrollWidth;
