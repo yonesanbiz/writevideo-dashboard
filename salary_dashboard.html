@@ -334,7 +334,9 @@ chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
           label:ctx=>{
             const labels=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
             const v=ctx.parsed.y;
-            if(!v) return null;
+            if(!v||v===null) return null;
+            // 予測系（奇数インデックス）は表示しない
+            if(ctx.datasetIndex % 2 === 1) return null;
             return labels[ctx.datasetIndex]+': '+v.toFixed(1)+'%';
           }
         }
