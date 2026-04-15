@@ -34,11 +34,11 @@
     },
     {
       "source": "/salary_dashboard.html",
-      "destination": "/api/page?p=salary_dashboard"
+      "destination": "/api/salary_dashboard"
     },
     {
       "source": "/salary_bonus.html",
-      "destination": "/api/page?p=salary_bonus"
+      "destination": "/api/salary_bonus"
     }
   ],
   "headers": [
