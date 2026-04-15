@@ -140,7 +140,7 @@ const grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+outsource[i]
 function split(arr){
   return {
     actual: arr.map((v,i)=>i<=CUTOFF?v:null),
-    forecast: arr.map((v,i)=>i>=CUTOFF?v:null)
+    forecast: arr.map((v,i)=>i>CUTOFF?v:null)
   };
 }
 
@@ -184,8 +184,6 @@ new Chart(document.getElementById('c_cumul'),{
 // 部門別
 const {actual:sa2,forecast:sf2}=split(salesTotal);
 const {actual:da2,forecast:df2}=split(devTotal);
-if(sa2[CUTOFF]!==null) sf2[CUTOFF]=sa2[CUTOFF];
-if(da2[CUTOFF]!==null) df2[CUTOFF]=da2[CUTOFF];
 new Chart(document.getElementById('c_dept'),{
   type:'line',
   data:{labels:L,datasets:[
@@ -205,9 +203,8 @@ function splitNormal(name,arr){
   arr.forEach((v,i)=>{
     const isB=bi.includes(i);
     act.push(isB||i>CUTOFF?null:v);
-    fct.push(isB||i<CUTOFF?null:v);
+    fct.push(isB||i<=CUTOFF?null:v);
   });
-  if(act[CUTOFF]!==null) fct[CUTOFF]=act[CUTOFF];
   return {act,fct};
 }
 const normalDS=[];
@@ -229,8 +226,7 @@ const ORDER = ["米倉","南部","日浅","龍河","生島","及川","アウン"
 ORDER.forEach(n=>{
   const bi=BI[n]||[];
   const act=R[n].map((v,i)=>bi.includes(i)||i>CUTOFF?null:v);
-  const fct=R[n].map((v,i)=>bi.includes(i)||i<CUTOFF?null:v);
-  if(act[CUTOFF]!==null) fct[CUTOFF]=act[CUTOFF];
+  const fct=R[n].map((v,i)=>bi.includes(i)||i<=CUTOFF?null:v);
   stackDS.push({label:n,data:act,backgroundColor:C[n]+'cc',borderWidth:0,stack:'s',type:'bar'});
   stackDS.push({label:n+'_f',data:fct,backgroundColor:C[n]+'44',borderWidth:1,borderColor:C[n],stack:'s',type:'bar'});
 });
