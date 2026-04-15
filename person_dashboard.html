@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個人別ダッシュボード</title>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f2ec;padding:24px;color:#0f0e0d}
+.back{position:fixed;top:20px;left:20px;z-index:9999}
+.back a{display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px}
+h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
+.sub{font-size:11px;color:#888;font-family:monospace;margin-bottom:16px}
+
+/* タブ */
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 18px;border-radius:6px;border:1px solid #d8d3cb;background:white;font-size:13px;cursor:pointer;color:#555;transition:all 0.15s}
+.tab.active{background:#0f0e0d;color:white;border-color:#0f0e0d}
+.tab:hover:not(.active){background:#f0ede8}
+
+/* KPIカード */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:20px}
+.kpi{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:14px}
+.kl{font-size:11px;color:#888;margin-bottom:4px}
+.kv{font-size:22px;font-weight:600;line-height:1.2}
+.ks{font-size:10px;color:#aaa;margin-top:3px}
+.kv.up{color:#1D9E75}
+.kv.accent{color:#378ADD}
+
+/* セクション */
+.section{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:16px;margin-bottom:16px}
+.stitle{font-size:13px;font-weight:600;color:#444;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-family:monospace;background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:3px}
+.note{font-size:10px;color:#aaa;margin-top:8px}
+
+/* 比較バー */
+.compare-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.compare-name{width:70px;text-align:right;color:#555;flex-shrink:0}
+.compare-bar-wrap{flex:1;background:#f0ede8;border-radius:3px;height:20px;overflow:hidden;position:relative}
+.compare-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500;color:white;transition:width 0.3s}
+.compare-val{width:60px;text-align:right;color:#555;flex-shrink:0;font-family:monospace}
+.compare-row.highlight .compare-name{font-weight:700;color:#0f0e0d}
+.compare-row.highlight .compare-val{font-weight:700;color:#0f0e0d}
+
+/* タイムライン */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:5px;top:4px;bottom:4px;width:1px;background:#e5e0d8}
+.tl-item{position:relative;margin-bottom:14px;font-size:12px}
+.tl-item::before{content:'';position:absolute;left:-17px;top:4px;width:7px;height:7px;border-radius:50%;background:#d8d3cb;border:2px solid white;outline:1px solid #d8d3cb}
+.tl-item.bonus::before{background:#1D9E75;outline-color:#1D9E75}
+.tl-item.raise::before{background:#378ADD;outline-color:#378ADD}
+.tl-month{font-family:monospace;font-size:10px;color:#aaa;margin-bottom:1px}
+.tl-text{color:#333}
+.tl-amount{font-weight:600;color:#1D9E75}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+</style>
+</head>
+<body>
+<div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
+<h1>個人別ダッシュボード</h1>
+<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
+
+<!-- 人物タブ -->
+<div class="tabs" id="personTabs"></div>
+
+<!-- KPI -->
+<div class="kpis" id="kpiArea"></div>
+
+<!-- グラフ・詳細 -->
+<div class="grid2">
+  <div class="section">
+    <div class="stitle">給与推移</div>
+    <div style="position:relative;height:200px"><canvas id="c_salary"></canvas></div>
+    <div class="note">実線＝実績、点線＝予測</div>
+  </div>
+  <div class="section">
+    <div class="stitle">昇給率インデックス <span class="badge">入社月=100</span></div>
+    <div style="position:relative;height:200px"><canvas id="c_growth"></canvas></div>
+    <div class="note">赤破線＝全員平均（米倉除く）</div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="section">
+    <div class="stitle">現在給与の比較（通常月）</div>
+    <div id="compareArea"></div>
+  </div>
+  <div class="section">
+    <div class="stitle">給与・ボーナス履歴</div>
+    <div class="timeline" id="timelineArea"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="stitle">累計受取額の推移</div>
+  <div style="position:relative;height:180px"><canvas id="c_cumul"></canvas></div>
+</div>
+
+<script>
+const L=["21/02","21/03","21/04","21/05","21/06","21/07","21/08","21/09","21/10","21/11","21/12","22/01","22/02","22/03","22/04","22/05","22/06","22/07","22/08","22/09","22/10","22/11","22/12","23/01","23/02","23/03","23/04","23/05","23/06","23/07","23/08","23/09","23/10","23/11","23/12","24/01","24/02","24/03","24/04","24/05","24/06","24/07","24/08","24/09","24/10","24/11","24/12","25/01","25/02","25/03","25/04","25/05","25/06","25/07","25/08","25/09","25/10","25/11","25/12","26/01","26/02","26/03","26/04","26/05","26/06","26/07","26/08","26/09","26/10","26/11","26/12"];
+const CUTOFF=62;
+
+const C={"米倉":"#378ADD","及川":"#1D9E75","アウン":"#7F77DD","アーロン":"#BA7517","南部":"#D85A30","日浅":"#D4537E","龍河":"#639922","へいん":"#888780","生島":"#444441"};
+const DEPT={"米倉":"営業CS","南部":"営業CS","日浅":"営業CS","龍河":"営業CS","生島":"営業CS","及川":"開発","アウン":"開発","アーロン":"開発","へいん":"開発"};
+
+const BONUS_SPLIT={
+  "米倉":{"18":[35,120],"23":[35,120],"30":[35,210],"35":[35,250],"47":[36.9,180],"59":[42.4,180]},
+  "及川":{"22":[28.2,17.6],"26":[29.8,35],"64":[42.4,124]},
+  "アウン":{"22":[34,16],"63":[41.1,20]},
+  "アーロン":{"62":[30.5,35]},
+  "南部":{"46":[31.5,21],"58":[40,30]},
+  "日浅":{"64":[35,31]},
+  "龍河":{"70":[42,48]},
+  "へいん":{},"生島":{}
+};
+
+const R={
+  "米倉":  [2,2,2,2,2,20,20,20,20,20,20,20,20,20,20,20,35,35,155,35,35,35,35,155,35,35,35,35,35,35,245,35,35,35,35,285,35,35,35,35,35,36.9,36.9,36.9,36.9,36.9,36.9,216.9,36.9,36.9,36.9,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,222.4,42.4,42.4,42.4,51,51,51,51,51,51,51,51,51],
+  "及川":  [null,null,null,4,8,24,24,24,24,24,24,25,25,25,25,25,28.2,28.2,28.2,28.2,28.2,28.2,45.8,29.8,29.8,29.8,64.8,29.8,29.8,29.8,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,166.4,48,48,48,48,48,48,48],
+  "アウン": [null,null,null,27,27,27,27,27,27,28,28,28,28,28,28,30.5,30.5,30.5,30.5,30.5,30.5,34,50,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,41.1,41.1,41.1,61.1,41.1,41.1,46.2,46.2,46.2,46.2,46.2,46.2],
+  "アーロン":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,24.5,24.5,24.5,24.5,24.5,24.5,24.5,26.8,26.8,26.8,26.8,26.8,26.8,30.5,30.5,30.5,30.5,30.5,30.5,65.5,30.5,30.5,36,36,36,36,36,36],
+  "南部":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,30,30,30,30,30,30,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,52.5,31.5,31.5,31.5,31.5,32.8,32.8,32.8,32.8,32.8,32.8,40,70,40,40,40,40,40,40,40,40,40,40,40,null,null],
+  "日浅":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,35,35,35,35,35,35,35,35,66,36,36,36,36,36,36],
+  "龍河":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,36,36,36,36,42,42,42,42,42,90],
+  "へいん": [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,25.8,25.8,25.8,25.8,25.8,25.8],
+  "生島":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,58,58,58,58,58]
+};
+
+const NAMES = Object.keys(R);
+const GROWTH_START = L.indexOf('21/07');
+
+function getNormal(name, arr){
+  const bs = BONUS_SPLIT[name]||{};
+  return arr.map((v,i)=>{ if(v===null)return null; if(bs[i])return bs[i][0]; return v; });
+}
+function getBonus(name, arr){
+  const bs = BONUS_SPLIT[name]||{};
+  return arr.map((v,i)=>{ if(v===null)return null; if(bs[i])return bs[i][1]; return null; });
+}
+
+let currentName = NAMES[0];
+let charts = {};
+
+// タブ生成
+const tabsEl = document.getElementById('personTabs');
+NAMES.forEach(n => {
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (n===currentName?' active':'');
+  btn.textContent = n + '（' + DEPT[n] + '）';
+  btn.onclick = () => { currentName = n; render(); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); };
+  tabsEl.appendChild(btn);
+});
+
+function render(){
+  const name = currentName;
+  const arr = R[name];
+  const nd = getNormal(name, arr);
+  const bd = getBonus(name, arr);
+  const color = C[name];
+
+  const joinIdx = arr.findIndex(v=>v!==null&&v>0);
+  const joinMonth = L[joinIdx];
+  const lastActualIdx = Math.min(CUTOFF, nd.reduce((a,v,i)=>v!==null?i:a,-1));
+  const tenure = lastActualIdx - joinIdx + 1;
+  const currentSalary = nd[lastActualIdx];
+  const joinSalary = nd[joinIdx];
+  const growthRate = joinSalary > 0 ? Math.round(currentSalary/joinSalary*1000)/10 : 100;
+  const totalPay = arr.reduce((s,v)=>s+(v||0),0);
+  const totalBonus = bd.reduce((s,v)=>s+(v||0),0);
+  const totalSalary = totalPay - totalBonus;
+
+  // KPI
+  document.getElementById('kpiArea').innerHTML = `
+    <div class="kpi"><div class="kl">入社月</div><div class="kv">${joinMonth}</div><div class="ks">在籍 ${tenure}ヶ月</div></div>
+    <div class="kpi"><div class="kl">現在給与（通常月）</div><div class="kv accent">${currentSalary}万円</div><div class="ks">${DEPT[name]}</div></div>
+    <div class="kpi"><div class="kl">昇給率</div><div class="kv up">${growthRate}<span style="font-size:14px">%</span></div><div class="ks">入社時 ${joinSalary}万→現在</div></div>
+    <div class="kpi"><div class="kl">累計給与</div><div class="kv">${Math.round(totalSalary)}万円</div><div class="ks">ボーナス除く</div></div>
+    <div class="kpi"><div class="kl">累計ボーナス</div><div class="kv">${Math.round(totalBonus)}万円</div><div class="ks">全${Object.keys(BONUS_SPLIT[name]||{}).length}回</div></div>
+    <div class="kpi"><div class="kl">累計受取合計</div><div class="kv">${Math.round(totalPay)}万円</div><div class="ks">給与＋ボーナス</div></div>
+  `;
+
+  // 給与推移グラフ
+  const actData = nd.map((v,i)=>i<=CUTOFF?v:null);
+  const fctData = nd.map((v,i)=>i>CUTOFF?v:null);
+  rebuildChart('c_salary', {
+    type:'line',
+    data:{labels:L, datasets:[
+      {label:'実績',data:actData,borderColor:color,backgroundColor:color+'20',borderWidth:2,pointRadius:1.5,tension:0.3,fill:true,spanGaps:false},
+      {label:'予測',data:fctData,borderColor:color,backgroundColor:'transparent',borderWidth:1.5,pointRadius:1.5,tension:0.3,borderDash:[4,3],spanGaps:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:true,maxTicksLimit:18,maxRotation:45,font:{size:10}}},
+              y:{min:0,ticks:{font:{size:10}},title:{display:true,text:'万円/月',font:{size:10}}}}}
+  });
+
+  // 昇給率グラフ
+  const growthStart = Math.max(joinIdx, GROWTH_START);
+  const base = nd[growthStart];
+  const maxLen = NAMES.reduce((mx,n2)=>{
+    const nd2=getNormal(n2,R[n2]);
+    const fi=nd2.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START);
+    if(fi<0)return mx;
+    const li=nd2.reduce((a,v,i)=>v!==null?i:a,-1);
+    return Math.max(mx,li-fi);
+  },0);
+  const gLabels = Array.from({length:maxLen+1},(_,i)=>i+'ヶ月');
+
+  // 本人
+  const myAct = new Array(maxLen+1).fill(null);
+  const myFct = new Array(maxLen+1).fill(null);
+  nd.forEach((v,i)=>{
+    if(i<growthStart||v===null)return;
+    const e=i-growthStart; if(e>maxLen)return;
+    const idx=Math.round(v/base*1000)/10;
+    if(i<=CUTOFF) myAct[e]=idx; else myFct[e]=idx;
+  });
+
+  // 全員平均（米倉除く）
+  const avgAct=new Array(maxLen+1).fill(null);
+  NAMES.filter(n2=>n2!=='米倉').forEach(n2=>{
+    const nd2=getNormal(n2,R[n2]);
+    const fi=nd2.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START);
+    if(fi<0)return;
+    const b2=nd2[fi];
+    nd2.forEach((v,i)=>{
+      if(i<fi||v===null||i>CUTOFF)return;
+      const e=i-fi; if(e>maxLen)return;
+      const idx=Math.round(v/b2*1000)/10;
+      if(!avgAct[e]) avgAct[e]=[];
+      if(!Array.isArray(avgAct[e])) avgAct[e]=[avgAct[e]];
+      avgAct[e].push(idx);
+    });
+  });
+  const avgActFinal = avgAct.map(v=>Array.isArray(v)?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null);
+
+  rebuildChart('c_growth', {
+    type:'line',
+    data:{labels:gLabels, datasets:[
+      {label:name,data:myAct,borderColor:color,backgroundColor:'transparent',borderWidth:2.5,pointRadius:1.5,tension:0.3,spanGaps:false},
+      {label:name+'予',data:myFct,borderColor:color,backgroundColor:'transparent',borderWidth:1.5,pointRadius:1,tension:0.3,borderDash:[4,3],spanGaps:false},
+      {label:'平均',data:avgActFinal,borderColor:'#e53935',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[6,2],spanGaps:true},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:true,maxTicksLimit:18,font:{size:10}},title:{display:true,text:'入社からの経過月数',font:{size:10}}},
+              y:{min:95,ticks:{font:{size:10}},title:{display:true,text:'指数（入社月=100）',font:{size:10}}}}}
+  });
+
+  // 現在給与比較
+  const currentSalaries = NAMES.map(n2=>{
+    const nd2=getNormal(n2,R[n2]);
+    const li=Math.min(CUTOFF,nd2.reduce((a,v,i)=>v!==null?i:a,-1));
+    return {name:n2,val:nd2[li]||0,color:C[n2]};
+  }).filter(x=>x.val>0).sort((a,b)=>b.val-a.val);
+  const maxSal = Math.max(...currentSalaries.map(x=>x.val));
+  document.getElementById('compareArea').innerHTML = currentSalaries.map(x=>`
+    <div class="compare-row ${x.name===name?'highlight':''}">
+      <div class="compare-name">${x.name}</div>
+      <div class="compare-bar-wrap">
+        <div class="compare-fill" style="width:${Math.round(x.val/maxSal*100)}%;background:${x.color}">${x.name===name?x.val+'万':''}</div>
+      </div>
+      <div class="compare-val">${x.val}万</div>
+    </div>
+  `).join('');
+
+  // 履歴タイムライン
+  const events = [];
+  nd.forEach((v,i)=>{
+    if(v===null||i>CUTOFF)return;
+    const prev = nd.slice(0,i).reverse().find(x=>x!==null);
+    if(prev!==undefined && v !== prev){
+      events.push({month:L[i],type:'raise',text:`${prev}万 → ${v}万`,diff:Math.round((v-prev)*10)/10});
+    }
+  });
+  bd.forEach((v,i)=>{
+    if(v===null||v===0||i>CUTOFF)return;
+    events.push({month:L[i],type:'bonus',text:`ボーナス支給`,amount:v});
+  });
+  events.sort((a,b)=>b.month.localeCompare(a.month));
+
+  document.getElementById('timelineArea').innerHTML = events.slice(0,12).map(e=>`
+    <div class="tl-item ${e.type}">
+      <div class="tl-month">${e.month}</div>
+      <div class="tl-text">${e.text}
+        ${e.amount?`<span class="tl-amount">+${e.amount}万円</span>`:''}
+        ${e.diff?`<span class="tl-amount">${e.diff>0?'+':''}${e.diff}万</span>`:''}
+      </div>
+    </div>
+  `).join('') + (events.length===0?'<div style="color:#aaa;font-size:12px">履歴なし</div>':'');
+
+  // 累計推移
+  let cum=0;
+  const cumData=arr.map((v,i)=>{cum+=(v||0);return i<=CUTOFF?Math.round(cum*10)/10:null;});
+  let cum2=cum;
+  const cumFct=arr.map((v,i)=>{if(i<=CUTOFF)return null;cum2+=(v||0);return Math.round(cum2*10)/10;});
+  if(cumData[CUTOFF]!==null) cumFct[CUTOFF]=cumData[CUTOFF];
+  rebuildChart('c_cumul', {
+    type:'line',
+    data:{labels:L, datasets:[
+      {label:'累計',data:cumData,borderColor:color,backgroundColor:color+'20',borderWidth:2,pointRadius:1,tension:0.3,fill:true,spanGaps:false},
+      {label:'予測',data:cumFct,borderColor:color,backgroundColor:'transparent',borderWidth:1.5,pointRadius:1,tension:0.3,borderDash:[4,3],spanGaps:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:true,maxTicksLimit:18,maxRotation:45,font:{size:10}}},
+              y:{min:0,ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'},
+                 title:{display:true,text:'累計受取（万円）',font:{size:10}}}}}
+  });
+}
+
+function rebuildChart(id, config){
+  if(charts[id]){ try{charts[id].destroy();}catch(e){} }
+  const cv=document.getElementById(id);
+  const nc=document.createElement('canvas'); nc.id=id;
+  cv.parentNode.replaceChild(nc,cv);
+  charts[id]=new Chart(nc,config);
+}
+
+render();
+</script>
+</body>
+</html>
