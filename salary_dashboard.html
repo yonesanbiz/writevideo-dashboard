@@ -365,7 +365,6 @@ GROWTH_NAMES.forEach(n=>{
   const indexed=nd.map(v=>v!==null?Math.round(v/base*1000)/10:null);
   const act=indexed.map((v,i)=>i>CUTOFF?null:v);
   const fct=indexed.map((v,i)=>i<=CUTOFF?null:v);
-  if(act[CUTOFF]!==null) fct[CUTOFF]=act[CUTOFF];
   growthDS.push({label:n,data:act,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
   growthDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
 });
