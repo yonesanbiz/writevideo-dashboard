@@ -231,7 +231,18 @@ function split(arr){
 const tk={autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}};
 const chartInstances={};
 function buildCharts(){
-  Object.values(chartInstances).forEach(c=>c.destroy());
+  // 既存チャートを破棄してcanvasを再生成
+  Object.keys(chartInstances).forEach(id=>{
+    try{ chartInstances[id].destroy(); }catch(e){}
+    const canvas = document.getElementById(id);
+    if(canvas){
+      const parent = canvas.parentNode;
+      const newCanvas = document.createElement('canvas');
+      newCanvas.id = id;
+      newCanvas.setAttribute('role','img');
+      parent.replaceChild(newCanvas, canvas);
+    }
+  });
 
   // 月次合計（部門別）※buildCharts内で毎回再計算
   const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{
