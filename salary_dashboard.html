@@ -8,54 +8,50 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f2ec;padding:24px;color:#0f0e0d}
+.back{position:fixed;top:20px;right:20px;z-index:9999}
+.back a{display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px}
 h1{font-size:20px;font-weight:700;margin-bottom:4px}
 .sub{font-size:11px;color:#888;font-family:monospace;margin-bottom:24px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:20px}
 .card{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:12px}
 .cl{font-size:11px;color:#888;margin-bottom:3px}
 .cv{font-size:20px;font-weight:500}
 .cs{font-size:10px;color:#aaa;margin-top:2px}
 .section{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:16px;margin-bottom:16px}
-.stitle{font-size:13px;font-weight:500;color:#444;margin-bottom:10px}
+.stitle{font-size:13px;font-weight:500;color:#444;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-family:monospace;background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:3px}
 .leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:#666}
 .leg span{display:flex;align-items:center;gap:4px}
 .dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.divider{width:1px;height:12px;background:#ddd;margin:0 4px}
-.forecast-label{display:inline-block;font-size:10px;font-family:monospace;background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:3px;margin-left:6px}
 .note{font-size:10px;color:#aaa;margin-top:8px}
 </style>
 </head>
 <body>
+<div class="back"><a href="index.html">ダッシュボードに戻る →</a></div>
 
-<h1>WriteVideo.ai 給与推移</h1>
+<h1>給与推移ダッシュボード</h1>
 <div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
 
 <div class="grid">
-  <div class="card"><div class="cl">月次人件費（26/04）</div><div class="cv">267万円</div><div class="cs">7名在籍</div></div>
-  <div class="card"><div class="cl">月次人件費（26/12予測）</div><div class="cv">約365万円</div><div class="cs">9名予定</div></div>
-  <div class="card"><div class="cl">最大ボーナス実績</div><div class="cv">285万</div><div class="cs">米倉 24/01</div></div>
-  <div class="card"><div class="cl">平均月給（26/04）</div><div class="cv">38.1万</div><div class="cs">円/月</div></div>
+  <div class="card"><div class="cl">月次人件費（26/04実績）</div><div class="cv">302万円</div><div class="cs">7名在籍</div></div>
+  <div class="card"><div class="cl">月次人件費（26/12予測）</div><div class="cv">391万円</div><div class="cs">9名予定</div></div>
+  <div class="card"><div class="cl">累計人件費（26/04）</div><div class="cv">9,183万円</div><div class="cs">21/02起算</div></div>
+  <div class="card"><div class="cl">累計人件費（26/12予測）</div><div class="cv">1.2億円</div><div class="cs">21/02起算</div></div>
 </div>
 
 <div class="section">
-  <div class="stitle">通常月給与推移<span class="forecast-label">26/05〜 予測</span></div>
-  <div class="leg">
-    <span><span class="dot" style="background:#378ADD"></span>米倉</span>
-    <span><span class="dot" style="background:#1D9E75"></span>及川</span>
-    <span><span class="dot" style="background:#7F77DD"></span>アウン</span>
-    <span><span class="dot" style="background:#BA7517"></span>アーロン</span>
-    <span><span class="dot" style="background:#D85A30"></span>南部（〜26/11）</span>
-    <span><span class="dot" style="background:#D4537E"></span>日浅</span>
-    <span><span class="dot" style="background:#639922"></span>龍河</span>
-    <span><span class="dot" style="background:#888780"></span>へいん（26/07〜）</span>
-    <span><span class="dot" style="background:#444441"></span>生島（26/08〜）</span>
-  </div>
-  <div style="position:relative;width:100%;height:300px"><canvas id="c1"></canvas></div>
-  <div class="note">実線＝実績、点線＝予測（26/05〜）</div>
+  <div class="stitle">月次人件費合計<span class="badge">26/05〜 予測</span></div>
+  <div style="position:relative;width:100%;height:200px"><canvas id="c_monthly"></canvas></div>
 </div>
 
 <div class="section">
-  <div class="stitle">ボーナス推移<span class="forecast-label">26/05〜 予測</span></div>
+  <div class="stitle">累計人件費<span class="badge">26/05〜 予測</span></div>
+  <div style="position:relative;width:100%;height:200px"><canvas id="c_cumul"></canvas></div>
+  <div class="note">※ボーナス含む累計</div>
+</div>
+
+<div class="section">
+  <div class="stitle">通常月給与推移（個人別）<span class="badge">26/05〜 予測</span></div>
   <div class="leg">
     <span><span class="dot" style="background:#378ADD"></span>米倉</span>
     <span><span class="dot" style="background:#1D9E75"></span>及川</span>
@@ -64,31 +60,18 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px}
     <span><span class="dot" style="background:#D85A30"></span>南部</span>
     <span><span class="dot" style="background:#D4537E"></span>日浅</span>
     <span><span class="dot" style="background:#639922"></span>龍河</span>
+    <span><span class="dot" style="background:#888780"></span>へいん</span>
+    <span><span class="dot" style="background:#444441"></span>生島</span>
   </div>
-  <div style="position:relative;width:100%;height:240px"><canvas id="c2"></canvas></div>
+  <div style="position:relative;width:100%;height:300px"><canvas id="c_normal"></canvas></div>
+  <div class="note">実線＝実績、点線＝予測（26/05〜）</div>
 </div>
 
 <script>
 const L=["21/02","21/03","21/04","21/05","21/06","21/07","21/08","21/09","21/10","21/11","21/12","22/01","22/02","22/03","22/04","22/05","22/06","22/07","22/08","22/09","22/10","22/11","22/12","23/01","23/02","23/03","23/04","23/05","23/06","23/07","23/08","23/09","23/10","23/11","23/12","24/01","24/02","24/03","24/04","24/05","24/06","24/07","24/08","24/09","24/10","24/11","24/12","25/01","25/02","25/03","25/04","25/05","25/06","25/07","25/08","25/09","25/10","25/11","25/12","26/01","26/02","26/03","26/04","26/05","26/06","26/07","26/08","26/09","26/10","26/11","26/12"];
-
-// 実績/予測の境界（26/04=index62まで実績、63以降予測）
 const CUTOFF=62;
-
 const C={"米倉":"#378ADD","及川":"#1D9E75","アウン":"#7F77DD","アーロン":"#BA7517","南部":"#D85A30","日浅":"#D4537E","龍河":"#639922","へいん":"#888780","生島":"#444441"};
-
-// ボーナス月インデックス（確定版）
-const BI={
-  "米倉":  [18,23,30,35,47,59],
-  "及川":  [22,26,64],
-  "アウン": [22,63],
-  "アーロン":[62],
-  "南部":  [46,58],
-  "日浅":  [64],
-  "龍河":  [70],
-  "へいん": [],
-  "生島":  []
-};
-
+const BI={"米倉":[18,23,30,35,47,59],"及川":[22,26,64],"アウン":[22,63],"アーロン":[62],"南部":[46,58],"日浅":[64],"龍河":[70],"へいん":[],"生島":[]};
 const R={
   "米倉":  [2,2,2,2,2,20,20,20,20,20,20,20,20,20,20,20,35,35,155,35,35,35,35,155,35,35,35,35,35,35,245,35,35,35,35,285,35,35,35,35,35,36.9,36.9,36.9,36.9,36.9,36.9,216.9,36.9,36.9,36.9,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,222.4,42.4,42.4,42.4,51,51,51,51,51,51,51,51,51],
   "及川":  [null,null,null,4,8,24,24,24,24,24,24,25,25,25,25,25,28.2,28.2,28.2,28.2,28.2,28.2,45.8,29.8,29.8,29.8,64.8,29.8,29.8,29.8,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,166.4,48,48,48,48,48,48,48],
@@ -101,59 +84,69 @@ const R={
   "生島":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,58,58,58,58,58]
 };
 
-// 通常月・ボーナス月に分離し、実績/予測も分離
-function splitData(name, arr) {
-  const bi = BI[name]||[];
-  const normal_actual=[], normal_forecast=[], bonus=[];
-  arr.forEach((v,i)=>{
-    const isBonus = bi.includes(i);
-    if(isBonus){
-      normal_actual.push(null); normal_forecast.push(null); bonus.push(v);
-    } else if(i<=CUTOFF){
-      normal_actual.push(v); normal_forecast.push(null); bonus.push(null);
-    } else {
-      normal_actual.push(null); normal_forecast.push(v); bonus.push(null);
-    }
-  });
-  return {normal_actual, normal_forecast, bonus};
-}
+// 月次合計
+const monthly=L.map((_,i)=>Math.round(Object.values(R).reduce((s,a)=>s+(a[i]||0),0)*10)/10);
+
+// 累計
+let cum=0;
+const cumulative=monthly.map(v=>{cum+=v;return Math.round(cum*10)/10;});
+
+// 実績/予測分割
+const monthly_a=monthly.map((v,i)=>i<=CUTOFF?v:null);
+const monthly_f=monthly.map((v,i)=>i>=CUTOFF?v:null);
+const cumul_a=cumulative.map((v,i)=>i<=CUTOFF?v:null);
+const cumul_f=cumulative.map((v,i)=>i>=CUTOFF?v:null);
 
 const tk={autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}};
 
-// 通常月グラフ
-const normalDatasets=[];
-Object.entries(R).forEach(([n,a])=>{
-  const {normal_actual, normal_forecast}=splitData(n,a);
-  normalDatasets.push({
-    label:n, data:normal_actual, borderColor:C[n], backgroundColor:C[n]+'15',
-    tension:0.3, pointRadius:1.5, borderWidth:2, spanGaps:false, borderDash:[]
-  });
-  normalDatasets.push({
-    label:n+'_f', data:normal_forecast, borderColor:C[n], backgroundColor:'transparent',
-    tension:0.3, pointRadius:1.5, borderWidth:1.5, spanGaps:false, borderDash:[4,3]
-  });
-});
-
-new Chart(document.getElementById('c1'),{
-  type:'line',
-  data:{labels:L, datasets:normalDatasets},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
-});
-
-// ボーナスグラフ
-const bonusDatasets=Object.entries(R).map(([n,a])=>{
-  const {bonus}=splitData(n,a);
-  return {label:n, data:bonus, backgroundColor:C[n]+'99', borderColor:C[n], borderWidth:1, stack:'bonus'};
-});
-
-new Chart(document.getElementById('c2'),{
+// 月次合計グラフ
+new Chart(document.getElementById('c_monthly'),{
   type:'bar',
-  data:{labels:L, datasets:bonusDatasets},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
+  data:{labels:L,datasets:[
+    {label:'実績',data:monthly_a,backgroundColor:'#378ADD88',borderColor:'#378ADD',borderWidth:1},
+    {label:'予測',data:monthly_f,backgroundColor:'#378ADD33',borderColor:'#378ADD',borderWidth:1,borderDash:[4,3]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
+
+// 累計グラフ
+new Chart(document.getElementById('c_cumul'),{
+  type:'line',
+  data:{labels:L,datasets:[
+    {label:'実績',data:cumul_a,borderColor:'#1D9E75',backgroundColor:'#1D9E7520',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true},
+    {label:'予測',data:cumul_f,borderColor:'#1D9E75',backgroundColor:'#1D9E7510',tension:0.3,pointRadius:1.5,borderWidth:1.5,fill:true,borderDash:[4,3]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円（累計）',font:{size:10}},ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'}}}}
+});
+
+// 通常月個人別グラフ
+function splitNormal(name,arr){
+  const bi=BI[name]||[];
+  const act=[],fct=[];
+  arr.forEach((v,i)=>{
+    const isB=bi.includes(i);
+    act.push(isB||i>CUTOFF?null:v);
+    fct.push(isB||i<CUTOFF?null:v);
+  });
+  // 境界点をつなぐ
+  if(act[CUTOFF]!==null) fct[CUTOFF]=act[CUTOFF];
+  return {act,fct};
+}
+
+const normalDS=[];
+Object.entries(R).forEach(([n,a])=>{
+  const {act,fct}=splitNormal(n,a);
+  normalDS.push({label:n,data:act,borderColor:C[n],backgroundColor:C[n]+'15',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
+  normalDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,spanGaps:false,borderDash:[4,3]});
+});
+
+new Chart(document.getElementById('c_normal'),{
+  type:'line',
+  data:{labels:L,datasets:normalDS},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
 });
 </script>
 </body>
