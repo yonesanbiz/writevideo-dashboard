@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>個人別ダッシュボード</title>
-<style>#_authWrap{display:none}</style><script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}else{document.getElementById("_authWrap").style.display="block";}}).catch(()=>{window.location.href="/index.html";});</script>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -59,8 +59,6 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </style>
 </head>
 <body>
-<div id="_authWrap">
-<div id="_authWrap">
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 <h1>個人別ダッシュボード</h1>
 <div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
@@ -322,6 +320,5 @@ function rebuildChart(id, config){
 
 render();
 </script>
-</div>
 </body>
 </html>
