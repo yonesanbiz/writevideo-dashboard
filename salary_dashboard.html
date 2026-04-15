@@ -50,7 +50,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>給与推移ダッシュボード</h1>
-<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12　<span style="color:#bbb;font-family:monospace;font-size:10px;">Released: 2026-04-15 23:20 JST</span></div>
+<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12　<span style="color:#bbb;font-family:monospace;font-size:10px;">Released: 2026-04-15 23:23 JST</span></div>
 
 <div class="grid">
   <div class="card"><div class="cl">月次人件費合計（26/04）</div><div class="cv">459万円</div><div class="cs">海外エンジニア・外注費含む</div></div>
@@ -166,37 +166,26 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </div>
 
 <script>
-// データをAPIから取得
-let L,CUTOFF,OUTSOURCE_START,OVERSEAS_START,OVERSEAS_DATA,SALES,DEV,C,BONUS_SPLIT,R;
-// 月次合計（部門別）
-const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{
-  const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
-},0)*10)/10);
-const devTotal=L.map((_,i)=>Math.round(DEV.reduce((s,n)=>{
-  const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
-},0)*10)/10);
-// outsourceはloadData内で初期化
-const grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i])*10)/10);
+// ===== 給与データ（api/salary-data から取得） =====
+let L,CUTOFF,OUTSOURCE_START,OVERSEAS_START,OVERSEAS_DATA,SALES,DEV,C,BI,BONUS_SPLIT,R;
+let outsource,overseasTotal,salesTotal,devTotal,grandTotal,cumulative;
 
-// 実績/予測分割
-function split(arr){
-  return {
-    actual: arr.map((v,i)=>i<=CUTOFF?v:null),
-    forecast: arr.map((v,i)=>i>CUTOFF?v:null)
-  };
+function initData(d) {
+  L=d.L; CUTOFF=d.CUTOFF; OUTSOURCE_START=d.OUTSOURCE_START;
+  OVERSEAS_START=d.OVERSEAS_START; OVERSEAS_DATA=d.OVERSEAS_DATA;
+  SALES=d.SALES; DEV=d.DEV; C=d.C; BI=d.BI||{}; BONUS_SPLIT=d.BONUS_SPLIT; R=d.R;
+  outsource=L.map((_,i)=>i>=OUTSOURCE_START?50:0);
+  overseasTotal=L.map((_,i)=>{const idx=i-OVERSEAS_START;return(idx>=0&&idx<OVERSEAS_DATA.length)?OVERSEAS_DATA[idx]:0;});
+  salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{const nd=getNormalData(n,R[n]);return s+(nd[i]||0);},0)*10)/10);
+  devTotal=L.map((_,i)=>Math.round(DEV.reduce((s,n)=>{const nd=getNormalData(n,R[n]);return s+(nd[i]||0);},0)*10)/10);
+  outsource=L.map((_,i)=>i>=OUTSOURCE_START?50:0);
+  grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i])*10)/10);
+  let cum=0;
+  cumulative=grandTotal.map(v=>{cum+=v;return Math.round(cum*10)/10;});
 }
-
-// 累計
-let cum=0;
-const cumulative=grandTotal.map(v=>{cum+=v;return Math.round(cum*10)/10;});
 
 const tk={autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}};
 
-// 月次合計（スタック棒グラフ）
-const {actual:sa, forecast:sf}=split(salesTotal);
-const {actual:da, forecast:df}=split(devTotal);
-const {actual:ova, forecast:ovf}=split(overseasTotal);
-const {actual:oa, forecast:of_}=split(outsource);
 const chartInstances={};
 function buildCharts(){
   Object.values(chartInstances).forEach(c=>c.destroy());
@@ -470,7 +459,6 @@ chartInstances['c_stack']=new Chart(document.getElementById('c_stack'),{
     scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
 });
 }
-buildCharts();
 // ===== 編集テーブル =====
 const ROWS = ["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん","生島","外注(営業)","外注(IS)"];
 const ROW_DEFS = [
@@ -592,29 +580,7 @@ function applyEditsToData(edits) {
 // セル変更時にフッター更新
 const tableEdits = loadEdits();
 
-// ページ読み込み時にデータ取得→グラフ描画
-(async () => {
-  const res = await fetch('/api/salary-data');
-  if (!res.ok) { window.location.href='/index.html'; return; }
-  const d = await res.json();
-  L=d.L;CUTOFF=d.CUTOFF;OUTSOURCE_START=d.OUTSOURCE_START;
-  OVERSEAS_START=d.OVERSEAS_START;OVERSEAS_DATA=d.OVERSEAS_DATA;
-  SALES=d.SALES;DEV=d.DEV;C=d.C;BONUS_SPLIT=d.BONUS_SPLIT;R=d.R;
-  // outsourceはloadData内で初期化
-  window._outsource = outsource;
-  if (Object.keys(tableEdits).length > 0) {
-    applyEditsToData(tableEdits);
-  }
-  buildCharts();
-  renderTable();
-  Object.keys(tableEdits).forEach(name => {
-    Object.keys(tableEdits[name]).forEach(i => {
-      const input = document.querySelector(`input[data-name="${name}"][data-idx="${i}"]`);
-      if(input && tableEdits[name][i] !== null) input.value = tableEdits[name][i];
-    });
-  });
-  setTimeout(()=>{ const wrap=document.querySelector('.tbl-wrap'); if(wrap) wrap.scrollLeft=wrap.scrollWidth; },100);
-})();
+// （編集データの反映はloadSalaryData後に実行）
 
 
 // ===== スプレッドシート的セル操作 =====
@@ -786,7 +752,12 @@ function resetEdits() {
   location.reload();
 }
 
-// 初期化はloadData()内で実行
+// （初期化はloadSalaryData後に実行）
+// テーブルを最右列にスクロール
+setTimeout(()=>{
+  const wrap = document.querySelector('.tbl-wrap');
+  if(wrap) wrap.scrollLeft = wrap.scrollWidth;
+},100);
 </script>
 </body>
 </html>

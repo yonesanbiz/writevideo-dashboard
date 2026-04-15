@@ -32,7 +32,7 @@ tr:last-child td{border-bottom:none}
 </style>
 <script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
-<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-15 23:20 JST</div>
+<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-15 23:23 JST</div>
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>ボーナス推移</h1>
@@ -69,17 +69,16 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <script>
-// データをAPIから取得
-let L,CUTOFF,OUTSOURCE_START,OVERSEAS_START,OVERSEAS_DATA,SALES,DEV,C,BONUS_SPLIT,R;
-(async () => {
-  const res = await fetch('/api/salary-data');
-  if (!res.ok) { window.location.href='/index.html'; return; }
-  const d = await res.json();
-  L=d.L;CUTOFF=d.CUTOFF;C=d.C;BONUS_SPLIT=d.BONUS_SPLIT;R=d.R;
-  initBonus();
-})();
+// ===== 給与データ（api/salary-data から取得） =====
+let L,CUTOFF,C,BI,BONUS_SPLIT,R;
 
-function initBonus() {
+
+(async () => {
+  try {
+    const res = await fetch('/api/salary-data');
+    const d = await res.json();
+    L=d.L; CUTOFF=d.CUTOFF; C=d.C; BI=d.BI||{}; BONUS_SPLIT=d.BONUS_SPLIT; R=d.R;
+
 // ボーナスデータ分離（実績/予測）
 const bonusActual={}, bonusForecast={};
 Object.entries(R).forEach(([n,a])=>{
@@ -118,7 +117,9 @@ rows.forEach(r=>{
   tr.innerHTML=`<td>${r.month}</td><td>${r.name}</td><td class="amount">${r.amount}</td><td style="font-size:10px;color:${isF?'#e65100':'#888'}">${isF?'予測':'実績'}</td>`;
   tbody.appendChild(tr);
 });
-} // end initBonus
+
+  } catch(e) { console.error('給与データ取得失敗:', e); }
+})();
 </script>
 </body>
 </html>
