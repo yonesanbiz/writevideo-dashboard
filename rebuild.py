@@ -20,13 +20,11 @@ for f in files:
     path = f'{f}.html'
     if not os.path.exists(path): continue
     content = open(path, encoding='utf-8').read()
-    # Released日時を現在時刻に更新
     content = re.sub(
         r'Released: \d{4}-\d{2}-\d{2} \d{2}:\d{2} JST',
         f'Released: {jst}',
         content
     )
-    # HTMLファイル自体も更新
     open(path, 'w', encoding='utf-8').write(content)
     pages[f] = content
 
@@ -49,8 +47,12 @@ js = f'''export default async function handler(req, res) {{
 open('api/page.js', 'w', encoding='utf-8').write(js)
 print(f'✓ api/page.js再生成完了: {jst}')
 
-TOKEN = "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"
-subprocess.run(['git', 'add', '-A'])
-subprocess.run(['git', 'commit', '-m', f'Rebuild: {jst}'])
-subprocess.run(['git', 'push', f'https://yonesanbiz:{TOKEN}@github.com/yonesanbiz/writevideo-dashboard.git', 'main'])
-print(f'✓ プッシュ完了')
+# トークンは環境変数 GITHUB_TOKEN から読む
+token = os.environ.get('GITHUB_TOKEN', '')
+if not token:
+    print('⚠ GITHUB_TOKEN未設定。git push をスキップ')
+else:
+    subprocess.run(['git', 'add', '-A'])
+    subprocess.run(['git', 'commit', '-m', f'Rebuild: {jst}'])
+    subprocess.run(['git', 'push', f'https://yonesanbiz:{token}@github.com/yonesanbiz/writevideo-dashboard.git', 'main'])
+    print('✓ プッシュ完了')
