@@ -44,7 +44,7 @@ td.r { text-align: right; font-variant-numeric: tabular-nums; }
 .legend-box { width:12px; height:12px; border-radius:2px; }
 </style>
 </head>
-<body><div style="position:fixed;top:20px;right:20px;z-index:9999;"><a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">ダッシュボードに戻る →</a></div><script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+<body><div style="position:fixed;top:20px;left:20px;z-index:9999;"><a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a></div><script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
 <h1>展示会分析ダッシュボード</h1>
 <p class="sub">展示会.xlsx | 34展示会　コスト=M列（合計税抜）　12ヶ月予測=受注曲線補正（現達成率÷曲線中央値×70%）</p>
 
