@@ -158,7 +158,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
     <tbody id="tblBody"></tbody>
     <tfoot id="tblFoot"></tfoot>
   </table></div>
-  <button class="btn-update" onclick="applyTableEdits()">保存してグラフを更新</button>
+  <button class="btn-update" onclick="applyTableEdits()">今すぐ更新</button>
   <button class="btn-update" style="background:#888;margin-left:8px" onclick="resetEdits()">リセット</button>
 </div>
 
@@ -603,6 +603,9 @@ const tableEdits = loadEdits();
 // ページ読み込み時に保存済み編集を反映
 applyEditsToData(tableEdits);
 
+// debounce用タイマー
+let _chartUpdateTimer = null;
+
 function onCellChange(input) {
   const name = input.dataset.name;
   const idx = parseInt(input.dataset.idx);
@@ -624,15 +627,22 @@ function onCellChange(input) {
   });
   const foot = document.getElementById(`foot_${idx}`);
   if(foot) foot.textContent = total > 0 ? total.toFixed(1) : '';
+
+  // 500ms後にグラフ更新＆保存（連続入力時はリセット）
+  clearTimeout(_chartUpdateTimer);
+  _chartUpdateTimer = setTimeout(() => {
+    applyEditsToData(tableEdits);
+    saveEdits(tableEdits);
+    buildCharts();
+  }, 500);
 }
 
-// グラフ更新
+// グラフ更新（手動ボタン用・後方互換）
 function applyTableEdits() {
-  if(Object.keys(tableEdits).length === 0) { alert('変更がありません'); return; }
+  clearTimeout(_chartUpdateTimer);
   applyEditsToData(tableEdits);
   saveEdits(tableEdits);
   buildCharts();
-  alert('保存してグラフを更新しました');
 }
 
 // リセットボタン
