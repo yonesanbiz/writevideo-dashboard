@@ -39,6 +39,10 @@
     {
       "source": "/salary_bonus.html",
       "destination": "/api/page?p=salary_bonus"
+    },
+    {
+      "source": "/person_dashboard.html",
+      "destination": "/api/page?p=person_dashboard"
     }
   ],
   "headers": [
