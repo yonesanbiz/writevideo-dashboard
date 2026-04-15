@@ -600,8 +600,11 @@ function applyEditsToData(edits) {
 // セル変更時にフッター更新
 const tableEdits = loadEdits();
 
-// ページ読み込み時に保存済み編集を反映
-applyEditsToData(tableEdits);
+// ページ読み込み時に保存済み編集を反映してグラフ再描画
+if (Object.keys(tableEdits).length > 0) {
+  applyEditsToData(tableEdits);
+  buildCharts();
+}
 
 // debounce用タイマー
 let _chartUpdateTimer = null;
