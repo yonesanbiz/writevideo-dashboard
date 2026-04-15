@@ -25,7 +25,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px}
 .dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .note{font-size:10px;color:#aaa;margin-top:8px}
 </style>
-</head>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
 <div class="back"><a href="index.html">ダッシュボードに戻る →</a></div>
 

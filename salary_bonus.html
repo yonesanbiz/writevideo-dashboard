@@ -30,7 +30,7 @@ td{padding:8px;border-bottom:1px solid #f0ede8}
 tr:last-child td{border-bottom:none}
 .amount{font-weight:500;text-align:right}
 </style>
-</head>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
 <div class="back"><a href="index.html">ダッシュボードに戻る →</a></div>
 

@@ -10,7 +10,9 @@ export default async function handler(req, res) {
     'exhibition_analysis',
     'writevideo_revaluation',
     'writevideo_sales_analysis',
-    'channel_list'
+    'channel_list',
+    'salary_dashboard',
+    'salary_bonus'
   ];
 
   if (!allowed.includes(p)) {

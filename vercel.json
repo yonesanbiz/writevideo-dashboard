@@ -31,6 +31,14 @@
     {
       "source": "/channel_list.html",
       "destination": "/api/page?p=channel_list"
+    },
+    {
+      "source": "/salary_dashboard.html",
+      "destination": "/api/page?p=salary_dashboard"
+    },
+    {
+      "source": "/salary_bonus.html",
+      "destination": "/api/page?p=salary_bonus"
     }
   ]
 }
