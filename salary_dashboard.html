@@ -109,6 +109,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
     <span><span class="dot" style="background:#639922"></span>龍河</span>
     <span><span class="dot" style="background:#888780"></span>へいん</span>
     <span><span class="dot" style="background:#444441"></span>生島</span>
+    <span><span class="dot" style="background:#e53935;border-radius:0"></span>平均（米倉除く）</span>
   </div>
   <div style="position:relative;width:100%;height:300px"><canvas id="c_growth"></canvas></div>
   <div class="note">入社月の給与を100として指数化。実線＝実績、点線＝予測。</div>
@@ -387,6 +388,20 @@ GROWTH_NAMES.forEach(n=>{
   growthDS.push({label:n,data:actData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
   growthDS.push({label:n+'_f',data:fctData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
 });
+
+// 米倉除く平均
+const avgAct=new Array(maxMonths+1).fill(null);
+const avgFct=new Array(maxMonths+1).fill(null);
+for(let m=0;m<=maxMonths;m++){
+  // actの平均
+  const actVals=growthDS.filter((_,i)=>i%2===0&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
+  if(actVals.length>0) avgAct[m]=Math.round(actVals.reduce((a,b)=>a+b,0)/actVals.length*10)/10;
+  // fctの平均
+  const fctVals=growthDS.filter((_,i)=>i%2===1&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
+  if(fctVals.length>0) avgFct[m]=Math.round(fctVals.reduce((a,b)=>a+b,0)/fctVals.length*10)/10;
+}
+growthDS.push({label:'平均(米倉除く)',data:avgAct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2.5,spanGaps:true,borderDash:[6,2]});
+growthDS.push({label:'平均(米倉除く)_f',data:avgFct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2,spanGaps:true,borderDash:[4,3]});
 
 new Chart(document.getElementById('c_growth'),{
   type:'line',
