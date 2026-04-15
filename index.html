@@ -212,6 +212,9 @@ function moveNext(el, idx) {
 // ペースト対応
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.code-input').forEach(function(input, i) {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') verifyCode();
+    });
     input.addEventListener('paste', function(e) {
       e.preventDefault();
       const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
