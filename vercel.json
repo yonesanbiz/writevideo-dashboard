@@ -40,5 +40,16 @@
       "source": "/salary_bonus.html",
       "destination": "/api/page?p=salary_bonus"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    }
   ]
 }
