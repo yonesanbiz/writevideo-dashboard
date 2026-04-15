@@ -234,7 +234,8 @@ new Chart(document.getElementById('c_cumul'),{
 
 // 割合グラフ（100%積み上げ面グラフ・21/05スタート）
 const RATIO_START=3; // 21/05のインデックス
-const ratioLabels=L.slice(RATIO_START);
+const RATIO_END=68; // 26/10のインデックス
+const ratioLabels=L.slice(RATIO_START,RATIO_END+1);
 const ratioTotal=L.map((_,i)=>salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i]);
 const makeRatio=(arr)=>arr.map((v,i)=>ratioTotal[i]>0?Math.round(v/ratioTotal[i]*1000)/10:null);
 
@@ -243,13 +244,13 @@ const overseasRatioFull=makeRatio(overseasTotal);
 const salesRatioFull=makeRatio(salesTotal);
 const outsourceRatioFull=makeRatio(outsource);
 
-// 21/05以降にスライス・実績/予測で色分け
+// 21/05〜26/10にスライス・実績/予測で色分け
 const mkRatioDS=(full,colorSolid,colorLight)=>{
-  const sliced=full.slice(RATIO_START);
+  const sliced=full.slice(RATIO_START,RATIO_END+1);
   const act=sliced.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
   const fct=sliced.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
   // 境界点をつなぐ
-  const boundary=CUTOFF-RATIO_START;
+  const boundary=Math.min(CUTOFF,RATIO_END)-RATIO_START;
   if(act[boundary]!==null) fct[boundary]=act[boundary];
   return [
     {data:act,backgroundColor:colorSolid,borderColor:colorSolid,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'},
