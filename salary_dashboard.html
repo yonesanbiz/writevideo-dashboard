@@ -232,43 +232,56 @@ new Chart(document.getElementById('c_cumul'),{
     scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円（累計）',font:{size:10}},ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'}}}}
 });
 
-// 割合グラフ（100%積み上げ面グラフ）
+// 割合グラフ（100%積み上げ面グラフ・21/05スタート）
+const RATIO_START=3; // 21/05のインデックス
+const ratioLabels=L.slice(RATIO_START);
 const ratioTotal=L.map((_,i)=>salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i]);
-const makeRatio=(arr)=>arr.map((v,i)=>ratioTotal[i]>0?Math.round(v/ratioTotal[i]*1000)/10:0);
+const makeRatio=(arr)=>arr.map((v,i)=>ratioTotal[i]>0?Math.round(v/ratioTotal[i]*1000)/10:null);
 
-const devRatio=makeRatio(devTotal);
-const overseasRatio=makeRatio(overseasTotal);
-const salesRatio=makeRatio(salesTotal);
-const outsourceRatio=makeRatio(outsource);
+const devRatioFull=makeRatio(devTotal);
+const overseasRatioFull=makeRatio(overseasTotal);
+const salesRatioFull=makeRatio(salesTotal);
+const outsourceRatioFull=makeRatio(outsource);
 
-// 実績(〜CUTOFF)と予測(CUTOFF+1〜)に分割
-const splitRatio=(arr)=>{
-  const a=arr.map((v,i)=>i<=CUTOFF?v:null);
-  const f=arr.map((v,i)=>i>CUTOFF?v:null);
-  return {a,f};
+// 21/05以降にスライス・実績/予測で色分け
+const mkRatioDS=(full,colorSolid,colorLight)=>{
+  const sliced=full.slice(RATIO_START);
+  const act=sliced.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
+  const fct=sliced.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
+  // 境界点をつなぐ
+  const boundary=CUTOFF-RATIO_START;
+  if(act[boundary]!==null) fct[boundary]=act[boundary];
+  return [
+    {data:act,backgroundColor:colorSolid,borderColor:colorSolid,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'},
+    {data:fct,backgroundColor:colorLight,borderColor:colorLight,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'}
+  ];
 };
-const dr=splitRatio(devRatio);
-const or_=splitRatio(overseasRatio);
-const sr=splitRatio(salesRatio);
-const our=splitRatio(outsourceRatio);
+
+const ratioDatasets=[
+  ...mkRatioDS(devRatioFull,'#1D9E75bb','#1D9E7544'),
+  ...mkRatioDS(overseasRatioFull,'#7F77DDbb','#7F77DD44'),
+  ...mkRatioDS(salesRatioFull,'#378ADDbb','#378ADD44'),
+  ...mkRatioDS(outsourceRatioFull,'#c8c3bbcc','#c8c3bb44'),
+];
 
 new Chart(document.getElementById('c_ratio'),{
-  type:'bar',
-  data:{labels:L,datasets:[
-    {label:'日本人開発_実績',data:dr.a,backgroundColor:'#1D9E75bb',borderWidth:0,stack:'r'},
-    {label:'海外エンジニア_実績',data:or_.a,backgroundColor:'#7F77DDbb',borderWidth:0,stack:'r'},
-    {label:'営業CS_実績',data:sr.a,backgroundColor:'#378ADDbb',borderWidth:0,stack:'r'},
-    {label:'外注費_実績',data:our.a,backgroundColor:'#c8c3bbbb',borderWidth:0,stack:'r'},
-    {label:'日本人開発_予測',data:dr.f,backgroundColor:'#1D9E7555',borderWidth:1,borderColor:'#1D9E75',stack:'r'},
-    {label:'海外エンジニア_予測',data:or_.f,backgroundColor:'#7F77DD55',borderWidth:1,borderColor:'#7F77DD',stack:'r'},
-    {label:'営業CS_予測',data:sr.f,backgroundColor:'#378ADD55',borderWidth:1,borderColor:'#378ADD',stack:'r'},
-    {label:'外注費_予測',data:our.f,backgroundColor:'#c8c3bb55',borderWidth:1,borderColor:'#aaa',stack:'r'},
-  ]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label.replace('_実績','').replace('_予測','予測')+': '+ctx.parsed.y.toFixed(1)+'%'}}},
+  type:'line',
+  data:{labels:ratioLabels,datasets:ratioDatasets},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{mode:'index',intersect:false,callbacks:{
+        label:ctx=>{
+          const names=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
+          const v=ctx.parsed.y;
+          return v!==null?names[ctx.datasetIndex]+': '+v.toFixed(1)+'%':null;
+        }
+      }}
+    },
     scales:{
-      x:{ticks:tk,stacked:true},
+      x:{ticks:{autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}}},
       y:{stacked:true,min:0,max:100,title:{display:true,text:'割合（%）',font:{size:10}},ticks:{font:{size:10},callback:v=>v+'%'}}
-    }}
+    }
+  }
 });
 
 // 部門別
