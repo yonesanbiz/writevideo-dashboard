@@ -325,9 +325,53 @@ const ratioDatasets=[
   ...mkRatioDS(outsourceRatioFull,'#c8c3bbcc','#c8c3bb44'),
 ];
 
+// 直近6ヶ月ラベル描画プラグイン
+const ratioLabelPlugin = {
+  id: 'ratioLabels',
+  afterDraw(chart) {
+    const ctx2 = chart.ctx;
+    const meta0 = chart.getDatasetMeta(0); // 日本人開発_実績
+    const total = ratioLabels.length;
+    const SHOW = 6; // 直近6ヶ月
+    const names = ['日本人開発','海外ENG','営業CS','外注費'];
+    // 実績データセット（偶数インデックス）の直近6点にラベル
+    [0,2,4,6].forEach((dsIdx, ni) => {
+      const meta = chart.getDatasetMeta(dsIdx);
+      if(!meta || meta.hidden) return;
+      for(let i = total - SHOW; i < total; i++) {
+        const pt = meta.data[i];
+        if(!pt) return;
+        const v = chart.data.datasets[dsIdx].data[i];
+        if(v === null || v === undefined || v < 3) continue;
+        // 中心Y = 積み上げの中点
+        const y = pt.y + (chart.getDatasetMeta(dsIdx+1)?.data[i]?.y ? 0 : 0);
+        // 積み上げ面の中心を計算
+        let yTop = pt.y;
+        let yBot = chart.scales.y.getPixelForValue(0);
+        // 前のデータセットの底を探す
+        if(ni > 0) {
+          const prevMeta = chart.getDatasetMeta([0,2,4,6][ni-1]);
+          if(prevMeta?.data[i]) yBot = prevMeta.data[i].y;
+        }
+        const yCenter = (yTop + yBot) / 2;
+        const height = Math.abs(yBot - yTop);
+        if(height < 12) continue;
+        ctx2.save();
+        ctx2.font = 'bold 9px monospace';
+        ctx2.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'middle';
+        ctx2.fillText(v.toFixed(0)+'%', pt.x, yCenter);
+        ctx2.restore();
+      }
+    });
+  }
+};
+
 chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
   type:'line',
   data:{labels:ratioLabels,datasets:ratioDatasets},
+  plugins:[ratioLabelPlugin],
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},
       tooltip:{mode:'index',intersect:false,
@@ -337,7 +381,6 @@ chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
             const labels=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
             const v=ctx.parsed.y;
             if(!v||v===null) return null;
-            // 予測系（奇数インデックス）は表示しない
             if(ctx.datasetIndex % 2 === 1) return null;
             return labels[ctx.datasetIndex]+': '+v.toFixed(1)+'%';
           }
