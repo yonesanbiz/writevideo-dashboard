@@ -50,7 +50,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>給与推移ダッシュボード</h1>
-<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12　<span style="color:#bbb;font-family:monospace;font-size:10px;">Released: 2026-04-15 23:16 JST</span></div>
+<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12　<span style="color:#bbb;font-family:monospace;font-size:10px;">Released: 2026-04-15 23:18 JST</span></div>
 
 <div class="grid">
   <div class="card"><div class="cl">月次人件費合計（26/04）</div><div class="cv">459万円</div><div class="cs">海外エンジニア・外注費含む</div></div>
@@ -166,63 +166,8 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </div>
 
 <script>
-const L=["21/02","21/03","21/04","21/05","21/06","21/07","21/08","21/09","21/10","21/11","21/12","22/01","22/02","22/03","22/04","22/05","22/06","22/07","22/08","22/09","22/10","22/11","22/12","23/01","23/02","23/03","23/04","23/05","23/06","23/07","23/08","23/09","23/10","23/11","23/12","24/01","24/02","24/03","24/04","24/05","24/06","24/07","24/08","24/09","24/10","24/11","24/12","25/01","25/02","25/03","25/04","25/05","25/06","25/07","25/08","25/09","25/10","25/11","25/12","26/01","26/02","26/03","26/04","26/05","26/06","26/07","26/08","26/09","26/10","26/11","26/12"];
-const CUTOFF=62;
-const OUTSOURCE_START=47; // 25/01
-
-// 海外エンジニア費用（日本円・万円）24/06〜26/10
-const OVERSEAS_START=40; // 24/06
-const OVERSEAS_DATA=[56.5,101.5,77.2,20.9,21.4,23.2,26.0,43.8,41.3,48.5,69.2,79.5,81.4,79.3,97.7,97.6,108.6,109.3,112.4,111.6,115.5,115.6,106.5,108.0,101.8,113.7,107.9,112.6,112.6];
-const overseasTotal=L.map((_,i)=>{
-  const idx=i-OVERSEAS_START;
-  return (idx>=0&&idx<OVERSEAS_DATA.length)?OVERSEAS_DATA[idx]:0;
-});
-
-// 部門分類
-const SALES=["米倉","南部","日浅","龍河","生島"];
-const DEV=["及川","アウン","アーロン","へいん"];
-
-const C={"米倉":"#378ADD","及川":"#1D9E75","アウン":"#7F77DD","アーロン":"#BA7517","南部":"#D85A30","日浅":"#D4537E","龍河":"#639922","へいん":"#888780","生島":"#444441"};
-const BI={"米倉":[18,23,30,35,47,59],"及川":[22,26,64],"アウン":[22,63],"アーロン":[62],"南部":[46,58],"日浅":[64],"龍河":[70],"へいん":[],"生島":[]};
-
-const BONUS_SPLIT={
-  "米倉":{"18":[35,120],"23":[35,120],"30":[35,210],"35":[35,250],"47":[36.9,180],"59":[42.4,180]},
-  "及川":{"22":[28.2,17.6],"26":[29.8,35],"64":[42.4,124]},
-  "アウン":{"22":[34,16],"63":[41.1,20]},
-  "アーロン":{"62":[30.5,35]},
-  "南部":{"46":[31.5,21],"58":[40,30]},
-  "日浅":{"64":[35,31]},
-  "龍河":{"70":[42,48]},
-  "へいん":{},"生島":{}
-};
-function getNormalData(name,arr){
-  const bs=BONUS_SPLIT[name]||{};
-  return arr.map((v,i)=>{
-    if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][0];
-    return v;
-  });
-}
-function getBonusData(name,arr){
-  const bs=BONUS_SPLIT[name]||{};
-  return arr.map((v,i)=>{
-    if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][1];
-    return null;
-  });
-}
-const R={
-  "米倉":  [2,2,2,2,2,20,20,20,20,20,20,20,20,20,20,20,35,35,155,35,35,35,35,155,35,35,35,35,35,35,245,35,35,35,35,285,35,35,35,35,35,36.9,36.9,36.9,36.9,36.9,36.9,216.9,36.9,36.9,36.9,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,222.4,42.4,42.4,42.4,51,51,51,51,51,51,51,51,51],
-  "及川":  [null,null,null,4,8,24,24,24,24,24,24,25,25,25,25,25,28.2,28.2,28.2,28.2,28.2,28.2,45.8,29.8,29.8,29.8,64.8,29.8,29.8,29.8,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,166.4,48,48,48,48,48,48,48],
-  "アウン": [null,null,null,27,27,27,27,27,27,28,28,28,28,28,28,30.5,30.5,30.5,30.5,30.5,30.5,34,50,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,41.1,41.1,41.1,61.1,41.1,41.1,46.2,46.2,46.2,46.2,46.2,46.2],
-  "アーロン":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,24.5,24.5,24.5,24.5,24.5,24.5,24.5,26.8,26.8,26.8,26.8,26.8,26.8,30.5,30.5,30.5,30.5,30.5,30.5,65.5,30.5,30.5,36,36,36,36,36,36],
-  "南部":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,30,30,30,30,30,30,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,52.5,31.5,31.5,31.5,31.5,32.8,32.8,32.8,32.8,32.8,32.8,40,70,40,40,40,40,40,40,40,40,40,40,40,null,null],
-  "日浅":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,35,35,35,35,35,35,35,35,66,36,36,36,36,36,36],
-  "龍河":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,36,36,36,36,42,42,42,42,42,90],
-  "へいん": [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,25.8,25.8,25.8,25.8,25.8,25.8],
-  "生島":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,58,58,58,58,58]
-};
-
+// データをAPIから取得
+let L,CUTOFF,OUTSOURCE_START,OVERSEAS_START,OVERSEAS_DATA,SALES,DEV,C,BONUS_SPLIT,R;
 // 月次合計（部門別）
 const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{
   const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
@@ -230,7 +175,7 @@ const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{
 const devTotal=L.map((_,i)=>Math.round(DEV.reduce((s,n)=>{
   const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
 },0)*10)/10);
-const outsource=L.map((_,i)=>i>=OUTSOURCE_START?50:0);
+// outsourceはloadData内で初期化
 const grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i])*10)/10);
 
 // 実績/予測分割
@@ -647,11 +592,29 @@ function applyEditsToData(edits) {
 // セル変更時にフッター更新
 const tableEdits = loadEdits();
 
-// ページ読み込み時に保存済み編集を反映してグラフ再描画
-if (Object.keys(tableEdits).length > 0) {
-  applyEditsToData(tableEdits);
+// ページ読み込み時にデータ取得→グラフ描画
+(async () => {
+  const res = await fetch('/api/salary-data');
+  if (!res.ok) { window.location.href='/index.html'; return; }
+  const d = await res.json();
+  L=d.L;CUTOFF=d.CUTOFF;OUTSOURCE_START=d.OUTSOURCE_START;
+  OVERSEAS_START=d.OVERSEAS_START;OVERSEAS_DATA=d.OVERSEAS_DATA;
+  SALES=d.SALES;DEV=d.DEV;C=d.C;BONUS_SPLIT=d.BONUS_SPLIT;R=d.R;
+  // outsourceはloadData内で初期化
+  window._outsource = outsource;
+  if (Object.keys(tableEdits).length > 0) {
+    applyEditsToData(tableEdits);
+  }
   buildCharts();
-}
+  renderTable();
+  Object.keys(tableEdits).forEach(name => {
+    Object.keys(tableEdits[name]).forEach(i => {
+      const input = document.querySelector(`input[data-name="${name}"][data-idx="${i}"]`);
+      if(input && tableEdits[name][i] !== null) input.value = tableEdits[name][i];
+    });
+  });
+  setTimeout(()=>{ const wrap=document.querySelector('.tbl-wrap'); if(wrap) wrap.scrollLeft=wrap.scrollWidth; },100);
+})();
 
 
 // ===== スプレッドシート的セル操作 =====
@@ -823,20 +786,7 @@ function resetEdits() {
   location.reload();
 }
 
-// 初期化
-renderTable();
-// 保存済みの値をテーブルに表示
-Object.keys(tableEdits).forEach(name => {
-  Object.keys(tableEdits[name]).forEach(i => {
-    const input = document.querySelector(`input[data-name="${name}"][data-idx="${i}"]`);
-    if(input && tableEdits[name][i] !== null) input.value = tableEdits[name][i];
-  });
-});
-// テーブルを最右列にスクロール
-setTimeout(()=>{
-  const wrap = document.querySelector('.tbl-wrap');
-  if(wrap) wrap.scrollLeft = wrap.scrollWidth;
-},100);
+// 初期化はloadData()内で実行
 </script>
 </body>
 </html>
