@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ボーナス推移</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f2ec;padding:24px;color:#0f0e0d}
+.back{position:fixed;top:20px;left:20px;z-index:9999}
+.back a{display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px}
+h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
+.sub{font-size:11px;color:#888;font-family:monospace;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:20px}
+.card{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:12px}
+.cl{font-size:11px;color:#888;margin-bottom:3px}
+.cv{font-size:20px;font-weight:500}
+.cs{font-size:10px;color:#aaa;margin-top:2px}
+.section{background:white;border:1px solid #e5e0d8;border-radius:8px;padding:16px;margin-bottom:16px}
+.stitle{font-size:13px;font-weight:500;color:#444;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-family:monospace;background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:3px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:#666}
+.leg span{display:flex;align-items:center;gap:4px}
+.dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.note{font-size:10px;color:#aaa;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+th{text-align:left;font-family:monospace;font-size:10px;color:#888;padding:6px 8px;border-bottom:1px solid #e5e0d8;background:#f9f7f3}
+td{padding:8px;border-bottom:1px solid #f0ede8}
+tr:last-child td{border-bottom:none}
+.amount{font-weight:500;text-align:right}
+</style>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
+<body>
+<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-15 22:16 JST</div>
+<div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
+
+<h1>ボーナス推移</h1>
+<div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
+
+<div class="grid">
+  <div class="card"><div class="cl">最大ボーナス</div><div class="cv">285万</div><div class="cs">米倉 24/01</div></div>
+  <div class="card"><div class="cl">累計ボーナス（26/04）</div><div class="cv">2,193万</div><div class="cs">全員合計</div></div>
+  <div class="card"><div class="cl">年間ボーナス（25年）</div><div class="cv">503万</div><div class="cs">全員合計</div></div>
+  <div class="card"><div class="cl">ボーナス支給回数</div><div class="cv">16回</div><div class="cs">実績ベース</div></div>
+</div>
+
+<div class="section">
+  <div class="stitle">ボーナス推移（スタック）<span class="badge">26/05〜 予測</span></div>
+  <div class="leg">
+    <span><span class="dot" style="background:#378ADD"></span>米倉</span>
+    <span><span class="dot" style="background:#1D9E75"></span>及川</span>
+    <span><span class="dot" style="background:#7F77DD"></span>アウン</span>
+    <span><span class="dot" style="background:#BA7517"></span>アーロン</span>
+    <span><span class="dot" style="background:#D85A30"></span>南部</span>
+    <span><span class="dot" style="background:#D4537E"></span>日浅</span>
+    <span><span class="dot" style="background:#639922"></span>龍河</span>
+  </div>
+  <div style="position:relative;width:100%;height:300px"><canvas id="c_bonus"></canvas></div>
+  <div class="note">濃色＝実績、薄色＝予測</div>
+</div>
+
+<div class="section">
+  <div class="stitle">ボーナス一覧</div>
+  <table>
+    <thead><tr><th>月</th><th>氏名</th><th class="amount">金額（万円）</th><th>区分</th></tr></thead>
+    <tbody id="bonusTable"></tbody>
+  </table>
+</div>
+
+<script>
+const L=["21/02","21/03","21/04","21/05","21/06","21/07","21/08","21/09","21/10","21/11","21/12","22/01","22/02","22/03","22/04","22/05","22/06","22/07","22/08","22/09","22/10","22/11","22/12","23/01","23/02","23/03","23/04","23/05","23/06","23/07","23/08","23/09","23/10","23/11","23/12","24/01","24/02","24/03","24/04","24/05","24/06","24/07","24/08","24/09","24/10","24/11","24/12","25/01","25/02","25/03","25/04","25/05","25/06","25/07","25/08","25/09","25/10","25/11","25/12","26/01","26/02","26/03","26/04","26/05","26/06","26/07","26/08","26/09","26/10","26/11","26/12"];
+const CUTOFF=62;
+const C={"米倉":"#378ADD","及川":"#1D9E75","アウン":"#7F77DD","アーロン":"#BA7517","南部":"#D85A30","日浅":"#D4537E","龍河":"#639922"};
+const BI={"米倉":[18,23,30,35,47,59],"及川":[22,26,64],"アウン":[22,63],"アーロン":[62],"南部":[46,58],"日浅":[64],"龍河":[70]};
+
+const BONUS_SPLIT={
+  "米倉":{"18":[35,120],"23":[35,120],"30":[35,210],"35":[35,250],"47":[36.9,180],"59":[42.4,180]},
+  "及川":{"22":[28.2,17.6],"26":[29.8,35],"64":[42.4,124]},
+  "アウン":{"22":[34,16],"63":[41.1,20]},
+  "アーロン":{"62":[30.5,35]},
+  "南部":{"46":[31.5,21],"58":[40,30]},
+  "日浅":{"64":[35,31]},
+  "龍河":{"70":[42,48]},
+  "へいん":{},"生島":{}
+};
+function getBonusData(name,arr){
+  const bs=BONUS_SPLIT[name]||{};
+  return arr.map((v,i)=>{
+    if(v===null)return null;
+    if(bs[i]!==undefined)return bs[i][1];
+    return null;
+  });
+}
+const R={
+  "米倉":  [2,2,2,2,2,20,20,20,20,20,20,20,20,20,20,20,35,35,155,35,35,35,35,155,35,35,35,35,35,35,245,35,35,35,35,285,35,35,35,35,35,36.9,36.9,36.9,36.9,36.9,36.9,216.9,36.9,36.9,36.9,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,222.4,42.4,42.4,42.4,51,51,51,51,51,51,51,51,51],
+  "及川":  [null,null,null,4,8,24,24,24,24,24,24,25,25,25,25,25,28.2,28.2,28.2,28.2,28.2,28.2,45.8,29.8,29.8,29.8,64.8,29.8,29.8,29.8,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,42.4,166.4,48,48,48,48,48,48,48],
+  "アウン": [null,null,null,27,27,27,27,27,27,28,28,28,28,28,28,30.5,30.5,30.5,30.5,30.5,30.5,34,50,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,36.8,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,39.7,41.1,41.1,41.1,61.1,41.1,41.1,46.2,46.2,46.2,46.2,46.2,46.2],
+  "アーロン":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,24.5,24.5,24.5,24.5,24.5,24.5,24.5,26.8,26.8,26.8,26.8,26.8,26.8,30.5,30.5,30.5,30.5,30.5,30.5,65.5,30.5,30.5,36,36,36,36,36,36],
+  "南部":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,30,30,30,30,30,30,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,31.5,52.5,31.5,31.5,31.5,31.5,32.8,32.8,32.8,32.8,32.8,32.8,40,70,40,40,40,40,40,40,40,40,40,40,40,null,null],
+  "日浅":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,35,35,35,35,35,35,35,35,66,36,36,36,36,36,36],
+  "龍河":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,36,36,36,36,42,42,42,42,42,90]
+};
+
+// ボーナスデータ分離（実績/予測）
+const bonusActual={}, bonusForecast={};
+Object.entries(R).forEach(([n,a])=>{
+  const bd=getBonusData(n,a);
+  bonusActual[n]=bd.map((v,i)=>v!==null&&i<=CUTOFF?v:null);
+  bonusForecast[n]=bd.map((v,i)=>v!==null&&i>CUTOFF?v:null);
+});
+
+// グラフ
+const datasets=Object.keys(C).flatMap(n=>[
+  {label:n,data:bonusActual[n],backgroundColor:C[n]+'cc',borderColor:C[n],borderWidth:1,stack:'bonus'},
+  {label:n+'_f',data:bonusForecast[n],backgroundColor:C[n]+'44',borderColor:C[n],borderWidth:1,borderDash:[4,3],stack:'bonus'}
+]);
+
+new Chart(document.getElementById('c_bonus'),{
+  type:'bar',
+  data:{labels:L,datasets},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}}},
+    y:{min:0,title:{display:true,text:'万円',font:{size:10}},ticks:{font:{size:10}}}}}
+});
+
+// ボーナス一覧テーブル
+const tbody=document.getElementById('bonusTable');
+const rows=[];
+Object.entries(R).forEach(([n,a])=>{
+  const bd=getBonusData(n,a);
+  bd.forEach((v,i)=>{
+    if(v!==null&&v>0) rows.push({month:L[i],name:n,amount:v,idx:i});
+  });
+});
+rows.sort((a,b)=>a.idx-b.idx);
+rows.forEach(r=>{
+  const tr=document.createElement('tr');
+  const isF=r.idx>CUTOFF;
+  tr.innerHTML=`<td>${r.month}</td><td>${r.name}</td><td class="amount">${r.amount}</td><td style="font-size:10px;color:${isF?'#e65100':'#888'}">${isF?'予測':'実績'}</td>`;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
