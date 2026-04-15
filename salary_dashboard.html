@@ -33,6 +33,9 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 .tbl td.actual{background:white}
 .tbl td.forecast{background:#fffbf5}
 .tbl input{width:52px;border:none;background:transparent;text-align:right;font-size:11px;font-family:inherit;padding:0;color:inherit}
+.tbl input[type=number]::-webkit-inner-spin-button,.tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.tbl input[type=number]{-moz-appearance:textfield}
+.tbl td.selected{background:#dbeeff!important;outline:2px solid #378ADD;}
 .tbl input:focus{outline:1px solid #378ADD;background:#f0f7ff;border-radius:2px}
 .tbl tr:hover td{background:#f5f2ee}
 .tbl tr:hover td.name{background:#eeeae4}
@@ -534,7 +537,7 @@ function renderTable() {
       const isForecast = i > CUTOFF;
       const cls = isForecast ? 'forecast' : 'actual';
       const val = v !== null ? v : '';
-      bhtml += `<td class="${cls}"><input type="number" step="0.1" value="${val}" data-name="${name}" data-idx="${i}" onchange="onCellChange(this)"></td>`;
+      bhtml += `<td class="${cls}" data-name="${name}" data-idx="${i}" onmousedown="startSelect(event,this)" onmouseover="extendSelect(event,this)"><input type="number" step="0.1" value="${val}" data-name="${name}" data-idx="${i}" onchange="onCellChange(this)"></td>`;
     });
     bhtml += '</tr>';
   });
@@ -607,6 +610,64 @@ if (Object.keys(tableEdits).length > 0) {
   applyEditsToData(tableEdits);
   buildCharts();
 }
+
+
+// ===== 複数セル選択 & Delete =====
+let _selecting = false;
+let _selectedCells = new Set();
+
+function startSelect(e, td) {
+  if (e.target.tagName === 'INPUT') return; // input直接クリックは通常編集
+  _selecting = true;
+  if (!e.shiftKey) _selectedCells.clear();
+  toggleSelect(td);
+  e.preventDefault();
+}
+
+function extendSelect(e, td) {
+  if (!_selecting || !(e.buttons === 1)) return;
+  toggleSelect(td);
+}
+
+function toggleSelect(td) {
+  const key = td.dataset.name + ',' + td.dataset.idx;
+  if (_selectedCells.has(key)) {
+    _selectedCells.delete(key);
+    td.classList.remove('selected');
+  } else {
+    _selectedCells.add(key);
+    td.classList.add('selected');
+  }
+}
+
+document.addEventListener('mouseup', () => { _selecting = false; });
+
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && _selectedCells.size > 0) {
+    // フォーカスがinputにある場合はスキップ
+    if (document.activeElement.tagName === 'INPUT') return;
+    e.preventDefault();
+    _selectedCells.forEach(key => {
+      const [name, idx] = key.split(',');
+      const input = document.querySelector(`input[data-name="${name}"][data-idx="${idx}"]`);
+      if (input) {
+        input.value = '';
+        onCellChange(input);
+      }
+      const td = document.querySelector(`td[data-name="${name}"][data-idx="${idx}"]`);
+      if (td) td.classList.remove('selected');
+    });
+    _selectedCells.clear();
+  }
+  if (e.key === 'Escape') {
+    _selectedCells.forEach(key => {
+      const [name, idx] = key.split(',');
+      const td = document.querySelector(`td[data-name="${name}"][data-idx="${idx}"]`);
+      if (td) td.classList.remove('selected');
+    });
+    _selectedCells.clear();
+  }
+});
 
 // debounce用タイマー
 let _chartUpdateTimer = null;
