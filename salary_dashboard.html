@@ -53,6 +53,18 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </div>
 
 <div class="section">
+  <div class="stitle">部門別人件費割合（月次）<span class="badge">26/05〜 予測</span></div>
+  <div class="leg">
+    <span><span class="dot" style="background:#1D9E75"></span>日本人開発</span>
+    <span><span class="dot" style="background:#7F77DD"></span>海外エンジニア</span>
+    <span><span class="dot" style="background:#378ADD"></span>営業CS</span>
+    <span><span class="dot" style="background:#d8d3cb;border:1px solid #ccc"></span>外注費</span>
+  </div>
+  <div style="position:relative;width:100%;height:220px"><canvas id="c_ratio"></canvas></div>
+  <div class="note">外注費・ボーナス除く通常月ベース。実線＝実績、点線＝予測。</div>
+</div>
+
+<div class="section">
   <div class="stitle">累計人件費（外注費含む）<span class="badge">26/05〜 予測</span></div>
   <div style="position:relative;width:100%;height:200px"><canvas id="c_cumul"></canvas></div>
 </div>
@@ -218,6 +230,36 @@ new Chart(document.getElementById('c_cumul'),{
   ]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円（累計）',font:{size:10}},ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'}}}}
+});
+
+// 割合グラフ
+const ratioDS=[];
+const ratioTotal=L.map((_,i)=>salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i]);
+const makeRatio=(arr)=>arr.map((v,i)=>ratioTotal[i]>0?Math.round(v/ratioTotal[i]*1000)/10:null);
+
+const salesRatio=makeRatio(salesTotal);
+const devRatio=makeRatio(devTotal);
+const overseasRatio=makeRatio(overseasTotal);
+const outsourceRatio=makeRatio(outsource);
+
+const {actual:sra,forecast:srf}=split(salesRatio);
+const {actual:dra,forecast:drf}=split(devRatio);
+const {actual:ovra,forecast:ovrf}=split(overseasRatio);
+const {actual:oura,forecast:ourf}=split(outsourceRatio);
+
+new Chart(document.getElementById('c_ratio'),{
+  type:'line',
+  data:{labels:L,datasets:[
+    {label:'日本人開発',data:dra,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false},
+    {label:'日本人開発_予測',data:drf,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'海外エンジニア',data:ovra,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false},
+    {label:'海外エンジニア_予測',data:ovrf,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'営業CS',data:sra,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false},
+    {label:'営業CS_予測',data:srf,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'外注費',data:oura,borderColor:'#aaa',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[2,2],spanGaps:false},
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,max:100,title:{display:true,text:'割合（%）',font:{size:10}},ticks:{font:{size:10},callback:v=>v+'%'}}}}
 });
 
 // 部門別
