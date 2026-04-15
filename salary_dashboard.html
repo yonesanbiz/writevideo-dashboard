@@ -352,33 +352,61 @@ new Chart(document.getElementById('c_normal'),{
     scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
 });
 
-// 昇給率グラフ（入社月=100に指数化）
+// 昇給率グラフ（横軸=入社からの経過月数、21/07以降スタート）
+const GROWTH_START_IDX=L.indexOf('21/07');
 const GROWTH_NAMES=["米倉","及川","アウン","アーロン","南部","日浅","龍河","へいん","生島"];
-const growthDS=[];
+
+// 最大経過月数を計算
+let maxMonths=0;
 GROWTH_NAMES.forEach(n=>{
   const nd=getNormalData(n,R[n]);
-  // 最初の有効値を探す
-  const firstIdx=nd.findIndex(v=>v!==null&&v>0);
+  const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
+  if(firstIdx<0) return;
+  const lastIdx=nd.reduce((acc,v,i)=>v!==null?i:acc,-1);
+  maxMonths=Math.max(maxMonths,lastIdx-firstIdx);
+});
+
+const growthLabels=Array.from({length:maxMonths+1},(_,i)=>i+'ヶ月');
+const growthDS=[];
+
+GROWTH_NAMES.forEach(n=>{
+  const nd=getNormalData(n,R[n]);
+  const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
   if(firstIdx<0) return;
   const base=nd[firstIdx];
-  // 指数化
-  const indexed=nd.map(v=>v!==null?Math.round(v/base*1000)/10:null);
-  const act=indexed.map((v,i)=>i>CUTOFF?null:v);
-  const fct=indexed.map((v,i)=>i<=CUTOFF?null:v);
-  growthDS.push({label:n,data:act,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
-  growthDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
+  const actData=new Array(maxMonths+1).fill(null);
+  const fctData=new Array(maxMonths+1).fill(null);
+  nd.forEach((v,i)=>{
+    if(i<firstIdx||v===null) return;
+    const elapsed=i-firstIdx;
+    if(elapsed>maxMonths) return;
+    const idx=Math.round(v/base*1000)/10;
+    if(i<=CUTOFF) actData[elapsed]=idx;
+    else fctData[elapsed]=idx;
+  });
+  growthDS.push({label:n,data:actData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
+  growthDS.push({label:n+'_f',data:fctData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
 });
+
 new Chart(document.getElementById('c_growth'),{
   type:'line',
-  data:{labels:L,datasets:growthDS},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-    tooltip:{mode:'index',intersect:false}},
+  data:{labels:growthLabels,datasets:growthDS},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{mode:'index',intersect:false,callbacks:{
+        title:items=>'入社から'+items[0].label,
+        label:ctx=>{
+          const v=ctx.parsed.y;
+          if(v===null||v===undefined) return null;
+          const nm=ctx.dataset.label.replace('_f','');
+          const sfx=ctx.dataset.label.endsWith('_f')?'(予)':'';
+          return nm+sfx+': '+v;
+        }
+      }}
+    },
     scales:{
-      x:{ticks:tk},
-      y:{min:80,title:{display:true,text:'指数（入社月=100）',font:{size:10}},
-        ticks:{font:{size:10},callback:v=>v},
-        grid:{color:'rgba(0,0,0,0.05)'}
-      }
+      x:{title:{display:true,text:'入社からの経過月数',font:{size:10}},ticks:{font:{size:10},autoSkip:true,maxTicksLimit:20}},
+      y:{min:95,title:{display:true,text:'指数（入社月=100）',font:{size:10}},ticks:{font:{size:10}}}
     }
   }
 });
