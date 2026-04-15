@@ -248,7 +248,10 @@ const {actual:sa, forecast:sf}=split(salesTotal);
 const {actual:da, forecast:df}=split(devTotal);
 const {actual:ova, forecast:ovf}=split(overseasTotal);
 const {actual:oa, forecast:of_}=split(outsource);
-new Chart(document.getElementById('c_monthly'),{
+const chartInstances={};
+function buildCharts(){
+  Object.values(chartInstances).forEach(c=>c.destroy());
+  chartInstances['c_monthly']=new Chart(document.getElementById('c_monthly'),{
   type:'bar',
   data:{labels:L,datasets:[
     {label:'日本人開発_実績',data:da,backgroundColor:'#1D9E7599',borderWidth:0,stack:'s'},
@@ -267,7 +270,7 @@ new Chart(document.getElementById('c_monthly'),{
 // 累計
 const {actual:ca,forecast:cf}=split(cumulative);
 if(ca[CUTOFF]!==null) cf[CUTOFF]=ca[CUTOFF];
-new Chart(document.getElementById('c_cumul'),{
+chartInstances['c_cumul']=new Chart(document.getElementById('c_cumul'),{
   type:'line',
   data:{labels:L,datasets:[
     {label:'実績',data:ca,borderColor:'#1D9E75',backgroundColor:'#1D9E7520',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true,spanGaps:false},
@@ -319,7 +322,7 @@ const ratioDatasets=[
   ...mkRatioDS(outsourceRatioFull,'#c8c3bbcc','#c8c3bb44'),
 ];
 
-new Chart(document.getElementById('c_ratio'),{
+chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
   type:'line',
   data:{labels:ratioLabels,datasets:ratioDatasets},
   options:{responsive:true,maintainAspectRatio:false,
@@ -343,7 +346,7 @@ new Chart(document.getElementById('c_ratio'),{
 const {actual:sa2,forecast:sf2}=split(salesTotal);
 const {actual:da2,forecast:df2}=split(devTotal);
 const {actual:ova2,forecast:ovf2}=split(overseasTotal);
-new Chart(document.getElementById('c_dept'),{
+chartInstances['c_dept']=new Chart(document.getElementById('c_dept'),{
   type:'line',
   data:{labels:L,datasets:[
     {label:'日本人開発_実績',data:da2,borderColor:'#1D9E75',backgroundColor:'#1D9E7515',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
@@ -373,7 +376,7 @@ Object.entries(R).forEach(([n,a])=>{
   normalDS.push({label:n,data:act,borderColor:C[n],backgroundColor:C[n]+'15',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
   normalDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,spanGaps:false,borderDash:[4,3]});
 });
-new Chart(document.getElementById('c_normal'),{
+chartInstances['c_normal']=new Chart(document.getElementById('c_normal'),{
   type:'line',
   data:{labels:L,datasets:normalDS},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
@@ -430,7 +433,7 @@ for(let m=0;m<=maxMonths;m++){
 growthDS.push({label:'平均(米倉除く)',data:avgAct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2.5,spanGaps:true,borderDash:[6,2]});
 growthDS.push({label:'平均(米倉除く)_f',data:avgFct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2,spanGaps:true,borderDash:[4,3]});
 
-new Chart(document.getElementById('c_growth'),{
+chartInstances['c_growth']=new Chart(document.getElementById('c_growth'),{
   type:'line',
   data:{labels:growthLabels,datasets:growthDS},
   options:{responsive:true,maintainAspectRatio:false,
@@ -463,13 +466,14 @@ ORDER.forEach(n=>{
   stackDS.push({label:n,data:act,backgroundColor:C[n]+'cc',borderWidth:0,stack:'s',type:'bar'});
   stackDS.push({label:n+'_f',data:fct,backgroundColor:C[n]+'44',borderWidth:1,borderColor:C[n],stack:'s',type:'bar'});
 });
-new Chart(document.getElementById('c_stack'),{
+chartInstances['c_stack']=new Chart(document.getElementById('c_stack'),{
   type:'bar',
   data:{labels:L,datasets:stackDS},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
 });
-
+}
+buildCharts();
 // ===== 編集テーブル =====
 const ROWS = ["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん","生島","外注(営業)","外注(IS)"];
 const ROW_DEFS = [
@@ -610,8 +614,6 @@ function applyTableEdits() {
   }
 
   // 全グラフ再描画
-  Object.values(charts).forEach(c => c.destroy());
-  charts = {};
   buildCharts();
   alert('グラフを更新しました');
 }
