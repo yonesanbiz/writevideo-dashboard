@@ -36,13 +36,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 .note{font-size:10px;color:#aaa;margin-top:8px}
 
 /* 比較バー */
-.compare-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
-.compare-name{width:70px;text-align:right;color:#555;flex-shrink:0}
-.compare-bar-wrap{flex:1;background:#f0ede8;border-radius:3px;height:20px;overflow:hidden;position:relative}
-.compare-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500;color:white;transition:width 0.3s}
-.compare-val{width:60px;text-align:right;color:#555;flex-shrink:0;font-family:monospace}
-.compare-row.highlight .compare-name{font-weight:700;color:#0f0e0d}
-.compare-row.highlight .compare-val{font-weight:700;color:#0f0e0d}
+
 
 /* タイムライン */
 .timeline{position:relative;padding-left:20px}
@@ -62,7 +56,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 <h1>個人別ダッシュボード</h1>
 <div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-15 23:24 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-15 23:29 JST</div>
 
 <!-- 人物タブ -->
 <div class="tabs" id="personTabs"></div>
@@ -84,16 +78,10 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
   </div>
 </div>
 
-<div class="grid2">
-  <div class="section">
-    <div class="stitle">現在給与の比較（通常月）</div>
-    <div id="compareArea"></div>
-  </div>
-  <div class="section">
+<div class="section">
     <div class="stitle">給与・ボーナス履歴</div>
     <div class="timeline" id="timelineArea"></div>
   </div>
-</div>
 
 <div class="section">
   <div class="stitle">累計受取額の推移</div>
@@ -249,22 +237,7 @@ function render(){
               y:{min:95,ticks:{font:{size:10}},title:{display:true,text:'指数（入社月=100）',font:{size:10}}}}}
   });
 
-  // 現在給与比較
-  const currentSalaries = NAMES.map(n2=>{
-    const nd2=getNormal(n2,R[n2]);
-    const li=Math.min(CUTOFF,nd2.reduce((a,v,i)=>v!==null?i:a,-1));
-    return {name:n2,val:nd2[li]||0,color:C[n2]};
-  }).filter(x=>x.val>0).sort((a,b)=>b.val-a.val);
-  const maxSal = Math.max(...currentSalaries.map(x=>x.val));
-  document.getElementById('compareArea').innerHTML = currentSalaries.map(x=>`
-    <div class="compare-row ${x.name===name?'highlight':''}">
-      <div class="compare-name">${x.name}</div>
-      <div class="compare-bar-wrap">
-        <div class="compare-fill" style="width:${Math.round(x.val/maxSal*100)}%;background:${x.color}">${x.name===name?x.val+'万':''}</div>
-      </div>
-      <div class="compare-val">${x.val}万</div>
-    </div>
-  `).join('');
+
 
   // 履歴タイムライン
   const events = [];
