@@ -32,6 +32,7 @@ tr:last-child td{border-bottom:none}
 </style>
 <script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
+<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-15 22:16 JST</div>
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>ボーナス推移</h1>
