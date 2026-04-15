@@ -44,7 +44,6 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-15 22:16 JST</div>
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>給与推移ダッシュボード</h1>
@@ -167,7 +166,6 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 const L=["21/02","21/03","21/04","21/05","21/06","21/07","21/08","21/09","21/10","21/11","21/12","22/01","22/02","22/03","22/04","22/05","22/06","22/07","22/08","22/09","22/10","22/11","22/12","23/01","23/02","23/03","23/04","23/05","23/06","23/07","23/08","23/09","23/10","23/11","23/12","24/01","24/02","24/03","24/04","24/05","24/06","24/07","24/08","24/09","24/10","24/11","24/12","25/01","25/02","25/03","25/04","25/05","25/06","25/07","25/08","25/09","25/10","25/11","25/12","26/01","26/02","26/03","26/04","26/05","26/06","26/07","26/08","26/09","26/10","26/11","26/12"];
 const CUTOFF=62;
 const OUTSOURCE_START=47; // 25/01
-const outsource=L.map((_,i)=>i>=OUTSOURCE_START?50:0);
 
 // 海外エンジニア費用（日本円・万円）24/06〜26/10
 const OVERSEAS_START=40; // 24/06
@@ -222,7 +220,17 @@ const R={
   "生島":  [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,58,58,58,58,58]
 };
 
-// 実績/予測分割（関数として定義）
+// 月次合計（部門別）
+const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{
+  const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
+},0)*10)/10);
+const devTotal=L.map((_,i)=>Math.round(DEV.reduce((s,n)=>{
+  const nd=getNormalData(n,R[n]);return s+(nd[i]||0);
+},0)*10)/10);
+const outsource=L.map((_,i)=>i>=OUTSOURCE_START?50:0);
+const grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i])*10)/10);
+
+// 実績/予測分割
 function split(arr){
   return {
     actual: arr.map((v,i)=>i<=CUTOFF?v:null),
@@ -230,7 +238,134 @@ function split(arr){
   };
 }
 
+// 累計
+let cum=0;
+const cumulative=grandTotal.map(v=>{cum+=v;return Math.round(cum*10)/10;});
+
 const tk={autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}};
+
+// 月次合計（スタック棒グラフ）
+const {actual:sa, forecast:sf}=split(salesTotal);
+const {actual:da, forecast:df}=split(devTotal);
+const {actual:ova, forecast:ovf}=split(overseasTotal);
+const {actual:oa, forecast:of_}=split(outsource);
+const chartInstances={};
+function buildCharts(){
+  Object.values(chartInstances).forEach(c=>c.destroy());
+  chartInstances['c_monthly']=new Chart(document.getElementById('c_monthly'),{
+  type:'bar',
+  data:{labels:L,datasets:[
+    {label:'日本人開発_実績',data:da,backgroundColor:'#1D9E7599',borderWidth:0,stack:'s'},
+    {label:'海外エンジニア_実績',data:ova,backgroundColor:'#7F77DD99',borderWidth:0,stack:'s'},
+    {label:'営業CS_実績',data:sa,backgroundColor:'#378ADD99',borderWidth:0,stack:'s'},
+    {label:'外注費_実績',data:oa,backgroundColor:'#d8d3cb',borderWidth:0,stack:'s'},
+    {label:'日本人開発_予測',data:df,backgroundColor:'#1D9E7533',borderWidth:1,borderColor:'#1D9E75',stack:'s'},
+    {label:'海外エンジニア_予測',data:ovf,backgroundColor:'#7F77DD33',borderWidth:1,borderColor:'#7F77DD',stack:'s'},
+    {label:'営業CS_予測',data:sf,backgroundColor:'#378ADD33',borderWidth:1,borderColor:'#378ADD',borderDash:[3,3],stack:'s'},
+    {label:'外注費_予測',data:of_,backgroundColor:'#e8e3da',borderWidth:0,stack:'s'},
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
+
+// 累計
+const {actual:ca,forecast:cf}=split(cumulative);
+if(ca[CUTOFF]!==null) cf[CUTOFF]=ca[CUTOFF];
+chartInstances['c_cumul']=new Chart(document.getElementById('c_cumul'),{
+  type:'line',
+  data:{labels:L,datasets:[
+    {label:'実績',data:ca,borderColor:'#1D9E75',backgroundColor:'#1D9E7520',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true,spanGaps:false},
+    {label:'予測',data:cf,borderColor:'#1D9E75',backgroundColor:'#1D9E7510',tension:0.3,pointRadius:1.5,borderWidth:1.5,fill:true,borderDash:[4,3],spanGaps:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円（累計）',font:{size:10}},ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'}}}}
+});
+
+// 割合グラフ（100%積み上げ面グラフ・21/05スタート）
+const RATIO_START=3; // 21/05のインデックス
+const RATIO_END=68; // 26/10のインデックス
+const ratioLabels=L.slice(RATIO_START,RATIO_END+1);
+// 割合計算：salesTotal/devTotalはNormalDataベース（ボーナス月の給与部分含む）
+// grandTotalを分母として使う
+const makeRatio=(arr)=>arr.map((v,i)=>grandTotal[i]>0?Math.round(v/grandTotal[i]*1000)/10:null);
+
+const devRatioFull=makeRatio(devTotal);
+const overseasRatioFull=makeRatio(overseasTotal);
+const salesRatioFull=makeRatio(salesTotal);
+const outsourceRatioFull=makeRatio(outsource);
+
+// 21/05〜26/10にスライス・実績/予測で色分け
+const mkRatioDS=(full,colorSolid,colorLight)=>{
+  const sliced=full.slice(RATIO_START,RATIO_END+1);
+  // ボーナス月などでnullになった場合に前後の値で補完
+  const filled=sliced.map((v,i)=>{
+    if(v!==null) return v;
+    // 前後の値を探して線形補完
+    const prev=sliced.slice(0,i).reverse().find(x=>x!==null);
+    const next=sliced.slice(i+1).find(x=>x!==null);
+    if(prev!==undefined&&next!==undefined) return Math.round((prev+next)/2*10)/10;
+    return prev||next||0;
+  });
+  const act=filled.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
+  const fct=filled.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
+  const boundary=Math.min(CUTOFF,RATIO_END)-RATIO_START;
+  if(act[boundary]!==null) fct[boundary]=act[boundary];
+  return [
+    {data:act,backgroundColor:colorSolid,borderColor:colorSolid,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'},
+    {data:fct,backgroundColor:colorLight,borderColor:colorLight,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'}
+  ];
+};
+
+const ratioDatasets=[
+  ...mkRatioDS(devRatioFull,'#1D9E75bb','#1D9E7544'),
+  ...mkRatioDS(overseasRatioFull,'#7F77DDbb','#7F77DD44'),
+  ...mkRatioDS(salesRatioFull,'#378ADDbb','#378ADD44'),
+  ...mkRatioDS(outsourceRatioFull,'#c8c3bbcc','#c8c3bb44'),
+];
+
+chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
+  type:'line',
+  data:{labels:ratioLabels,datasets:ratioDatasets},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{mode:'index',intersect:false,
+        filter:item=>item.parsed.y!==null&&item.parsed.y>0,
+        callbacks:{
+          label:ctx=>{
+            const labels=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
+            const v=ctx.parsed.y;
+            if(!v) return null;
+            return labels[ctx.datasetIndex]+': '+v.toFixed(1)+'%';
+          }
+        }
+      }
+    },
+    scales:{
+      x:{ticks:{autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}}},
+      y:{stacked:true,min:0,max:100,title:{display:true,text:'割合（%）',font:{size:10}},ticks:{font:{size:10},callback:v=>v+'%'}}
+    }
+  }
+});
+
+// 部門別
+const {actual:sa2,forecast:sf2}=split(salesTotal);
+const {actual:da2,forecast:df2}=split(devTotal);
+const {actual:ova2,forecast:ovf2}=split(overseasTotal);
+chartInstances['c_dept']=new Chart(document.getElementById('c_dept'),{
+  type:'line',
+  data:{labels:L,datasets:[
+    {label:'日本人開発_実績',data:da2,borderColor:'#1D9E75',backgroundColor:'#1D9E7515',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
+    {label:'日本人開発_予測',data:df2,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'海外エンジニア_実績',data:ova2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
+    {label:'海外エンジニア_予測',data:ovf2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+    {label:'営業CS_実績',data:sa2,borderColor:'#378ADD',backgroundColor:'#378ADD15',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
+    {label:'営業CS_予測',data:sf2,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
+
+// 個人別通常月
 function splitNormal(name,arr){
   const nd=getNormalData(name,arr);
   const act=[],fct=[];
@@ -238,182 +373,110 @@ function splitNormal(name,arr){
     act.push(i>CUTOFF?null:v);
     fct.push(i<=CUTOFF?null:v);
   });
+  return {act,fct};
 }
+const normalDS=[];
+Object.entries(R).forEach(([n,a])=>{
+  const {act,fct}=splitNormal(n,a);
+  normalDS.push({label:n,data:act,borderColor:C[n],backgroundColor:C[n]+'15',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
+  normalDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,spanGaps:false,borderDash:[4,3]});
+});
+chartInstances['c_normal']=new Chart(document.getElementById('c_normal'),{
+  type:'line',
+  data:{labels:L,datasets:normalDS},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
 
-const chartInstances={};
-function buildCharts(){
-  // canvas再生成
-  Object.keys(chartInstances).forEach(id=>{
-    try{ chartInstances[id].destroy(); }catch(e){}
-    const cv=document.getElementById(id);
-    if(cv){ const nc=document.createElement('canvas'); nc.id=id; cv.parentNode.replaceChild(nc,cv); }
-  });
+// 昇給率グラフ（横軸=入社からの経過月数、21/07以降スタート）
+const GROWTH_START_IDX=L.indexOf('21/07');
+const GROWTH_NAMES=["米倉","及川","アウン","アーロン","南部","日浅","龍河","へいん","生島"];
 
-  // 計算
-  const salesTotal=L.map((_,i)=>Math.round(SALES.reduce((s,n)=>{const nd2=getNormalData(n,R[n]);return s+(nd2[i]||0);},0)*10)/10);
-  const devTotal=L.map((_,i)=>Math.round(DEV.reduce((s,n)=>{const nd2=getNormalData(n,R[n]);return s+(nd2[i]||0);},0)*10)/10);
-  const grandTotal=L.map((_,i)=>Math.round((salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i])*10)/10);
+// 最大経過月数を計算
+let maxMonths=0;
+GROWTH_NAMES.forEach(n=>{
+  const nd=getNormalData(n,R[n]);
+  const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
+  if(firstIdx<0) return;
+  const lastIdx=nd.reduce((acc,v,i)=>v!==null?i:acc,-1);
+  maxMonths=Math.max(maxMonths,lastIdx-firstIdx);
+});
 
-  function sp(arr){return {actual:arr.map((v,i)=>i<=CUTOFF?v:null),forecast:arr.map((v,i)=>i>CUTOFF?v:null)};}
+const growthLabels=Array.from({length:maxMonths+1},(_,i)=>i+'ヶ月');
+const growthDS=[];
 
-  // 月次合計スタック
-  const {actual:sa,forecast:sf}=sp(salesTotal);
-  const {actual:da,forecast:df}=sp(devTotal);
-  const {actual:ova,forecast:ovf}=sp(overseasTotal);
-  const {actual:oa,forecast:of_}=sp(outsource);
-  chartInstances['c_monthly']=new Chart(document.getElementById('c_monthly'),{
-    type:'bar',data:{labels:L,datasets:[
-      {label:'日本人開発_実績',data:da,backgroundColor:'#1D9E7599',borderWidth:0,stack:'s'},
-      {label:'海外エンジニア_実績',data:ova,backgroundColor:'#7F77DD99',borderWidth:0,stack:'s'},
-      {label:'営業CS_実績',data:sa,backgroundColor:'#378ADD99',borderWidth:0,stack:'s'},
-      {label:'外注費_実績',data:oa,backgroundColor:'#d8d3cb',borderWidth:0,stack:'s'},
-      {label:'日本人開発_予測',data:df,backgroundColor:'#1D9E7533',borderWidth:1,borderColor:'#1D9E75',stack:'s'},
-      {label:'海外エンジニア_予測',data:ovf,backgroundColor:'#7F77DD33',borderWidth:1,borderColor:'#7F77DD',stack:'s'},
-      {label:'営業CS_予測',data:sf,backgroundColor:'#378ADD33',borderWidth:1,borderColor:'#378ADD',borderDash:[3,3],stack:'s'},
-      {label:'外注費_予測',data:of_,backgroundColor:'#e8e3da',borderWidth:0,stack:'s'},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+GROWTH_NAMES.forEach(n=>{
+  const nd=getNormalData(n,R[n]);
+  const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
+  if(firstIdx<0) return;
+  const base=nd[firstIdx];
+  const actData=new Array(maxMonths+1).fill(null);
+  const fctData=new Array(maxMonths+1).fill(null);
+  nd.forEach((v,i)=>{
+    if(i<firstIdx||v===null) return;
+    const elapsed=i-firstIdx;
+    if(elapsed>maxMonths) return;
+    const idx=Math.round(v/base*1000)/10;
+    if(i<=CUTOFF) actData[elapsed]=idx;
+    else fctData[elapsed]=idx;
   });
+  growthDS.push({label:n,data:actData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
+  growthDS.push({label:n+'_f',data:fctData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
+});
 
-  // 割合グラフ
-  const RATIO_START=3,RATIO_END=68;
-  const ratioLabels=L.slice(RATIO_START,RATIO_END+1);
-  const makeRatio=(arr)=>arr.map((v,i)=>grandTotal[i]>0?Math.round(v/grandTotal[i]*1000)/10:null);
-  const devRatioFull=makeRatio(devTotal),overseasRatioFull=makeRatio(overseasTotal),salesRatioFull=makeRatio(salesTotal),outsourceRatioFull=makeRatio(outsource);
-  const mkRatioDS=(full,cs,cl)=>{
-    const sliced=full.slice(RATIO_START,RATIO_END+1);
-    const filled=sliced.map((v,i)=>{
-      if(v!==null) return v;
-      const pv=sliced.slice(0,i).reverse().find(x=>x!==null);
-      const nx=sliced.slice(i+1).find(x=>x!==null);
-      if(pv!==undefined&&nx!==undefined) return Math.round((pv+nx)/2*10)/10;
-      return pv||nx||0;
-    });
-    const act=filled.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
-    const fct=filled.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
-    return [{data:act,backgroundColor:cs,borderColor:cs,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'},
-            {data:fct,backgroundColor:cl,borderColor:cl,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'}];
-  };
-  chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
-    type:'line',data:{labels:ratioLabels,datasets:[
-      ...mkRatioDS(devRatioFull,'#1D9E75bb','#1D9E7544'),
-      ...mkRatioDS(overseasRatioFull,'#7F77DDbb','#7F77DD44'),
-      ...mkRatioDS(salesRatioFull,'#378ADDbb','#378ADD44'),
-      ...mkRatioDS(outsourceRatioFull,'#c8c3bbcc','#c8c3bb44'),
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null||v===undefined)return null;const names=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];return names[ctx.datasetIndex]+': '+(v||0).toFixed(1)+'%';}}}},
-      scales:{x:{ticks:{autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}}},y:{stacked:true,min:0,max:100,title:{display:true,text:'割合（%）',font:{size:10}},ticks:{font:{size:10},callback:v=>v+'%'}}}}
-  });
+// 米倉除く平均
+const avgAct=new Array(maxMonths+1).fill(null);
+const avgFct=new Array(maxMonths+1).fill(null);
+for(let m=0;m<=maxMonths;m++){
+  // actの平均
+  const actVals=growthDS.filter((_,i)=>i%2===0&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
+  if(actVals.length>0) avgAct[m]=Math.round(actVals.reduce((a,b)=>a+b,0)/actVals.length*10)/10;
+  // fctの平均
+  const fctVals=growthDS.filter((_,i)=>i%2===1&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
+  if(fctVals.length>0) avgFct[m]=Math.round(fctVals.reduce((a,b)=>a+b,0)/fctVals.length*10)/10;
+}
+growthDS.push({label:'平均(米倉除く)',data:avgAct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2.5,spanGaps:true,borderDash:[6,2]});
+growthDS.push({label:'平均(米倉除く)_f',data:avgFct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2,spanGaps:true,borderDash:[4,3]});
 
-  // 累計
-  let cum=0;
-  const cumulative=grandTotal.map(v=>{cum+=v;return Math.round(cum*10)/10;});
-  const {actual:ca,forecast:cf2}=sp(cumulative);
-  chartInstances['c_cumul']=new Chart(document.getElementById('c_cumul'),{
-    type:'line',data:{labels:L,datasets:[
-      {label:'実績',data:ca,borderColor:'#1D9E75',backgroundColor:'#1D9E7520',tension:0.3,pointRadius:1.5,borderWidth:2,fill:true,spanGaps:false},
-      {label:'予測',data:cf2,borderColor:'#1D9E75',backgroundColor:'#1D9E7510',tension:0.3,pointRadius:1.5,borderWidth:1.5,fill:true,borderDash:[4,3],spanGaps:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円（累計）',font:{size:10}},ticks:{font:{size:10},callback:v=>v>=10000?Math.round(v/10000*10)/10+'億':v+'万'}}}}
-  });
-
-  // 部門別
-  const {actual:sa2,forecast:sf2}=sp(salesTotal);
-  const {actual:da2,forecast:df2}=sp(devTotal);
-  const {actual:ova2,forecast:ovf2}=sp(overseasTotal);
-  chartInstances['c_dept']=new Chart(document.getElementById('c_dept'),{
-    type:'line',data:{labels:L,datasets:[
-      {label:'日本人開発_実績',data:da2,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
-      {label:'日本人開発_予測',data:df2,borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
-      {label:'海外エンジニア_実績',data:ova2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
-      {label:'海外エンジニア_予測',data:ovf2,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
-      {label:'営業CS_実績',data:sa2,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,fill:false,spanGaps:false},
-      {label:'営業CS_予測',data:sf2,borderColor:'#378ADD',backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,borderDash:[4,3],spanGaps:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tk},y:{min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
-  });
-
-  // 個人別通常月
-  const normalDS=[];
-  Object.entries(R).forEach(([n,a])=>{
-    const nd=getNormalData(n,a);
-    const act=nd.map((v,i)=>i>CUTOFF?null:v);
-    const fct=nd.map((v,i)=>i<=CUTOFF?null:v);
-    normalDS.push({label:n,data:act,borderColor:C[n],backgroundColor:C[n]+'15',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
-    normalDS.push({label:n+'_f',data:fct,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:1.5,spanGaps:false,borderDash:[4,3]});
-  });
-  chartInstances['c_normal']=new Chart(document.getElementById('c_normal'),{
-    type:'line',data:{labels:L,datasets:normalDS},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tk},y:{min:0,max:65,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
-  });
-
-  // 昇給率グラフ
-  const GROWTH_START_IDX=L.indexOf('21/07');
-  const GROWTH_NAMES=["米倉","及川","アウン","アーロン","南部","日浅","龍河","へいん","生島"];
-  let maxMonths=0;
-  GROWTH_NAMES.forEach(n=>{
-    const nd=getNormalData(n,R[n]);
-    const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
-    if(firstIdx<0) return;
-    const lastIdx=nd.reduce((acc,v,i)=>v!==null?i:acc,-1);
-    maxMonths=Math.max(maxMonths,lastIdx-firstIdx);
-  });
-  const growthLabels=Array.from({length:maxMonths+1},(_,i)=>i+'ヶ月');
-  const growthDS=[];
-  GROWTH_NAMES.forEach(n=>{
-    const nd=getNormalData(n,R[n]);
-    const firstIdx=nd.findIndex((v,i)=>v!==null&&v>0&&i>=GROWTH_START_IDX);
-    if(firstIdx<0) return;
-    const base=nd[firstIdx];
-    const actData=new Array(maxMonths+1).fill(null);
-    const fctData=new Array(maxMonths+1).fill(null);
-    nd.forEach((v,i)=>{
-      if(i<firstIdx||v===null) return;
-      const elapsed=i-firstIdx;
-      if(elapsed>maxMonths) return;
-      const idx=Math.round(v/base*1000)/10;
-      if(i<=CUTOFF) actData[elapsed]=idx; else fctData[elapsed]=idx;
-    });
-    growthDS.push({label:n,data:actData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1.5,borderWidth:2,spanGaps:false});
-    growthDS.push({label:n+'_f',data:fctData,borderColor:C[n],backgroundColor:'transparent',tension:0.3,pointRadius:1,borderWidth:1.5,borderDash:[4,3],spanGaps:false});
-  });
-  // 平均（米倉除く）
-  const avgAct=new Array(maxMonths+1).fill(null);
-  const avgFct=new Array(maxMonths+1).fill(null);
-  for(let m=0;m<=maxMonths;m++){
-    const av=growthDS.filter((_,i)=>i%2===0&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
-    if(av.length>0) avgAct[m]=Math.round(av.reduce((a,b)=>a+b,0)/av.length*10)/10;
-    const fv=growthDS.filter((_,i)=>i%2===1&&!growthDS[i].label.includes('米倉')).map(ds=>ds.data[m]).filter(v=>v!==null);
-    if(fv.length>0) avgFct[m]=Math.round(fv.reduce((a,b)=>a+b,0)/fv.length*10)/10;
+chartInstances['c_growth']=new Chart(document.getElementById('c_growth'),{
+  type:'line',
+  data:{labels:growthLabels,datasets:growthDS},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{mode:'index',intersect:false,callbacks:{
+        title:items=>'入社から'+items[0].label,
+        label:ctx=>{
+          const v=ctx.parsed.y;
+          if(v===null||v===undefined) return null;
+          const nm=ctx.dataset.label.replace('_f','');
+          const sfx=ctx.dataset.label.endsWith('_f')?'(予)':'';
+          return nm+sfx+': '+v;
+        }
+      }}
+    },
+    scales:{
+      x:{title:{display:true,text:'入社からの経過月数',font:{size:10}},ticks:{font:{size:10},autoSkip:true,maxTicksLimit:20}},
+      y:{min:95,title:{display:true,text:'指数（入社月=100）',font:{size:10}},ticks:{font:{size:10}}}
+    }
   }
-  growthDS.push({label:'平均(米倉除く)',data:avgAct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2.5,spanGaps:true,borderDash:[6,2]});
-  growthDS.push({label:'平均(米倉除く)_f',data:avgFct,borderColor:'#e53935',backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:2,spanGaps:true,borderDash:[4,3]});
-  chartInstances['c_growth']=new Chart(document.getElementById('c_growth'),{
-    type:'line',data:{labels:growthLabels,datasets:growthDS},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{title:items=>'入社から'+items[0].label,label:ctx=>{const v=ctx.parsed.y;if(v===null||v===undefined)return null;const nm=ctx.dataset.label.replace('_f','');const sfx=ctx.dataset.label.endsWith('_f')?'(予)':'';return nm+sfx+': '+v;}}}},
-      scales:{x:{title:{display:true,text:'入社からの経過月数',font:{size:10}},ticks:{font:{size:10},autoSkip:true,maxTicksLimit:20}},y:{min:95,title:{display:true,text:'指数（入社月=100）',font:{size:10}},ticks:{font:{size:10}}}}}
-  });
+});
 
-  // 積み上げ
-  const stackDS=[];
-  const ORDER=["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん"];
-  ORDER.forEach(n=>{
-    const nd=getNormalData(n,R[n]);
-    const act=nd.map((v,i)=>i>CUTOFF?null:v);
-    const fct=nd.map((v,i)=>i<=CUTOFF?null:v);
-    stackDS.push({label:n,data:act,backgroundColor:C[n]+'cc',borderWidth:0,stack:'s',type:'bar'});
-    stackDS.push({label:n+'_f',data:fct,backgroundColor:C[n]+'44',borderWidth:1,borderColor:C[n],stack:'s',type:'bar'});
-  });
-  chartInstances['c_stack']=new Chart(document.getElementById('c_stack'),{
-    type:'bar',data:{labels:L,datasets:stackDS},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
-  });
+// 個人別積み上げグラフ（通常月）
+const stackDS = [];
+const ORDER = ["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん"];
+ORDER.forEach(n=>{
+  const nd=getNormalData(n,R[n]);
+  const act=nd.map((v,i)=>i>CUTOFF?null:v);
+  const fct=nd.map((v,i)=>i<=CUTOFF?null:v);
+  stackDS.push({label:n,data:act,backgroundColor:C[n]+'cc',borderWidth:0,stack:'s',type:'bar'});
+  stackDS.push({label:n+'_f',data:fct,backgroundColor:C[n]+'44',borderWidth:1,borderColor:C[n],stack:'s',type:'bar'});
+});
+chartInstances['c_stack']=new Chart(document.getElementById('c_stack'),{
+  type:'bar',
+  data:{labels:L,datasets:stackDS},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
+});
 }
 buildCharts();
 // ===== 編集テーブル =====
