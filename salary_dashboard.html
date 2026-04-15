@@ -236,8 +236,9 @@ new Chart(document.getElementById('c_cumul'),{
 const RATIO_START=3; // 21/05のインデックス
 const RATIO_END=68; // 26/10のインデックス
 const ratioLabels=L.slice(RATIO_START,RATIO_END+1);
-const ratioTotal=L.map((_,i)=>salesTotal[i]+devTotal[i]+overseasTotal[i]+outsource[i]);
-const makeRatio=(arr)=>arr.map((v,i)=>ratioTotal[i]>0?Math.round(v/ratioTotal[i]*1000)/10:null);
+// 割合計算：salesTotal/devTotalはNormalDataベース（ボーナス月の給与部分含む）
+// grandTotalを分母として使う
+const makeRatio=(arr)=>arr.map((v,i)=>grandTotal[i]>0?Math.round(v/grandTotal[i]*1000)/10:null);
 
 const devRatioFull=makeRatio(devTotal);
 const overseasRatioFull=makeRatio(overseasTotal);
@@ -247,9 +248,17 @@ const outsourceRatioFull=makeRatio(outsource);
 // 21/05〜26/10にスライス・実績/予測で色分け
 const mkRatioDS=(full,colorSolid,colorLight)=>{
   const sliced=full.slice(RATIO_START,RATIO_END+1);
-  const act=sliced.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
-  const fct=sliced.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
-  // 境界点をつなぐ
+  // ボーナス月などでnullになった場合に前後の値で補完
+  const filled=sliced.map((v,i)=>{
+    if(v!==null) return v;
+    // 前後の値を探して線形補完
+    const prev=sliced.slice(0,i).reverse().find(x=>x!==null);
+    const next=sliced.slice(i+1).find(x=>x!==null);
+    if(prev!==undefined&&next!==undefined) return Math.round((prev+next)/2*10)/10;
+    return prev||next||0;
+  });
+  const act=filled.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
+  const fct=filled.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
   const boundary=Math.min(CUTOFF,RATIO_END)-RATIO_START;
   if(act[boundary]!==null) fct[boundary]=act[boundary];
   return [
