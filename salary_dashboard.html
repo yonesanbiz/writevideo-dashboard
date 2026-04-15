@@ -311,8 +311,7 @@ const mkRatioDS=(full,colorSolid,colorLight)=>{
   });
   const act=filled.map((v,i)=>(RATIO_START+i)<=CUTOFF?v:null);
   const fct=filled.map((v,i)=>(RATIO_START+i)>CUTOFF?v:null);
-  const boundary=Math.min(CUTOFF,RATIO_END)-RATIO_START;
-  if(act[boundary]!==null) fct[boundary]=act[boundary];
+  // boundary重複削除（実績最終月を予測にも足すと100%超えの原因）
   return [
     {data:act,backgroundColor:colorSolid,borderColor:colorSolid,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'},
     {data:fct,backgroundColor:colorLight,borderColor:colorLight,borderWidth:1,fill:true,tension:0.4,pointRadius:0,stack:'r'}
