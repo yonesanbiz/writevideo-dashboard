@@ -25,6 +25,22 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 .leg span{display:flex;align-items:center;gap:4px}
 .dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .note{font-size:10px;color:#aaa;margin-top:8px}
+.tbl-wrap{overflow-x:auto;margin-top:8px}
+.tbl{border-collapse:collapse;font-size:11px;white-space:nowrap;width:100%}
+.tbl th{background:#f0ede8;padding:5px 8px;text-align:center;border:1px solid #ddd;font-family:monospace;font-size:10px;position:sticky;top:0}
+.tbl td{padding:4px 6px;border:1px solid #e8e4de;text-align:right}
+.tbl td.name{text-align:left;font-weight:500;background:#f9f7f3;position:sticky;left:0;z-index:1}
+.tbl td.actual{background:white}
+.tbl td.forecast{background:#fffbf5}
+.tbl input{width:52px;border:none;background:transparent;text-align:right;font-size:11px;font-family:inherit;padding:0;color:inherit}
+.tbl input:focus{outline:1px solid #378ADD;background:#f0f7ff;border-radius:2px}
+.tbl tr:hover td{background:#f5f2ee}
+.tbl tr:hover td.name{background:#eeeae4}
+.tbl td.forecast input{color:#e65100}
+.tbl tfoot td{background:#f0ede8;font-weight:500}
+.tbl tfoot td.name{background:#e8e4de}
+.btn-update{margin-top:10px;padding:7px 16px;background:#0f0e0d;color:#f5f2ec;border:none;font-family:monospace;font-size:12px;cursor:pointer;border-radius:4px}
+.btn-update:hover{background:#333}
 </style>
 </head>
 <body>
@@ -132,6 +148,17 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
   </div>
   <div style="position:relative;width:100%;height:300px"><canvas id="c_stack"></canvas></div>
   <div class="note">濃色＝実績、薄色＝予測。ボーナス月除く通常月のみ。</div>
+</div>
+
+<div class="section">
+  <div class="stitle">月次データ編集テーブル</div>
+  <div class="note" style="margin-bottom:8px">セルをクリックして編集→「グラフを更新」で反映。オレンジ色＝予測。外注費（営業/IS）も編集可。</div>
+  <div class="tbl-wrap"><table class="tbl" id="editTable">
+    <thead id="tblHead"></thead>
+    <tbody id="tblBody"></tbody>
+    <tfoot id="tblFoot"></tfoot>
+  </table></div>
+  <button class="btn-update" onclick="applyTableEdits()">グラフを更新</button>
 </div>
 
 <script>
@@ -442,6 +469,160 @@ new Chart(document.getElementById('c_stack'),{
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:tk,stacked:true},y:{stacked:true,min:0,title:{display:true,text:'万円/月',font:{size:10}},ticks:{font:{size:10}}}}}
 });
+
+// ===== 編集テーブル =====
+const ROWS = ["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん","生島","外注(営業)","外注(IS)"];
+const ROW_DEFS = [
+  {key:"米倉",  type:"person"},
+  {key:"南部",  type:"person"},
+  {key:"日浅",  type:"person"},
+  {key:"龍河",  type:"person"},
+  {key:"生島",  type:"person"},
+  {key:"及川",  type:"person"},
+  {key:"アウン", type:"person"},
+  {key:"アーロン",type:"person"},
+  {key:"へいん", type:"person"},
+  {key:"外注(営業)",type:"fixed"},
+  {key:"外注(IS)", type:"fixed"},
+];
+
+// テーブル用データ（通常月 + 固定費）
+function getTableData() {
+  const names = ["米倉","南部","日浅","龍河","生島","及川","アウン","アーロン","へいん"];
+  const rows = {};
+  names.forEach(n => {
+    rows[n] = getNormalData(n, R[n]);
+  });
+  rows["外注(営業)"] = L.map((_,i) => i >= OUTSOURCE_START ? 35 : null);
+  rows["外注(IS)"]   = L.map((_,i) => i >= OUTSOURCE_START ? 15 : null);
+  return rows;
+}
+
+// テーブル描画
+function renderTable() {
+  const data = getTableData();
+  const head = document.getElementById('tblHead');
+  const body = document.getElementById('tblBody');
+  const foot = document.getElementById('tblFoot');
+  const rowKeys = Object.keys(data);
+
+  // ヘッダー（月ラベル）
+  let htr = '<tr><th style="min-width:80px">名前</th>';
+  L.forEach((l,i) => {
+    const cls = i > CUTOFF ? ' style="color:#e65100"' : '';
+    htr += `<th${cls}>${l}</th>`;
+  });
+  head.innerHTML = htr + '</tr>';
+
+  // ボディ
+  let bhtml = '';
+  rowKeys.forEach(name => {
+    bhtml += `<tr><td class="name">${name}</td>`;
+    L.forEach((l,i) => {
+      const v = data[name][i];
+      const isForecast = i > CUTOFF;
+      const cls = isForecast ? 'forecast' : 'actual';
+      const val = v !== null ? v : '';
+      bhtml += `<td class="${cls}"><input type="number" step="0.1" value="${val}" data-name="${name}" data-idx="${i}" onchange="onCellChange(this)"></td>`;
+    });
+    bhtml += '</tr>';
+  });
+  body.innerHTML = bhtml;
+
+  // フッター（月次合計）
+  let ftr = '<tr><td class="name">合計</td>';
+  L.forEach((_,i) => {
+    let total = 0;
+    rowKeys.forEach(name => {
+      const v = data[name][i];
+      if(v !== null && v !== undefined) total += v;
+    });
+    const isForecast = i > CUTOFF;
+    const cls = isForecast ? 'forecast' : 'actual';
+    ftr += `<td class="${cls}" id="foot_${i}">${total > 0 ? total.toFixed(1) : ''}</td>`;
+  });
+  foot.innerHTML = ftr + '</tr>';
+}
+
+// セル変更時にフッター更新
+const tableEdits = {};
+function onCellChange(input) {
+  const name = input.dataset.name;
+  const idx = parseInt(input.dataset.idx);
+  const val = input.value === '' ? null : parseFloat(input.value);
+  if (!tableEdits[name]) tableEdits[name] = {};
+  tableEdits[name][idx] = val;
+
+  // フッター再計算
+  const data = getTableData();
+  // 編集済みを反映
+  Object.keys(tableEdits).forEach(n => {
+    Object.keys(tableEdits[n]).forEach(i => {
+      data[n][parseInt(i)] = tableEdits[n][i];
+    });
+  });
+  let total = 0;
+  Object.keys(data).forEach(n => {
+    const v = data[n][idx];
+    if(v !== null && v !== undefined) total += v;
+  });
+  const foot = document.getElementById(`foot_${idx}`);
+  if(foot) foot.textContent = total > 0 ? total.toFixed(1) : '';
+}
+
+// グラフ更新
+let charts = {};
+function applyTableEdits() {
+  if(Object.keys(tableEdits).length === 0) { alert('変更がありません'); return; }
+
+  // R配列とoutsourceに反映
+  Object.keys(tableEdits).forEach(name => {
+    Object.keys(tableEdits[name]).forEach(i => {
+      const idx = parseInt(i);
+      const val = tableEdits[name][idx];
+      if(name === '外注(営業)') {
+        // outsource配列の営業部分を更新（外注合計を再計算）
+      } else if(name === '外注(IS)') {
+        // IS部分
+      } else if(R[name] !== undefined) {
+        // BONUS_SPLITがある月は元の値を逆算して更新
+        const bs = BONUS_SPLIT[name] || {};
+        if(bs[idx] !== undefined) {
+          // ボーナス月: 給与部分のみ更新→元値=新給与+ボーナス
+          bs[idx] = [val, bs[idx][1]];
+          R[name][idx] = val + bs[idx][1];
+        } else {
+          R[name][idx] = val;
+        }
+      }
+    });
+  });
+
+  // 外注費再計算
+  const outsourceEdits_ei = tableEdits['外注(営業)'] || {};
+  const outsourceEdits_is = tableEdits['外注(IS)'] || {};
+  for(let i=0;i<L.length;i++){
+    if(i >= OUTSOURCE_START){
+      const ei = outsourceEdits_ei[i] !== undefined ? outsourceEdits_ei[i] : 35;
+      const is = outsourceEdits_is[i] !== undefined ? outsourceEdits_is[i] : 15;
+      outsource[i] = (ei||0) + (is||0);
+    }
+  }
+
+  // 全グラフ再描画
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+  buildCharts();
+  alert('グラフを更新しました');
+}
+
+// 初期化
+renderTable();
+// テーブルを最後の列（最新月）にスクロール
+setTimeout(()=>{
+  const wrap = document.querySelector('.tbl-wrap');
+  if(wrap) wrap.scrollLeft = wrap.scrollWidth;
+},100);
 </script>
 </body>
 </html>
