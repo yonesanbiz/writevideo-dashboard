@@ -327,13 +327,17 @@ chartInstances['c_ratio']=new Chart(document.getElementById('c_ratio'),{
   data:{labels:ratioLabels,datasets:ratioDatasets},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},
-      tooltip:{mode:'index',intersect:false,callbacks:{
-        label:ctx=>{
-          const names=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
-          const v=ctx.parsed.y;
-          return v!==null?names[ctx.datasetIndex]+': '+v.toFixed(1)+'%':null;
+      tooltip:{mode:'index',intersect:false,
+        filter:item=>item.parsed.y!==null&&item.parsed.y>0,
+        callbacks:{
+          label:ctx=>{
+            const labels=['日本人開発','日本人開発(予)','海外ENG','海外ENG(予)','営業CS','営業CS(予)','外注費','外注費(予)'];
+            const v=ctx.parsed.y;
+            if(!v) return null;
+            return labels[ctx.datasetIndex]+': '+v.toFixed(1)+'%';
+          }
         }
-      }}
+      }
     },
     scales:{
       x:{ticks:{autoSkip:true,maxTicksLimit:22,maxRotation:45,font:{size:10}}},
