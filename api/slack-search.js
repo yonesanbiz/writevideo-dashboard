@@ -51,14 +51,6 @@ export default async function handler(req, res) {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "query required" });
 
-  // デバッグ
-  return res.status(200).json({
-    apiKeyLength: API_KEY.length,
-    apiKeyPrefix: API_KEY.slice(0, 15),
-    claudeKey: (process.env.CLAUDE_API_KEY || "MISSING").slice(0, 15),
-    anthropicKey: (process.env.ANTHROPIC_API_KEY || "MISSING").slice(0, 15),
-  });
-
   try {
     const messages = getSlackData();
     const relevant = searchRelevant(messages, query);
