@@ -33,7 +33,7 @@ function searchRelevant(messages, query, maxResults = 80) {
     .slice(0, maxResults);
 }
 
-const API_KEY = "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";
+const API_KEY = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || "";
 
 export default async function handler(req, res) {
   const cookieHeader = req.headers.cookie || "";
