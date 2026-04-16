@@ -22,31 +22,45 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .fetch-btn:hover { background: #c8460a; }
 .fetch-btn:disabled { background: #ccc; cursor: not-allowed; }
 
+/* AI分析エリア */
+.ai-box { background: white; border: 1px solid #e5e0d8; padding: 20px; margin-bottom: 20px; display: none; }
+.ai-box.visible { display: block; }
+.ai-box-title { font-size: 11px; font-family: monospace; color: #c8460a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.ai-prompt-row { display: flex; gap: 10px; }
+.ai-prompt-input { flex: 1; padding: 10px 12px; border: 1px solid #e5e0d8; font-size: 14px; outline: none; font-family: inherit; }
+.ai-prompt-input:focus { border-color: #c8460a; }
+.ai-analyze-btn { padding: 10px 20px; background: #c8460a; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; white-space: nowrap; }
+.ai-analyze-btn:hover { background: #a33808; }
+.ai-analyze-btn:disabled { background: #ccc; cursor: not-allowed; }
+.ai-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.ai-preset { font-size: 11px; font-family: monospace; padding: 4px 10px; border: 1px solid #e5e0d8; background: #faf8f5; cursor: pointer; color: #666; }
+.ai-preset:hover { border-color: #c8460a; color: #c8460a; }
+.ai-result { margin-top: 16px; padding: 16px; background: #faf8f5; border-left: 3px solid #c8460a; font-size: 14px; line-height: 1.8; white-space: pre-wrap; display: none; }
+.ai-result.visible { display: block; }
+
 .stats { font-size: 12px; font-family: monospace; color: #888; margin-bottom: 12px; }
 .stats span { color: #c8460a; font-weight: 700; }
 
-.messages { display: flex; flex-direction: column; gap: 8px; }
-.msg { background: white; border: 1px solid #e5e0d8; padding: 16px; }
+.msg { background: white; border: 1px solid #e5e0d8; padding: 16px; margin-bottom: 8px; }
 .msg-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
 .msg-user { font-size: 12px; font-family: monospace; color: #c8460a; font-weight: 700; }
 .msg-date { font-size: 11px; color: #aaa; font-family: monospace; }
 .msg-text { font-size: 14px; line-height: 1.7; color: #0f0e0d; white-space: pre-wrap; word-break: break-word; }
 .empty { text-align: center; padding: 48px; color: #aaa; font-size: 13px; font-family: monospace; }
 .loading { text-align: center; padding: 48px; color: #888; font-size: 13px; font-family: monospace; }
-
 .highlight { background: #fff3cd; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 10:43 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 10:46 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
 <script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
 
 <div class="container">
-  <h1>Slackチャンネル閲覧</h1>
-  <p class="sub">チャンネルを選択してメッセージを表示</p>
+  <h1>Slackチャンネル閲覧・分析</h1>
+  <p class="sub">チャンネルを選択してメッセージを表示・AIで分析</p>
 
   <div class="controls">
     <div class="control-group">
@@ -56,7 +70,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       </select>
     </div>
     <div class="control-group">
-      <span class="control-label">表示件数</span>
+      <span class="control-label">取得件数</span>
       <select class="control-select" id="limitSelect" style="min-width:120px;">
         <option value="30">30件</option>
         <option value="50" selected>50件</option>
@@ -72,14 +86,32 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
     <button class="fetch-btn" id="fetchBtn" onclick="fetchMessages()">表示 →</button>
   </div>
 
+  <!-- AI分析エリア -->
+  <div class="ai-box" id="aiBox">
+    <div class="ai-box-title">🤖 AIで分析</div>
+    <div class="ai-prompt-row">
+      <input type="text" class="ai-prompt-input" id="aiPromptInput" placeholder="例：このチャンネルから営業マニュアルを作って" onkeydown="if(event.key==='Enter')analyze()">
+      <button class="ai-analyze-btn" id="analyzeBtn" onclick="analyze()">分析 →</button>
+    </div>
+    <div class="ai-presets">
+      <span class="ai-preset" onclick="setPreset('このチャンネルの会話から営業マニュアルを作成して')">営業マニュアル作成</span>
+      <span class="ai-preset" onclick="setPreset('よく出てくる課題・問題点を整理して')">課題整理</span>
+      <span class="ai-preset" onclick="setPreset('FAQを抽出して質問と回答の形式でまとめて')">FAQ抽出</span>
+      <span class="ai-preset" onclick="setPreset('重要な意思決定や結論をまとめて')">意思決定まとめ</span>
+      <span class="ai-preset" onclick="setPreset('このチャンネルの会話を要約して')">要約</span>
+      <span class="ai-preset" onclick="setPreset('改善提案・アクションアイテムを抽出して')">アクション抽出</span>
+    </div>
+    <div class="ai-result" id="aiResult"></div>
+  </div>
+
   <div id="statsArea"></div>
   <div id="messagesArea"><div class="empty">チャンネルを選択して「表示」を押してください</div></div>
 </div>
 
 <script>
 let allMessages = [];
+let currentTotal = 0;
 
-// チャンネル一覧を読み込む
 async function loadChannels() {
   try {
     const res = await fetch('/api/slack-channel');
@@ -107,6 +139,8 @@ async function fetchMessages() {
   btn.textContent = '取得中...';
   document.getElementById('messagesArea').innerHTML = '<div class="loading">読み込み中...</div>';
   document.getElementById('statsArea').innerHTML = '';
+  document.getElementById('aiBox').classList.remove('visible');
+  document.getElementById('aiResult').classList.remove('visible');
 
   try {
     const res = await fetch('/api/slack-channel', {
@@ -116,7 +150,11 @@ async function fetchMessages() {
     });
     const data = await res.json();
     allMessages = data.messages || [];
-    renderMessages(allMessages, data.total);
+    currentTotal = data.total;
+    renderMessages(allMessages);
+    if (allMessages.length > 0) {
+      document.getElementById('aiBox').classList.add('visible');
+    }
   } catch(e) {
     document.getElementById('messagesArea').innerHTML = '<div class="empty">エラーが発生しました</div>';
   }
@@ -125,13 +163,13 @@ async function fetchMessages() {
   btn.textContent = '表示 →';
 }
 
-function renderMessages(msgs, total) {
+function renderMessages(msgs) {
   const filter = document.getElementById('filterInput').value.trim().toLowerCase();
   const filtered = filter ? msgs.filter(m => m.text.toLowerCase().includes(filter)) : msgs;
 
   document.getElementById('statsArea').innerHTML = `
     <div class="stats">
-      表示: <span>${filtered.length}件</span> / 取得: ${msgs.length}件 / 総数: ${total}件
+      表示: <span>${filtered.length}件</span> / 取得: ${msgs.length}件 / 総数: ${currentTotal}件
     </div>`;
 
   if (filtered.length === 0) {
@@ -140,8 +178,7 @@ function renderMessages(msgs, total) {
   }
 
   document.getElementById('messagesArea').innerHTML = filtered.map(m => {
-    let text = m.text
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    let text = m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     if (filter) {
       const re = new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
       text = text.replace(re, s => `<mark class="highlight">${s}</mark>`);
@@ -157,12 +194,51 @@ function renderMessages(msgs, total) {
   }).join('');
 }
 
-// フィルター入力でリアルタイム絞り込み
+function setPreset(text) {
+  document.getElementById('aiPromptInput').value = text;
+  document.getElementById('aiPromptInput').focus();
+}
+
+async function analyze() {
+  const prompt = document.getElementById('aiPromptInput').value.trim();
+  if (!prompt) return alert('分析内容を入力してください');
+  if (allMessages.length === 0) return alert('先にメッセージを取得してください');
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+
+  const resultEl = document.getElementById('aiResult');
+  resultEl.classList.add('visible');
+  resultEl.textContent = '分析中...';
+
+  // メッセージをコンテキスト化
+  const context = allMessages
+    .map(m => `[${m.date}] ${m.user}: ${m.text}`)
+    .join('\n');
+
+  const channel = document.getElementById('channelSelect').value;
+
+  try {
+    const res = await fetch('/api/slack-analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, context, channel })
+    });
+    const data = await res.json();
+    resultEl.textContent = data.result || 'エラーが発生しました';
+  } catch(e) {
+    resultEl.textContent = 'エラーが発生しました: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '分析 →';
+}
+
 document.getElementById('filterInput').addEventListener('input', () => {
   if (allMessages.length > 0) renderMessages(allMessages);
 });
 
-// Enterキーで取得
 document.getElementById('channelSelect').addEventListener('change', fetchMessages);
 
 loadChannels();
