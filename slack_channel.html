@@ -52,7 +52,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 10:46 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 10:53 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -102,6 +102,10 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       <span class="ai-preset" onclick="setPreset('改善提案・アクションアイテムを抽出して')">アクション抽出</span>
     </div>
     <div class="ai-result" id="aiResult"></div>
+    <div id="saveArea" style="display:none;margin-top:12px;">
+      <button class="fetch-btn" onclick="saveResult()" id="saveBtn" style="background:#1D9E75;">💾 保存して一覧に追加</button>
+      <a id="listLink" href="analysis_list.html" style="font-size:12px;font-family:monospace;color:#888;margin-left:16px;text-decoration:underline;">一覧を見る →</a>
+    </div>
   </div>
 
   <div id="statsArea"></div>
@@ -227,6 +231,11 @@ async function analyze() {
     });
     const data = await res.json();
     resultEl.textContent = data.result || 'エラーが発生しました';
+    document.getElementById('saveArea').style.display = 'block';
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('saveBtn').textContent = '💾 保存して一覧に追加';
+    document.getElementById('listLink').href = 'analysis_list.html';
+    document.getElementById('listLink').textContent = '一覧を見る →';
   } catch(e) {
     resultEl.textContent = 'エラーが発生しました: ' + e.message;
   }
@@ -240,6 +249,32 @@ document.getElementById('filterInput').addEventListener('input', () => {
 });
 
 document.getElementById('channelSelect').addEventListener('change', fetchMessages);
+
+async function saveResult() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  const channel = document.getElementById('channelSelect').value;
+  const prompt = document.getElementById('aiPromptInput').value;
+  const result = document.getElementById('aiResult').textContent;
+  try {
+    const res = await fetch('/api/save-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, prompt, result })
+    });
+    const data = await res.json();
+    if (data.success) {
+      btn.textContent = '✅ 保存しました！';
+      document.getElementById('listLink').href = `analysis_detail.html?id=${data.id}`;
+      document.getElementById('listLink').textContent = '結果を見る →';
+    } else {
+      btn.textContent = 'エラー';
+    }
+  } catch(e) {
+    btn.textContent = 'エラー';
+  }
+}
 
 loadChannels();
 </script>
