@@ -105,6 +105,6 @@ ${context}
     return res.status(200).json({ answer, sources });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: e.message, stack: e.stack });
   }
 }
