@@ -72,7 +72,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 16:48 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 17:00 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -172,7 +172,7 @@ async function fetchMessages() {
     const res = await fetch('/api/slack-channel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel, limit: parseInt(limit) })
+      body: JSON.stringify({ channel, limit: parseInt(limit), keyword: document.getElementById('filterInput').value.trim() || null })
     });
     const data = await res.json();
     allMessages = data.messages || [];
@@ -202,7 +202,7 @@ function renderMessages(msgs) {
 
   document.getElementById('statsArea').innerHTML = `
     <div class="stats">
-      表示: <span>${filtered.length}件</span> / 取得: ${msgs.length}件 / 総数: ${currentTotal}件
+      表示: <span>${filtered.length}件</span> / 取得: ${msgs.length}件 / 総数: ${currentTotal}件${filter ? ' （全件から検索）' : ''}
     </div>`;
 
   if (filtered.length === 0) {
