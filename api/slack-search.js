@@ -1,3 +1,4 @@
+import { checkAuth } from './auth-check.js';
 import fs from "fs";
 import path from "path";
 
@@ -35,15 +36,7 @@ function searchRelevant(messages, query, maxResults = 80) {
 
 export default async function handler(req, res) {
   const API_KEY = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || "";
-  const cookieHeader = req.headers.cookie || "";
-  const match = cookieHeader.match(/wv_session=([^;]+)/);
-  if (!match) return res.status(401).json({ error: "Unauthorized" });
-  try {
-    const data = JSON.parse(Buffer.from(match[1], "base64").toString());
-    if (!data.auth) return res.status(401).json({ error: "Unauthorized" });
-  } catch {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!checkAuth(req, res)) return;
 
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });

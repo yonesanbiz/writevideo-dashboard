@@ -1,13 +1,6 @@
+import { checkAuth } from './auth-check.js';
 export default async function handler(req, res) {
-  const cookieHeader = req.headers.cookie || "";
-  const match = cookieHeader.match(/wv_session=([^;]+)/);
-  if (!match) return res.status(401).json({ error: "Unauthorized" });
-  try {
-    const data = JSON.parse(Buffer.from(match[1], "base64").toString());
-    if (!data.auth) return res.status(401).json({ error: "Unauthorized" });
-  } catch {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!checkAuth(req, res)) return;
 
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN_ANALYSIS || process.env.GITHUB_PAT || "";
   const REPO = "yonesanbiz/writevideo-dashboard";
