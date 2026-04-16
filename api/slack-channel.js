@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         user: m.user || m.username || m.display_name || "不明",
         date: new Date(parseFloat(m.ts) * 1000).toLocaleString("ja-JP"),
         ts: m.ts,
+        thread_ts: m.thread_ts || null,
       }));
 
     return res.status(200).json({ messages: msgs, total: messages.filter(m => m.ch === channel).length });

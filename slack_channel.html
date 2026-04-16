@@ -46,6 +46,9 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .msg-user { font-size: 12px; font-family: monospace; color: #c8460a; font-weight: 700; }
 .msg-date { font-size: 11px; color: #aaa; font-family: monospace; }
 .msg-text { font-size: 14px; line-height: 1.7; color: #0f0e0d; white-space: pre-wrap; word-break: break-word; }
+.msg.is-reply { margin-left: 28px; border-left: 3px solid #e5e0d8; background: #faf9f6; }
+.msg.is-reply .msg-user { color: #888; }
+.reply-label { font-size: 10px; font-family: monospace; color: #bbb; margin-right: 6px; }
 .empty { text-align: center; padding: 48px; color: #aaa; font-size: 13px; font-family: monospace; }
 .loading { text-align: center; padding: 48px; color: #888; font-size: 13px; font-family: monospace; }
 .highlight { background: #fff3cd; }
@@ -69,7 +72,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 12:57 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 13:08 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -204,9 +207,11 @@ function renderMessages(msgs) {
       const re = new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
       text = text.replace(re, s => `<mark class="highlight">${s}</mark>`);
     }
+    const isReply = !!m.thread_ts;
     return `
-      <div class="msg">
+      <div class="msg${isReply ? ' is-reply' : ''}">
         <div class="msg-header">
+          ${isReply ? '<span class="reply-label">↳ 返信</span>' : ''}
           <span class="msg-user">${m.user || "不明"}</span>
           <span class="msg-date">${m.date}</span>
         </div>
