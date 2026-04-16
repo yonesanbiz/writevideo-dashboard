@@ -4,11 +4,14 @@ import path from "path";
 
 let slackData = null;
 let usersMap = null;
+let slackDataMtime = 0;
 
 function getSlackData() {
-  if (!slackData) {
-    const p = path.join(process.cwd(), "slack_data_clean.json");
+  const p = path.join(process.cwd(), "slack_data_clean.json");
+  const mtime = fs.statSync(p).mtimeMs;
+  if (!slackData || mtime !== slackDataMtime) {
     slackData = JSON.parse(fs.readFileSync(p, "utf-8"));
+    slackDataMtime = mtime;
   }
   return slackData;
 }
