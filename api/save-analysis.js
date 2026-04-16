@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const { channel, prompt, result } = req.body;
   if (!channel || !prompt || !result) return res.status(400).json({ error: "channel, prompt, result required" });
 
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN_ANALYSIS || "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";
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN_ANALYSIS || process.env.GITHUB_PAT || "";
   const REPO = "yonesanbiz/writevideo-dashboard";
 
   try {

@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN_ANALYSIS || "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";
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN_ANALYSIS || process.env.GITHUB_PAT || "";
   const REPO = "yonesanbiz/writevideo-dashboard";
   const { id } = req.query;
 
