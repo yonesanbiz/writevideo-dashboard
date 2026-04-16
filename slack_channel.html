@@ -49,10 +49,27 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .empty { text-align: center; padding: 48px; color: #aaa; font-size: 13px; font-family: monospace; }
 .loading { text-align: center; padding: 48px; color: #888; font-size: 13px; font-family: monospace; }
 .highlight { background: #fff3cd; }
+
+/* マークダウンスタイル */
+#aiResult h1 { font-size: 18px; font-weight: 700; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #e5e0d8; }
+#aiResult h2 { font-size: 16px; font-weight: 700; margin: 18px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e0d8; }
+#aiResult h3 { font-size: 14px; font-weight: 700; margin: 14px 0 6px; color: #c8460a; }
+#aiResult h4 { font-size: 13px; font-weight: 700; margin: 10px 0 4px; }
+#aiResult p { margin-bottom: 10px; }
+#aiResult ul, #aiResult ol { margin: 6px 0 10px 20px; }
+#aiResult li { margin-bottom: 4px; }
+#aiResult strong { font-weight: 700; }
+#aiResult em { font-style: italic; }
+#aiResult code { font-family: monospace; background: #f0ebe3; padding: 2px 5px; font-size: 12px; }
+#aiResult hr { border: none; border-top: 1px solid #e5e0d8; margin: 16px 0; }
+#aiResult table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+#aiResult th { background: #f5f2ec; padding: 6px 10px; text-align: left; border: 1px solid #e5e0d8; font-weight: 700; }
+#aiResult td { padding: 6px 10px; border: 1px solid #e5e0d8; }
+#aiResult tr:nth-child(even) td { background: #faf8f5; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 11:14 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 11:16 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -198,6 +215,50 @@ function renderMessages(msgs) {
   }).join('');
 }
 
+function parseMarkdown(raw) {
+  let text = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = text.split('\n');
+  const result = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^####\s/.test(line)) { result.push(`<h4>${inlineFmt(line.replace(/^####\s+/,''))}</h4>`); i++; continue; }
+    if (/^###\s/.test(line))  { result.push(`<h3>${inlineFmt(line.replace(/^###\s+/,''))}</h3>`); i++; continue; }
+    if (/^##\s/.test(line))   { result.push(`<h2>${inlineFmt(line.replace(/^##\s+/,''))}</h2>`); i++; continue; }
+    if (/^#\s/.test(line))    { result.push(`<h1>${inlineFmt(line.replace(/^#\s+/,''))}</h1>`); i++; continue; }
+    if (/^---+$/.test(line.trim())) { result.push('<hr>'); i++; continue; }
+    if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) {
+      const items = [];
+      const isOrdered = /^\d+\.\s/.test(line);
+      while (i < lines.length && (/^[-*]\s/.test(lines[i]) || /^\d+\.\s/.test(lines[i]))) {
+        items.push(`<li>${inlineFmt(lines[i].replace(/^[-*]\s+/,'').replace(/^\d+\.\s+/,''))}</li>`);
+        i++;
+      }
+      result.push(`<${isOrdered?'ol':'ul'}>${items.join('')}</${isOrdered?'ol':'ul'}>`);
+      continue;
+    }
+    if (line.includes('|') && i+1 < lines.length && lines[i+1].includes('---')) {
+      const headers = line.split('|').filter(c=>c.trim()).map(c=>`<th>${inlineFmt(c.trim())}</th>`);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].includes('|')) {
+        const cells = lines[i].split('|').filter(c=>c.trim()).map(c=>`<td>${inlineFmt(c.trim())}</td>`);
+        rows.push(`<tr>${cells.join('')}</tr>`);
+        i++;
+      }
+      result.push(`<table><thead><tr>${headers.join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`);
+      continue;
+    }
+    if (line.trim() === '') { result.push('<br>'); i++; continue; }
+    result.push(`<p>${inlineFmt(line)}</p>`);
+    i++;
+  }
+  return result.join('\n');
+}
+function inlineFmt(t) {
+  return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>');
+}
+
 function setPreset(text) {
   document.getElementById('aiPromptInput').value = text;
   document.getElementById('aiPromptInput').focus();
@@ -230,14 +291,14 @@ async function analyze() {
       body: JSON.stringify({ prompt, context, channel })
     });
     const data = await res.json();
-    resultEl.textContent = data.result || 'エラーが発生しました';
+    resultEl.innerHTML = parseMarkdown(data.result || 'エラーが発生しました');
     document.getElementById('saveArea').style.display = 'block';
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('saveBtn').textContent = '💾 保存して一覧に追加';
     document.getElementById('listLink').href = 'analysis_list.html';
     document.getElementById('listLink').textContent = '一覧を見る →';
   } catch(e) {
-    resultEl.textContent = 'エラーが発生しました: ' + e.message;
+    resultEl.textContent = 'エラー: ' + e.message;
   }
 
   btn.disabled = false;
