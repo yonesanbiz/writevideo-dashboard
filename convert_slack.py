@@ -19,12 +19,15 @@ data = json.loads(open(input_file, encoding="utf-8").read())
 result = []
 for ch_name, messages in data.items():
     for m in messages:
-        result.append({
+        entry = {
             "ch": ch_name,
             "ts": m.get("ts", ""),
             "user": m.get("user", "不明"),
             "text": m.get("text", "")
-        })
+        }
+        if "thread_ts" in m:
+            entry["thread_ts"] = m["thread_ts"]
+        result.append(entry)
 
 # tsでソート
 result.sort(key=lambda x: float(x["ts"]) if x["ts"] else 0, reverse=True)
