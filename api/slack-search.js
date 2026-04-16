@@ -55,6 +55,10 @@ export default async function handler(req, res) {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "query required" });
 
+  // デバッグ: 環境変数確認
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set", env: Object.keys(process.env).filter(k => k.includes('ANTHRO')) });
+
   try {
     const messages = getSlackData();
     const relevant = searchRelevant(messages, query);
@@ -72,7 +76,7 @@ export default async function handler(req, res) {
       .map((m) => `[#${m.ch}] ${m.text}`)
       .join("\n---\n");
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey });
     const response = await client.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 1000,
