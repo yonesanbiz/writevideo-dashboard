@@ -2,7 +2,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 
-// Slack データをロード
 let slackData = null;
 function getSlackData() {
   if (!slackData) {
@@ -12,7 +11,6 @@ function getSlackData() {
   return slackData;
 }
 
-// キーワードで関連メッセージを抽出
 function searchRelevant(messages, query, maxResults = 80) {
   const keywords = query
     .toLowerCase()
@@ -25,7 +23,6 @@ function searchRelevant(messages, query, maxResults = 80) {
     let score = 0;
     for (const kw of keywords) {
       if (text.includes(kw)) score += 2;
-      // チャンネル名にも一致したらボーナス
       if (m.ch.includes(kw)) score += 1;
     }
     return { ...m, score };
@@ -55,9 +52,16 @@ export default async function handler(req, res) {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "query required" });
 
-  // デバッグ: 環境変数確認
+  // デバッグ: 全環境変数のキーを返す
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not set", env: Object.keys(process.env).filter(k => k.includes('ANTHRO')) });
+  if (!apiKey) {
+    return res.status(500).json({ 
+      error: "ANTHROPIC_API_KEY not set",
+      allKeys: Object.keys(process.env).sort(),
+      vercelEnv: process.env.VERCEL_ENV || "unknown",
+      nodeEnv: process.env.NODE_ENV || "unknown",
+    });
+  }
 
   try {
     const messages = getSlackData();
@@ -65,33 +69,21 @@ export default async function handler(req, res) {
 
     if (relevant.length === 0) {
       return res.status(200).json({
-        answer:
-          "関連するメッセージが見つかりませんでした。別のキーワードで試してみてください。",
+        answer: "関連するメッセージが見つかりませんでした。別のキーワードで試してみてください。",
         sources: [],
       });
     }
 
-    // Claudeに渡すコンテキスト生成
-    const context = relevant
-      .map((m) => `[#${m.ch}] ${m.text}`)
-      .join("\n---\n");
+    const context = relevant.map((m) => `[#${m.ch}] ${m.text}`).join("\n---\n");
 
     const client = new Anthropic({ apiKey });
     const response = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1000,
       messages: [
         {
           role: "user",
-          content: `以下はWriteVideo.aiの社内Slackの過去メッセージです。これを元に質問に答えてください。
-
-<slack_messages>
-${context}
-</slack_messages>
-
-質問: ${query}
-
-日本語で簡潔に答えてください。根拠となるメッセージがあれば引用してください。`,
+          content: `以下はWriteVideo.aiの社内Slackの過去メッセージです。これを元に質問に答えてください。\n\n<slack_messages>\n${context}\n</slack_messages>\n\n質問: ${query}\n\n日本語で簡潔に答えてください。`,
         },
       ],
     });
@@ -99,7 +91,6 @@ ${context}
     const textBlock = response.content.find(b => b.type === "text");
     const answer = textBlock ? textBlock.text : "回答を生成できませんでした";
 
-    // ソース（上位5件）
     const sources = relevant.slice(0, 5).map((m) => ({
       channel: m.ch,
       text: m.text.slice(0, 100) + (m.text.length > 100 ? "..." : ""),
@@ -108,7 +99,6 @@ ${context}
 
     return res.status(200).json({ answer, sources });
   } catch (e) {
-    console.error(e);
     return res.status(500).json({ error: e.message, stack: e.stack });
   }
 }
