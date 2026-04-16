@@ -33,9 +33,8 @@ function searchRelevant(messages, query, maxResults = 80) {
     .slice(0, maxResults);
 }
 
-const API_KEY = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || "";
-
 export default async function handler(req, res) {
+  const API_KEY = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || "";
   const cookieHeader = req.headers.cookie || "";
   const match = cookieHeader.match(/wv_session=([^;]+)/);
   if (!match) return res.status(401).json({ error: "Unauthorized" });
