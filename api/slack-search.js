@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   if (!query) return res.status(400).json({ error: "query required" });
 
   // デバッグ: 全環境変数のキーを返す
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ 
       error: "ANTHROPIC_API_KEY not set",
