@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteVideo.ai 社内ナレッジ検索</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f2ec; color: #0f0e0d; padding: 24px; }
+h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #888; margin-bottom: 32px; font-family: monospace; }
+.search-box { background: white; border: 1px solid #e5e0d8; padding: 24px; margin-bottom: 20px; }
+.search-label { font-size: 11px; font-family: monospace; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+.search-row { display: flex; gap: 10px; }
+.search-input { flex: 1; padding: 12px 14px; border: 1px solid #e5e0d8; font-size: 14px; outline: none; font-family: -apple-system, sans-serif; }
+.search-input:focus { border-color: #c8460a; }
+.search-btn { padding: 12px 24px; background: #0f0e0d; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; letter-spacing: 0.05em; white-space: nowrap; }
+.search-btn:hover { background: #c8460a; }
+.search-btn:disabled { background: #ccc; cursor: not-allowed; }
+.result-box { background: white; border: 1px solid #e5e0d8; padding: 24px; margin-bottom: 12px; }
+.result-answer { font-size: 14px; line-height: 1.8; color: #0f0e0d; white-space: pre-wrap; }
+.result-label { font-size: 10px; font-family: monospace; color: #c8460a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.sources { margin-top: 20px; border-top: 1px solid #f0ebe3; padding-top: 16px; }
+.sources-label { font-size: 10px; font-family: monospace; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.source-item { font-size: 12px; color: #666; padding: 8px 12px; background: #faf8f5; border-left: 2px solid #e5e0d8; margin-bottom: 6px; line-height: 1.6; }
+.source-ch { font-family: monospace; color: #c8460a; font-size: 11px; }
+.empty { text-align: center; padding: 48px 20px; color: #aaa; font-size: 13px; font-family: monospace; }
+.status-badge { display: inline-block; font-size: 11px; font-family: monospace; padding: 3px 10px; border: 1px solid; margin-bottom: 20px; }
+.status-ready { border-color: #1D9E75; color: #085041; background: #E1F5EE; }
+.status-notready { border-color: #e5e0d8; color: #aaa; background: #faf8f5; }
+.loading { color: #888; font-size: 13px; font-family: monospace; padding: 24px 0; }
+.dot-anim::after { content: '...'; animation: dots 1.2s steps(4, end) infinite; }
+@keyframes dots { 0%,20%{content:'.'} 40%{content:'..'} 60%,100%{content:'...'} }
+.setup-notice { background: #faf8f5; border: 1px solid #e5e0d8; padding: 20px 24px; font-size: 13px; line-height: 1.8; color: #666; }
+.setup-notice code { font-family: monospace; background: #f0ebe3; padding: 2px 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 09:05 JST</div>
+<div style="position:fixed;top:20px;left:20px;z-index:9999;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
+</div>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+
+<div style="margin-top: 60px;">
+  <h1>社内ナレッジ検索</h1>
+  <p class="sub">Slack過去ログ × AI検索（RAG）</p>
+
+  <span class="status-badge status-notready" id="statusBadge">● データ未連携</span>
+
+  <div class="search-box">
+    <label class="search-label">質問を入力</label>
+    <div class="search-row">
+      <input type="text" class="search-input" id="queryInput" placeholder="例：解約の主な理由は？　/　CS対応のルールは？" onkeydown="if(event.key==='Enter')search()">
+      <button class="search-btn" id="searchBtn" onclick="search()">検索 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea">
+    <div class="setup-notice">
+      <strong>🔧 セットアップ待ち</strong><br><br>
+      このページはSlackデータの取得・Embedding処理が完了次第、AIによる検索が有効になります。<br><br>
+      <strong>必要な手順：</strong><br>
+      1. Slack APIでメッセージを取得（<code>slack_data.json</code>）<br>
+      2. チャンク分割 → Embeddingを生成<br>
+      3. ベクトルDBに保存（Qdrant / pgvector）<br>
+      4. 検索APIをVercelに追加（<code>api/slack-search.js</code>）
+    </div>
+  </div>
+</div>
+
+<script>
+async function search() {
+  const query = document.getElementById('queryInput').value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('searchBtn');
+  const resultArea = document.getElementById('resultArea');
+
+  btn.disabled = true;
+  btn.textContent = '検索中...';
+  resultArea.innerHTML = '<div class="loading dot-anim">AIが検索しています</div>';
+
+  try {
+    const res = await fetch('/api/slack-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
+
+    if (res.status === 404) {
+      resultArea.innerHTML = `
+        <div class="setup-notice">
+          <strong>🔧 検索APIが未実装です</strong><br><br>
+          <code>api/slack-search.js</code> を追加するとこのページが使えるようになります。
+        </div>`;
+      return;
+    }
+
+    const data = await res.json();
+
+    let sourcesHtml = '';
+    if (data.sources && data.sources.length > 0) {
+      sourcesHtml = `<div class="sources">
+        <div class="sources-label">参照元メッセージ</div>
+        ${data.sources.map(s => `
+          <div class="source-item">
+            <span class="source-ch">#${s.channel}</span>
+            <span style="color:#aaa;margin:0 6px;">·</span>
+            <span style="color:#888;">${s.date}</span><br>
+            ${s.text}
+          </div>`).join('')}
+      </div>`;
+    }
+
+    resultArea.innerHTML = `
+      <div class="result-box">
+        <div class="result-label">AI回答</div>
+        <div class="result-answer">${data.answer}</div>
+        ${sourcesHtml}
+      </div>`;
+
+  } catch(e) {
+    resultArea.innerHTML = '<div class="setup-notice">エラーが発生しました。APIの設定を確認してください。</div>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '検索 →';
+}
+</script>
+</body>
+</html>
