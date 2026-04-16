@@ -73,23 +73,52 @@ def build_data_block(d):
         r_lines.append(f'  {json.dumps(name, ensure_ascii=False)}:  {json.dumps(arr)},')
     r_lines.append('};')
     lines.extend(r_lines)
+    # ユーティリティ関数
+    lines.append("""
+function getNormalData(name,arr){
+  const bs=BONUS_SPLIT[name]||{};
+  return arr.map((v,i)=>{
+    if(v===null)return null;
+    if(bs[i]!==undefined)return bs[i][0];
+    return v;
+  });
+}
+function getBonusData(name,arr){
+  const bs=BONUS_SPLIT[name]||{};
+  return arr.map((v,i)=>{
+    if(v===null)return null;
+    if(bs[i]!==undefined)return bs[i][1];
+    return null;
+  });
+}""")
     return '\n'.join(lines)
 
 def replace_data_block(html, new_block, fname):
-    """HTMLのデータ定義ブロック（L=からR=};まで）を新しいブロックで置き換え"""
+    """HTMLのデータ定義ブロック（L=からデータ定義終端まで）を置き換え"""
     start_marker = 'const L=["21/02"'
-    # R配列の終わりを探す
-    r_start = html.find('\nconst R={')
-    if r_start == -1:
-        return html  # 見つからない場合はスキップ
-    r_end = html.find('\n};\n', r_start) + len('\n};\n')
+    # ファイルごとに終端マーカーが異なる
+    end_markers = [
+        '\n// 月次合計（部門別）',   # salary_dashboard
+        '\nconst NAMES',              # person_dashboard
+        '\n// ボーナスデータ',         # salary_bonus
+    ]
 
     start = html.find(start_marker)
     if start == -1:
         return html
 
-    old_block = html[start:r_end]
-    return html.replace(old_block, new_block + '\n')
+    end = -1
+    for marker in end_markers:
+        pos = html.find(marker, start)
+        if pos > 0:
+            end = pos
+            break
+
+    if end == -1:
+        return html
+
+    old_block = html[start:end]
+    return html[:start] + new_block + '\n' + html[end:]
 
 # ===== メイン処理 =====
 print('=== salary-data.js同期 ===')
