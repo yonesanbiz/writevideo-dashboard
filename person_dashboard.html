@@ -62,7 +62,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 <h1>個人別ダッシュボード</h1>
 <div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 12:29 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 12:31 JST</div>
 
 <!-- 人物タブ -->
 <div class="tabs" id="personTabs"></div>
@@ -147,7 +147,7 @@ function getNormalData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][0];
+    if(bs[String(i)]!==undefined)return bs[String(i)][0];
     return v;
   });
 }
@@ -155,7 +155,7 @@ function getBonusData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][1];
+    if(bs[String(i)]!==undefined)return bs[String(i)][1];
     return null;
   });
 }
@@ -176,6 +176,9 @@ let currentName = NAMES[0];
 let charts = {};
 
 // タブ生成
+const DEPT = {};
+SALES.forEach(n => DEPT[n] = '営業CS');
+DEV.forEach(n => DEPT[n] = '開発');
 const tabsEl = document.getElementById('personTabs');
 NAMES.forEach(n => {
   const btn = document.createElement('button');

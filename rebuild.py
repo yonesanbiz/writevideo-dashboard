@@ -79,7 +79,7 @@ function getNormalData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][0];
+    if(bs[String(i)]!==undefined)return bs[String(i)][0];
     return v;
   });
 }
@@ -87,7 +87,7 @@ function getBonusData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][1];
+    if(bs[String(i)]!==undefined)return bs[String(i)][1];
     return null;
   });
 }""")

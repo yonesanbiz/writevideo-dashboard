@@ -32,7 +32,7 @@ tr:last-child td{border-bottom:none}
 </style>
 <script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
-<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-16 12:29 JST</div>
+<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-16 12:31 JST</div>
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>ボーナス推移</h1>
@@ -115,7 +115,7 @@ function getNormalData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][0];
+    if(bs[String(i)]!==undefined)return bs[String(i)][0];
     return v;
   });
 }
@@ -123,7 +123,7 @@ function getBonusData(name,arr){
   const bs=BONUS_SPLIT[name]||{};
   return arr.map((v,i)=>{
     if(v===null)return null;
-    if(bs[i]!==undefined)return bs[i][1];
+    if(bs[String(i)]!==undefined)return bs[String(i)][1];
     return null;
   });
 }
