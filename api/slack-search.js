@@ -72,7 +72,7 @@ export default async function handler(req, res) {
       .map((m) => `[#${m.ch}] ${m.text}`)
       .join("\n---\n");
 
-    const client = new Anthropic();
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || "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" });
     const response = await client.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 1000,
