@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteVideo.ai Slackチャンネル閲覧</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f2ec; color: #0f0e0d; min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; padding: 80px 20px 40px; }
+h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #888; margin-bottom: 32px; font-family: monospace; }
+
+.controls { background: white; border: 1px solid #e5e0d8; padding: 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.control-group { display: flex; flex-direction: column; gap: 6px; }
+.control-label { font-size: 11px; font-family: monospace; color: #888; letter-spacing: 0.08em; text-transform: uppercase; }
+.control-select { padding: 10px 12px; border: 1px solid #e5e0d8; font-size: 14px; outline: none; background: white; min-width: 220px; }
+.control-select:focus { border-color: #c8460a; }
+.search-input { padding: 10px 12px; border: 1px solid #e5e0d8; font-size: 14px; outline: none; width: 200px; }
+.search-input:focus { border-color: #c8460a; }
+.fetch-btn { padding: 10px 24px; background: #0f0e0d; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; letter-spacing: 0.05em; height: 42px; }
+.fetch-btn:hover { background: #c8460a; }
+.fetch-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+.stats { font-size: 12px; font-family: monospace; color: #888; margin-bottom: 12px; }
+.stats span { color: #c8460a; font-weight: 700; }
+
+.messages { display: flex; flex-direction: column; gap: 8px; }
+.msg { background: white; border: 1px solid #e5e0d8; padding: 16px; }
+.msg-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.msg-user { font-size: 12px; font-family: monospace; color: #c8460a; font-weight: 700; }
+.msg-date { font-size: 11px; color: #aaa; font-family: monospace; }
+.msg-text { font-size: 14px; line-height: 1.7; color: #0f0e0d; white-space: pre-wrap; word-break: break-word; }
+.empty { text-align: center; padding: 48px; color: #aaa; font-size: 13px; font-family: monospace; }
+.loading { text-align: center; padding: 48px; color: #888; font-size: 13px; font-family: monospace; }
+
+.highlight { background: #fff3cd; }
+</style>
+</head>
+<body>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 10:43 JST</div>
+<div style="position:fixed;top:20px;left:20px;z-index:9999;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
+</div>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+
+<div class="container">
+  <h1>Slackチャンネル閲覧</h1>
+  <p class="sub">チャンネルを選択してメッセージを表示</p>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="control-label">チャンネル</span>
+      <select class="control-select" id="channelSelect">
+        <option value="">読み込み中...</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <span class="control-label">表示件数</span>
+      <select class="control-select" id="limitSelect" style="min-width:120px;">
+        <option value="30">30件</option>
+        <option value="50" selected>50件</option>
+        <option value="100">100件</option>
+        <option value="200">200件</option>
+        <option value="500">500件</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <span class="control-label">テキスト絞り込み</span>
+      <input type="text" class="search-input" id="filterInput" placeholder="キーワードで絞り込み">
+    </div>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchMessages()">表示 →</button>
+  </div>
+
+  <div id="statsArea"></div>
+  <div id="messagesArea"><div class="empty">チャンネルを選択して「表示」を押してください</div></div>
+</div>
+
+<script>
+let allMessages = [];
+
+// チャンネル一覧を読み込む
+async function loadChannels() {
+  try {
+    const res = await fetch('/api/slack-channel');
+    const data = await res.json();
+    const select = document.getElementById('channelSelect');
+    select.innerHTML = '<option value="">チャンネルを選択...</option>';
+    for (const ch of data.channels) {
+      const opt = document.createElement('option');
+      opt.value = ch.name;
+      opt.textContent = `#${ch.name} (${ch.count}件)`;
+      select.appendChild(opt);
+    }
+  } catch(e) {
+    document.getElementById('channelSelect').innerHTML = '<option value="">読み込みエラー</option>';
+  }
+}
+
+async function fetchMessages() {
+  const channel = document.getElementById('channelSelect').value;
+  const limit = document.getElementById('limitSelect').value;
+  if (!channel) return alert('チャンネルを選択してください');
+
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  btn.textContent = '取得中...';
+  document.getElementById('messagesArea').innerHTML = '<div class="loading">読み込み中...</div>';
+  document.getElementById('statsArea').innerHTML = '';
+
+  try {
+    const res = await fetch('/api/slack-channel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, limit: parseInt(limit) })
+    });
+    const data = await res.json();
+    allMessages = data.messages || [];
+    renderMessages(allMessages, data.total);
+  } catch(e) {
+    document.getElementById('messagesArea').innerHTML = '<div class="empty">エラーが発生しました</div>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '表示 →';
+}
+
+function renderMessages(msgs, total) {
+  const filter = document.getElementById('filterInput').value.trim().toLowerCase();
+  const filtered = filter ? msgs.filter(m => m.text.toLowerCase().includes(filter)) : msgs;
+
+  document.getElementById('statsArea').innerHTML = `
+    <div class="stats">
+      表示: <span>${filtered.length}件</span> / 取得: ${msgs.length}件 / 総数: ${total}件
+    </div>`;
+
+  if (filtered.length === 0) {
+    document.getElementById('messagesArea').innerHTML = '<div class="empty">メッセージが見つかりません</div>';
+    return;
+  }
+
+  document.getElementById('messagesArea').innerHTML = filtered.map(m => {
+    let text = m.text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if (filter) {
+      const re = new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+      text = text.replace(re, s => `<mark class="highlight">${s}</mark>`);
+    }
+    return `
+      <div class="msg">
+        <div class="msg-header">
+          <span class="msg-user">${m.user}</span>
+          <span class="msg-date">${m.date}</span>
+        </div>
+        <div class="msg-text">${text}</div>
+      </div>`;
+  }).join('');
+}
+
+// フィルター入力でリアルタイム絞り込み
+document.getElementById('filterInput').addEventListener('input', () => {
+  if (allMessages.length > 0) renderMessages(allMessages);
+});
+
+// Enterキーで取得
+document.getElementById('channelSelect').addEventListener('change', fetchMessages);
+
+loadChannels();
+</script>
+</body>
+</html>
