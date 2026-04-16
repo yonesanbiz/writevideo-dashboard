@@ -72,7 +72,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 13:10 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-16 13:19 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -189,7 +189,7 @@ async function fetchMessages() {
 }
 
 function resolveMentions(text) {
-  return text.replace(/<@([A-Z0-9]+)>/g, (match, uid) => {
+  return text.replace(/~~~LT~~~@([A-Z0-9]+)~~~GT~~~/g, (match, uid) => {
     const name = usersMap[uid];
     return name ? `@${name}` : match;
   });
@@ -210,7 +210,9 @@ function renderMessages(msgs) {
   }
 
   document.getElementById('messagesArea').innerHTML = filtered.map(m => {
-    let text = resolveMentions(m.text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    let text = m.text.replace(/&/g,'&amp;').replace(/</g,'~~~LT~~~').replace(/>/g,'~~~GT~~~');
+    text = resolveMentions(text);
+    text = text.replace(/~~~LT~~~/g,'&lt;').replace(/~~~GT~~~/g,'&gt;');
     if (filter) {
       const re = new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
       text = text.replace(re, s => `<mark class="highlight">${s}</mark>`);
