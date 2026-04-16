@@ -3,12 +3,24 @@ import fs from "fs";
 import path from "path";
 
 let slackData = null;
+let usersMap = null;
+
 function getSlackData() {
   if (!slackData) {
     const p = path.join(process.cwd(), "slack_data_clean.json");
     slackData = JSON.parse(fs.readFileSync(p, "utf-8"));
   }
   return slackData;
+}
+
+function getUsersMap() {
+  if (!usersMap) {
+    try {
+      const p = path.join(process.cwd(), "users_map.json");
+      usersMap = JSON.parse(fs.readFileSync(p, "utf-8"));
+    } catch { usersMap = {}; }
+  }
+  return usersMap;
 }
 
 export default async function handler(req, res) {
@@ -27,7 +39,7 @@ export default async function handler(req, res) {
     const channels = Object.entries(channelMap)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
-    return res.status(200).json({ channels });
+    return res.status(200).json({ channels, users: getUsersMap() });
   }
 
   // チャンネルのメッセージ取得
