@@ -17,7 +17,7 @@ files = [
     'writevideo_final_evaluation','yonekura_analysis','writevideo_customer_analysis',
     'shodan_analysis','exhibition_analysis','writevideo_revaluation',
     'writevideo_sales_analysis','channel_list','salary_dashboard','salary_bonus',
-    'person_dashboard'
+    'person_dashboard','slack_search'
 ]
 
 pages = {}

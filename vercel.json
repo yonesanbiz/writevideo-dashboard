@@ -43,6 +43,10 @@
     {
       "source": "/person_dashboard.html",
       "destination": "/api/page?p=person_dashboard"
+    },
+    {
+      "source": "/slack_search.html",
+      "destination": "/api/page?p=slack_search"
     }
   ],
   "headers": [
