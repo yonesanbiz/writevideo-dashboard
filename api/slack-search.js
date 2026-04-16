@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 
@@ -34,8 +33,9 @@ function searchRelevant(messages, query, maxResults = 80) {
     .slice(0, maxResults);
 }
 
+const API_KEY = "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";
+
 export default async function handler(req, res) {
-  // 認証チェック
   const cookieHeader = req.headers.cookie || "";
   const match = cookieHeader.match(/wv_session=([^;]+)/);
   if (!match) return res.status(401).json({ error: "Unauthorized" });
@@ -52,17 +52,6 @@ export default async function handler(req, res) {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "query required" });
 
-  // デバッグ: 全環境変数のキーを返す
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ 
-      error: "ANTHROPIC_API_KEY not set",
-      allKeys: Object.keys(process.env).sort(),
-      vercelEnv: process.env.VERCEL_ENV || "unknown",
-      nodeEnv: process.env.NODE_ENV || "unknown",
-    });
-  }
-
   try {
     const messages = getSlackData();
     const relevant = searchRelevant(messages, query);
@@ -76,20 +65,32 @@ export default async function handler(req, res) {
 
     const context = relevant.map((m) => `[#${m.ch}] ${m.text}`).join("\n---\n");
 
-    const client = new Anthropic({ apiKey });
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1000,
-      messages: [
-        {
-          role: "user",
-          content: `以下はWriteVideo.aiの社内Slackの過去メッセージです。これを元に質問に答えてください。\n\n<slack_messages>\n${context}\n</slack_messages>\n\n質問: ${query}\n\n日本語で簡潔に答えてください。`,
-        },
-      ],
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: `以下はWriteVideo.aiの社内Slackの過去メッセージです。これを元に質問に答えてください。\n\n<slack_messages>\n${context}\n</slack_messages>\n\n質問: ${query}\n\n日本語で簡潔に答えてください。`,
+          },
+        ],
+      }),
     });
 
-    const textBlock = response.content.find(b => b.type === "text");
-    const answer = textBlock ? textBlock.text : "回答を生成できませんでした";
+    const data2 = await response.json();
+    
+    if (!response.ok) {
+      return res.status(500).json({ error: data2.error?.message || "API error", status: response.status });
+    }
+
+    const answer = data2.content?.[0]?.text || "回答を生成できませんでした";
 
     const sources = relevant.slice(0, 5).map((m) => ({
       channel: m.ch,
@@ -99,6 +100,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ answer, sources });
   } catch (e) {
-    return res.status(500).json({ error: e.message, stack: e.stack });
+    return res.status(500).json({ error: e.message });
   }
 }
