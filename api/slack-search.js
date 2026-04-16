@@ -74,7 +74,7 @@ export default async function handler(req, res) {
 
     const client = new Anthropic();
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5",
       max_tokens: 1000,
       messages: [
         {
@@ -92,7 +92,8 @@ ${context}
       ],
     });
 
-    const answer = response.content[0].text;
+    const textBlock = response.content.find(b => b.type === "text");
+    const answer = textBlock ? textBlock.text : "回答を生成できませんでした";
 
     // ソース（上位5件）
     const sources = relevant.slice(0, 5).map((m) => ({
