@@ -81,7 +81,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:06 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:19 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -118,11 +118,10 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
   <!-- AI分析エリア -->
   <div class="ai-box" id="aiBox">
     <div class="ai-box-title">🤖 AIで分析</div>
-    <div class="ai-prompt-row">
-      <input type="text" class="ai-prompt-input" id="aiPromptInput" placeholder="例：このチャンネルから営業マニュアルを作って" onkeydown="if(event.key==='Enter')analyze()">
-      <button class="ai-analyze-btn" id="analyzeBtn" onclick="analyze()">分析 →</button>
+    <div class="chat-history" id="chatHistory">
+      <div class="chat-empty">メッセージを取得してから質問してください</div>
     </div>
-    <div class="ai-presets">
+    <div class="ai-presets" id="aiPresets">
       <span class="ai-preset" onclick="setPreset('このチャンネルの会話から営業マニュアルを作成して')">営業マニュアル作成</span>
       <span class="ai-preset" onclick="setPreset('よく出てくる課題・問題点を整理して')">課題整理</span>
       <span class="ai-preset" onclick="setPreset('FAQを抽出して質問と回答の形式でまとめて')">FAQ抽出</span>
@@ -130,10 +129,14 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       <span class="ai-preset" onclick="setPreset('このチャンネルの会話を要約して')">要約</span>
       <span class="ai-preset" onclick="setPreset('改善提案・アクションアイテムを抽出して')">アクション抽出</span>
     </div>
-    <div class="ai-result" id="aiResult"></div>
-    <div id="saveArea" style="display:none;margin-top:12px;">
-      <button class="fetch-btn" onclick="saveResult()" id="saveBtn" style="background:#1D9E75;">💾 保存して一覧に追加</button>
+    <div class="ai-prompt-row">
+      <input type="text" class="ai-prompt-input" id="aiPromptInput" placeholder="チャンネルについて質問してください..." onkeydown="if(event.key==='Enter')analyze()">
+      <button class="ai-analyze-btn" id="analyzeBtn" onclick="analyze()">送信 →</button>
+    </div>
+    <div id="saveArea" style="display:none;margin-top:8px;">
+      <button class="fetch-btn" onclick="saveResult()" id="saveBtn" style="background:#1D9E75;font-size:11px;padding:6px 12px;">💾 最後の回答を保存</button>
       <a id="listLink" href="analysis_list.html" style="font-size:12px;font-family:monospace;color:#888;margin-left:16px;text-decoration:underline;">一覧を見る →</a>
+      <button onclick="clearChat()" style="background:none;border:none;font-size:11px;color:#aaa;cursor:pointer;margin-left:12px;">🗑 クリア</button>
     </div>
   </div>
 
