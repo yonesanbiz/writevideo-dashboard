@@ -1,21 +1,29 @@
 import { checkAuth } from './auth-check.js';
-import { put, get, list } from '@vercel/blob';
+
+const BLOB_BASE = 'https://gb3xnd1ythqwm0kh.private.blob.vercel-storage.com';
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || '';
 
 let channelIndex = null;
 const channelCache = {};
 
+async function fetchBlob(path) {
+  const res = await fetch(`${BLOB_BASE}/${path}`, {
+    headers: { 'Authorization': `Bearer ${BLOB_TOKEN}` }
+  });
+  if (!res.ok) throw new Error(`Blob fetch failed: ${res.status} ${path}`);
+  return res.json();
+}
+
 async function getIndex() {
-  if (channelIndex) return channelIndex;
-  const res = await get('slack/_index.json', { access: 'private' });
-  channelIndex = await res.json();
+  if (!channelIndex) channelIndex = await fetchBlob('slack/_index.json');
   return channelIndex;
 }
 
 async function getChannelData(chName) {
   if (channelCache[chName]) return channelCache[chName];
   const safe = chName.replace(/\//g,'_').replace(/\\/g,'_').replace(/:/g,'_');
-  const res = await get(`slack/${safe}.json`, { access: 'private' });
-  channelCache[chName] = await res.json();
+  const encoded = encodeURIComponent(safe);
+  channelCache[chName] = await fetchBlob(`slack/${encoded}.json`);
   return channelCache[chName];
 }
 
