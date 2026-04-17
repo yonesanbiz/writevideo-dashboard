@@ -64,6 +64,9 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 /* 保存エリア */
 .save-area { padding: 8px 16px; border-top: 1px solid #2a2a2a; display: flex; align-items: center; gap: 12px; }
 
+.recent-channels { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.recent-ch-btn { font-size: 11px; font-family: monospace; padding: 4px 12px; border: 1px solid #d8d3cb; background: white; cursor: pointer; color: #555; border-radius: 20px; transition: all 0.15s; white-space: nowrap; }
+.recent-ch-btn:hover { border-color: #c8460a; color: #c8460a; background: #fff8f5; }
 .stats { font-size: 12px; font-family: monospace; color: #888; margin-bottom: 12px; }
 .stats span { color: #c8460a; font-weight: 700; }
 
@@ -98,7 +101,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:26 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:28 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -108,6 +111,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
   <h1>Slackチャンネル閲覧・分析</h1>
   <p class="sub">チャンネルを選択してメッセージを表示・AIで分析</p>
 
+  <div id="recentArea" style="display:none;"></div>
   <div class="controls">
     <div class="control-group">
       <span class="control-label">チャンネル</span>
@@ -182,6 +186,7 @@ async function loadChannels() {
   } catch(e) {
     document.getElementById('channelSelect').innerHTML = '<option value="">読み込みエラー</option>';
   }
+  renderRecentChannels();
 }
 
 async function fetchMessages() {
@@ -206,6 +211,7 @@ async function fetchMessages() {
     allMessages = data.messages || [];
     currentTotal = data.total;
     renderMessages(allMessages);
+    saveRecentChannel(channel);
     if (allMessages.length > 0) {
       document.getElementById('aiBox').classList.add('visible');
     }
@@ -381,6 +387,30 @@ async function analyze() {
   btn.disabled = false;
   btn.textContent = '送信 →';
   document.getElementById('aiPromptInput').focus();
+}
+
+// 最近使ったチャンネルの管理
+function saveRecentChannel(ch) {
+  let recent = JSON.parse(localStorage.getItem('wv_recent_channels') || '[]');
+  recent = [ch, ...recent.filter(c => c !== ch)].slice(0, 4);
+  localStorage.setItem('wv_recent_channels', JSON.stringify(recent));
+  renderRecentChannels();
+}
+
+function renderRecentChannels() {
+  const recent = JSON.parse(localStorage.getItem('wv_recent_channels') || '[]');
+  const area = document.getElementById('recentArea');
+  if (recent.length === 0) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  area.innerHTML = '<div class="recent-channels">' +
+    recent.map(ch => `<button class="recent-ch-btn" onclick="selectChannel('${ch.replace(/'/g, "\'")}')">＃${ch}</button>`).join('') +
+    '</div>';
+}
+
+function selectChannel(ch) {
+  const select = document.getElementById('channelSelect');
+  select.value = ch;
+  fetchMessages();
 }
 
 // IME対応Enter送信
