@@ -22,30 +22,47 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .fetch-btn:hover { background: #c8460a; }
 .fetch-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-/* AI分析エリア */
-.ai-box { background: white; border: 1px solid #e5e0d8; padding: 20px; margin-bottom: 20px; display: none; }
-.ai-box.visible { display: block; }
-.ai-box-title { font-size: 11px; font-family: monospace; color: #c8460a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
-.ai-prompt-row { display: flex; gap: 10px; }
-.ai-prompt-input { flex: 1; padding: 10px 12px; border: 1px solid #e5e0d8; font-size: 14px; outline: none; font-family: inherit; }
-.ai-prompt-input:focus { border-color: #c8460a; }
-.ai-analyze-btn { padding: 10px 20px; background: #c8460a; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; white-space: nowrap; }
-.ai-analyze-btn:hover { background: #a33808; }
-.ai-analyze-btn:disabled { background: #ccc; cursor: not-allowed; }
-.chat-history { max-height: 420px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
+/* AI チャットエリア */
+.ai-box { background: #1a1a1a; border-radius: 12px; margin-bottom: 20px; display: none; overflow: hidden; }
+.ai-box.visible { display: flex; flex-direction: column; height: 520px; }
+.ai-box-title { font-size: 11px; font-family: monospace; color: #666; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 16px 10px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 8px; }
+.ai-box-title::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; display: inline-block; }
+
+/* チャット履歴 */
+.chat-history { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+.chat-history::-webkit-scrollbar { width: 4px; }
+.chat-history::-webkit-scrollbar-track { background: transparent; }
+.chat-history::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 .chat-msg { display: flex; flex-direction: column; gap: 4px; }
 .chat-msg.user { align-items: flex-end; }
 .chat-msg.ai { align-items: flex-start; }
-.chat-bubble { max-width: 85%; padding: 10px 14px; font-size: 13px; line-height: 1.7; }
-.chat-msg.user .chat-bubble { background: #0f0e0d; color: #f5f2ec; }
-.chat-msg.ai .chat-bubble { background: #faf8f5; border: 1px solid #e5e0d8; color: #0f0e0d; }
-.chat-label { font-size: 10px; font-family: monospace; color: #aaa; }
-.chat-empty { color: #bbb; font-size: 12px; font-family: monospace; text-align: center; padding: 24px; }
-.ai-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.ai-preset { font-size: 11px; font-family: monospace; padding: 4px 10px; border: 1px solid #e5e0d8; background: #faf8f5; cursor: pointer; color: #666; }
+.chat-label { font-size: 10px; font-family: monospace; color: #555; padding: 0 4px; }
+.chat-bubble { max-width: 82%; padding: 10px 14px; font-size: 13px; line-height: 1.75; border-radius: 12px; }
+.chat-msg.user .chat-bubble { background: #c8460a; color: #fff; border-radius: 12px 12px 2px 12px; }
+.chat-msg.ai .chat-bubble { background: #252525; color: #e8e3db; border-radius: 12px 12px 12px 2px; border: 1px solid #2e2e2e; }
+.chat-msg.ai .chat-bubble h1,.chat-msg.ai .chat-bubble h2,.chat-msg.ai .chat-bubble h3 { color: #e8e3db; margin: 12px 0 6px; font-size: 14px; font-weight: 700; }
+.chat-msg.ai .chat-bubble p { margin-bottom: 8px; }
+.chat-msg.ai .chat-bubble ul,.chat-msg.ai .chat-bubble ol { margin: 4px 0 8px 16px; }
+.chat-msg.ai .chat-bubble li { margin-bottom: 3px; }
+.chat-msg.ai .chat-bubble code { background: #1a1a1a; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; color: #1D9E75; }
+.chat-msg.ai .chat-bubble strong { color: #fff; }
+.chat-empty { color: #444; font-size: 12px; font-family: monospace; text-align: center; padding: 40px 20px; line-height: 2; }
+
+/* プリセット */
+.ai-presets { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px; border-top: 1px solid #2a2a2a; }
+.ai-preset { font-size: 11px; font-family: monospace; padding: 4px 10px; border: 1px solid #333; background: transparent; cursor: pointer; color: #666; border-radius: 20px; transition: all 0.15s; }
 .ai-preset:hover { border-color: #c8460a; color: #c8460a; }
-.ai-result { margin-top: 16px; padding: 16px; background: #faf8f5; border-left: 3px solid #c8460a; font-size: 14px; line-height: 1.8; white-space: pre-wrap; display: none; }
-.ai-result.visible { display: block; }
+
+/* 入力エリア */
+.ai-prompt-row { display: flex; gap: 0; border-top: 1px solid #2a2a2a; }
+.ai-prompt-input { flex: 1; padding: 14px 16px; background: transparent; border: none; font-size: 14px; outline: none; font-family: inherit; color: #e8e3db; }
+.ai-prompt-input::placeholder { color: #444; }
+.ai-analyze-btn { padding: 14px 20px; background: #c8460a; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; white-space: nowrap; transition: background 0.15s; }
+.ai-analyze-btn:hover { background: #a33808; }
+.ai-analyze-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
+
+/* 保存エリア */
+.save-area { padding: 8px 16px; border-top: 1px solid #2a2a2a; display: flex; align-items: center; gap: 12px; }
 
 .stats { font-size: 12px; font-family: monospace; color: #888; margin-bottom: 12px; }
 .stats span { color: #c8460a; font-weight: 700; }
@@ -81,7 +98,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:22 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:24 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -119,7 +136,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
   <div class="ai-box" id="aiBox">
     <div class="ai-box-title">🤖 AIで分析</div>
     <div class="chat-history" id="chatHistory">
-      <div class="chat-empty">メッセージを取得してから質問してください</div>
+      <div class="chat-empty">チャンネルのメッセージを取得後<br>ここで質問できます<br><span style="color:#333;font-size:10px;margin-top:8px;display:block;">↑ チャンネルを選んで「表示」を押してください</span></div>
     </div>
     <div class="ai-presets" id="aiPresets">
       <span class="ai-preset" onclick="setPreset('このチャンネルの会話から営業マニュアルを作成して')">営業マニュアル作成</span>
@@ -133,8 +150,8 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       <input type="text" class="ai-prompt-input" id="aiPromptInput" placeholder="チャンネルについて質問してください..." onkeydown="if(event.key==='Enter')analyze()">
       <button class="ai-analyze-btn" id="analyzeBtn" onclick="analyze()">送信 →</button>
     </div>
-    <div id="saveArea" style="display:none;margin-top:8px;">
-      <button class="fetch-btn" onclick="saveResult()" id="saveBtn" style="background:#1D9E75;font-size:11px;padding:6px 12px;">💾 最後の回答を保存</button>
+    <div id="saveArea" class="save-area" style="display:none;">
+      <button class="fetch-btn" onclick="saveResult()" id="saveBtn" style="background:#1D9E75;font-size:11px;padding:6px 12px;border:none;color:white;cursor:pointer;font-family:monospace;">💾 最後の回答を保存</button>
       <a id="listLink" href="analysis_list.html" style="font-size:12px;font-family:monospace;color:#888;margin-left:16px;text-decoration:underline;">一覧を見る →</a>
       <button onclick="clearChat()" style="background:none;border:none;font-size:11px;color:#aaa;cursor:pointer;margin-left:12px;">🗑 クリア</button>
     </div>
