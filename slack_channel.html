@@ -32,6 +32,15 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .ai-analyze-btn { padding: 10px 20px; background: #c8460a; color: white; border: none; font-size: 13px; cursor: pointer; font-family: monospace; white-space: nowrap; }
 .ai-analyze-btn:hover { background: #a33808; }
 .ai-analyze-btn:disabled { background: #ccc; cursor: not-allowed; }
+.chat-history { max-height: 420px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
+.chat-msg { display: flex; flex-direction: column; gap: 4px; }
+.chat-msg.user { align-items: flex-end; }
+.chat-msg.ai { align-items: flex-start; }
+.chat-bubble { max-width: 85%; padding: 10px 14px; font-size: 13px; line-height: 1.7; }
+.chat-msg.user .chat-bubble { background: #0f0e0d; color: #f5f2ec; }
+.chat-msg.ai .chat-bubble { background: #faf8f5; border: 1px solid #e5e0d8; color: #0f0e0d; }
+.chat-label { font-size: 10px; font-family: monospace; color: #aaa; }
+.chat-empty { color: #bbb; font-size: 12px; font-family: monospace; text-align: center; padding: 24px; }
 .ai-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .ai-preset { font-size: 11px; font-family: monospace; padding: 4px 10px; border: 1px solid #e5e0d8; background: #faf8f5; cursor: pointer; color: #666; }
 .ai-preset:hover { border-color: #c8460a; color: #c8460a; }
@@ -72,7 +81,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:04 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-17 15:06 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -280,23 +289,57 @@ function setPreset(text) {
   document.getElementById('aiPromptInput').focus();
 }
 
+let chatLog = []; // {role: 'user'|'ai', text: string}
+let lastAiResult = '';
+
+function renderChat() {
+  const history = document.getElementById('chatHistory');
+  const empty = document.getElementById('chatEmpty');
+  if (chatLog.length === 0) {
+    empty.style.display = 'block';
+    history.innerHTML = '<div class="chat-empty" id="chatEmpty">メッセージを取得してから質問してください</div>';
+    return;
+  }
+  history.innerHTML = chatLog.map(m => `
+    <div class="chat-msg ${m.role}">
+      <div class="chat-label">${m.role === 'user' ? 'あなた' : 'AI'}</div>
+      <div class="chat-bubble">${m.role === 'ai' ? parseMarkdown(m.text) : m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    </div>`).join('');
+  // 最下部にスクロール
+  history.scrollTop = history.scrollHeight;
+}
+
+function clearChat() {
+  chatLog = [];
+  lastAiResult = '';
+  renderChat();
+  document.getElementById('saveArea').style.display = 'none';
+}
+
 async function analyze() {
   const prompt = document.getElementById('aiPromptInput').value.trim();
-  if (!prompt) return alert('分析内容を入力してください');
+  if (!prompt) return;
   if (allMessages.length === 0) return alert('先にメッセージを取得してください');
 
   const btn = document.getElementById('analyzeBtn');
   btn.disabled = true;
-  btn.textContent = '分析中...';
+  btn.textContent = '送信中...';
+  document.getElementById('aiPromptInput').value = '';
+  document.getElementById('aiPresets').style.display = 'none';
 
-  const resultEl = document.getElementById('aiResult');
-  resultEl.classList.add('visible');
-  resultEl.textContent = '分析中...';
+  // ユーザーメッセージを追加
+  chatLog.push({ role: 'user', text: prompt });
+  chatLog.push({ role: 'ai', text: '考え中...' });
+  renderChat();
 
-  // メッセージをコンテキスト化
-  const context = allMessages
+  // コンテキスト：Slackメッセージ + 過去のチャット履歴
+  const slackContext = allMessages
     .map(m => `[${m.date}] ${m.user||"不明"}: ${m.text}`)
     .join('\n');
+  const chatContext = chatLog.slice(0, -1)
+    .map(m => `${m.role === 'user' ? 'ユーザー' : 'AI'}: ${m.text}`)
+    .join('\n');
+  const context = slackContext + (chatContext ? '\n\n--- 会話履歴 ---\n' + chatContext : '');
 
   const channel = document.getElementById('channelSelect').value;
 
@@ -307,18 +350,18 @@ async function analyze() {
       body: JSON.stringify({ prompt, context, channel })
     });
     const data = await res.json();
-    resultEl.innerHTML = parseMarkdown(data.result || 'エラーが発生しました');
+    lastAiResult = data.result || 'エラーが発生しました';
+    chatLog[chatLog.length - 1].text = lastAiResult;
+    renderChat();
     document.getElementById('saveArea').style.display = 'block';
-    document.getElementById('saveBtn').disabled = false;
-    document.getElementById('saveBtn').textContent = '💾 保存して一覧に追加';
-    document.getElementById('listLink').href = 'analysis_list.html';
-    document.getElementById('listLink').textContent = '一覧を見る →';
   } catch(e) {
-    resultEl.textContent = 'エラー: ' + e.message;
+    chatLog[chatLog.length - 1].text = 'エラー: ' + e.message;
+    renderChat();
   }
 
   btn.disabled = false;
-  btn.textContent = '分析 →';
+  btn.textContent = '送信 →';
+  document.getElementById('aiPromptInput').focus();
 }
 
 document.getElementById('filterInput').addEventListener('input', () => {
@@ -332,8 +375,8 @@ async function saveResult() {
   btn.disabled = true;
   btn.textContent = '保存中...';
   const channel = document.getElementById('channelSelect').value;
-  const prompt = document.getElementById('aiPromptInput').value;
-  const result = document.getElementById('aiResult').textContent;
+  const prompt = chatLog.filter(m=>m.role==='user').map(m=>m.text).join(' / ').slice(0, 100);
+  const result = lastAiResult;
   try {
     const res = await fetch('/api/save-analysis', {
       method: 'POST',
