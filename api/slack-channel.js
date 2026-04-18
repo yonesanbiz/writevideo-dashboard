@@ -1,7 +1,20 @@
 import { checkAuth } from './auth-check.js';
+import fs from 'fs';
+import path from 'path';
 
 const BLOB_BASE = 'https://gb3xnd1ythqwm0kh.private.blob.vercel-storage.com';
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || '';
+
+let usersMapCache = null;
+function getUsersMap() {
+  if (!usersMapCache) {
+    try {
+      const p = path.join(process.cwd(), 'users_map.json');
+      usersMapCache = JSON.parse(fs.readFileSync(p, 'utf-8'));
+    } catch { usersMapCache = {}; }
+  }
+  return usersMapCache;
+}
 
 let channelIndex = null;
 const channelCache = {};
@@ -35,7 +48,7 @@ export default async function handler(req, res) {
       const index = await getIndex();
       return res.status(200).json({
         channels: index.map(ch => ({ name: ch.name, count: ch.count })),
-        users: {}
+        users: getUsersMap()
       });
     } catch(e) {
       return res.status(500).json({ error: e.message });
