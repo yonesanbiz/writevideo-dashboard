@@ -22,8 +22,7 @@ async function getIndex() {
 async function getChannelData(chName) {
   if (channelCache[chName]) return channelCache[chName];
   const safe = chName.replace(/\//g,'_').replace(/\\/g,'_').replace(/:/g,'_');
-  const encoded = encodeURIComponent(safe);
-  channelCache[chName] = await fetchBlob(`slack/${encoded}.json`);
+  channelCache[chName] = await fetchBlob(`slack/${safe}.json`);
   return channelCache[chName];
 }
 
