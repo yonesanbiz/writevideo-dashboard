@@ -67,6 +67,8 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .recent-channels { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .recent-ch-btn { font-size: 11px; font-family: monospace; padding: 4px 12px; border: 1px solid #d8d3cb; background: white; cursor: pointer; color: #555; border-radius: 20px; transition: all 0.15s; white-space: nowrap; }
 .recent-ch-btn:hover { border-color: #c8460a; color: #c8460a; background: #fff8f5; }
+.ch-search { width: 100%; padding: 7px 10px; border: 1px solid #e5e0d8; font-size: 13px; outline: none; font-family: inherit; margin-bottom: 6px; }
+.ch-search:focus { border-color: #c8460a; }
 .stats { font-size: 12px; font-family: monospace; color: #888; margin-bottom: 12px; }
 .stats span { color: #c8460a; font-weight: 700; }
 
@@ -101,7 +103,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-18 09:52 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-18 09:53 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -113,9 +115,10 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 
   <div id="recentArea" style="display:none;"></div>
   <div class="controls">
-    <div class="control-group">
+    <div class="control-group" style="position:relative;">
       <span class="control-label">チャンネル</span>
-      <select class="control-select" id="channelSelect">
+      <input type="text" class="ch-search" id="chSearch" placeholder="チャンネルを検索..." autocomplete="off">
+      <select class="control-select" id="channelSelect" size="1">
         <option value="">読み込み中...</option>
       </select>
     </div>
@@ -175,14 +178,13 @@ async function loadChannels() {
     const res = await fetch('/api/slack-channel');
     const data = await res.json();
     usersMap = data.users || {};
-    const select = document.getElementById('channelSelect');
-    select.innerHTML = '<option value="">チャンネルを選択...</option>';
-    for (const ch of data.channels) {
-      const opt = document.createElement('option');
-      opt.value = ch.name;
-      opt.textContent = `#${ch.name} (${ch.count}件)`;
-      select.appendChild(opt);
-    }
+    // 名前順にソートして保持
+    allChannels = [...(data.channels || [])].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+    renderChannelList('');
+    // チャンネル検索フィルター
+    document.getElementById('chSearch').addEventListener('input', (e) => {
+      renderChannelList(e.target.value.trim());
+    });
   } catch(e) {
     document.getElementById('channelSelect').innerHTML = '<option value="">読み込みエラー</option>';
   }
@@ -395,6 +397,15 @@ function saveRecentChannel(ch) {
   recent = [ch, ...recent.filter(c => c !== ch)].slice(0, 4);
   localStorage.setItem('wv_recent_channels', JSON.stringify(recent));
   renderRecentChannels();
+}
+
+function renderChannelList(query) {
+  const select = document.getElementById('channelSelect');
+  const filtered = query
+    ? allChannels.filter(ch => ch.name.includes(query))
+    : allChannels;
+  select.innerHTML = '<option value="">チャンネルを選択...</option>' +
+    filtered.map(ch => `<option value="${ch.name}">#${ch.name} (${ch.count}件)</option>`).join('');
 }
 
 function renderRecentChannels() {
