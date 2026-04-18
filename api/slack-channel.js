@@ -67,7 +67,13 @@ export default async function handler(req, res) {
       return res.status(200).json({
         messages: filtered.map(m => ({
           text: m.text,
-          user: m.user || "不明",
+          user: (() => {
+            const u = m.user || '';
+            if (u.startsWith('U') && u.length > 8) {
+              return getUsersMap()[u] || u;
+            }
+            return u || '不明';
+          })(),
           date: new Date(parseFloat(m.ts) * 1000).toLocaleString("ja-JP"),
           ts: m.ts,
           thread_ts: m.thread_ts || null,
