@@ -46,6 +46,13 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .chat-msg.ai .chat-bubble li { margin-bottom: 3px; }
 .chat-msg.ai .chat-bubble code { background: #1a1a1a; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; color: #1D9E75; }
 .chat-msg.ai .chat-bubble strong { color: #fff; }
+.thinking-box { font-size: 11px; font-family: monospace; color: #555; background: #111; border-left: 2px solid #333; padding: 8px 12px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+.thinking-box.active { border-left-color: #1D9E75; color: #444; }
+.thinking-label { font-size: 10px; color: #444; font-family: monospace; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.thinking-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.streaming-cursor { display: inline-block; width: 2px; height: 14px; background: #c8460a; animation: blink 0.8s infinite; vertical-align: text-bottom; margin-left: 2px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 .chat-empty { color: #444; font-size: 12px; font-family: monospace; text-align: center; padding: 40px 20px; line-height: 2; }
 
 /* プリセット */
@@ -103,7 +110,7 @@ h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-18 10:02 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-18 10:04 JST</div>
 <div style="position:fixed;top:20px;left:20px;z-index:9999;">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;">← ダッシュボードに戻る</a>
 </div>
@@ -330,7 +337,13 @@ function renderChat() {
   history.innerHTML = chatLog.map(m => `
     <div class="chat-msg ${m.role}">
       <div class="chat-label">${m.role === 'user' ? 'あなた' : 'AI'}</div>
-      <div class="chat-bubble">${m.role === 'ai' ? parseMarkdown(m.text) : m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      ${m.role === 'ai' && m.thinking ? `<div class="thinking-box">${m.text === '考え中...' || m.text.startsWith('__STREAMING__') ? '<div class="thinking-label"><span class="thinking-dot"></span>thinking...</div>' : ''}<div>${m.thinking.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').slice(-800)}</div></div>` : ''}
+    <div class="chat-bubble">${m.role === 'ai'
+      ? (m.text === '考え中...' ? '<span style="color:#555">考え中...</span>'
+        : m.text.startsWith('__STREAMING__')
+          ? parseMarkdown(m.text.slice(14)) + '<span class="streaming-cursor"></span>'
+          : parseMarkdown(m.text))
+      : m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
     </div>`).join('');
   // 最下部にスクロール
   history.scrollTop = history.scrollHeight;
@@ -376,10 +389,53 @@ async function analyze() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, context, channel })
     });
-    const data = await res.json();
-    lastAiResult = data.result || 'エラーが発生しました';
-    chatLog[chatLog.length - 1].text = lastAiResult;
+
+    // SSEストリーミング読み込み
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let thinkingText = '';
+    let answerText = '';
+    let phase = 'thinking'; // 'thinking' | 'answer'
+
+    chatLog[chatLog.length - 1].text = '__STREAMING__';
+    chatLog[chatLog.length - 1].thinking = '';
     renderChat();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const evt = JSON.parse(line.slice(6));
+          if (evt.type === 'thinking_start') {
+            phase = 'thinking';
+          } else if (evt.type === 'text_start') {
+            phase = 'answer';
+          } else if (evt.type === 'thinking') {
+            thinkingText += evt.text;
+            chatLog[chatLog.length - 1].thinking = thinkingText;
+            renderChat();
+          } else if (evt.type === 'text') {
+            answerText += evt.text;
+            chatLog[chatLog.length - 1].text = '__STREAMING__' + answerText;
+            renderChat();
+          } else if (evt.type === 'done') {
+            chatLog[chatLog.length - 1].text = answerText || '回答を生成できませんでした';
+            chatLog[chatLog.length - 1].thinking = thinkingText;
+            lastAiResult = answerText;
+            renderChat();
+          } else if (evt.type === 'error') {
+            chatLog[chatLog.length - 1].text = 'エラー: ' + evt.message;
+            renderChat();
+          }
+        } catch {}
+      }
+    }
     document.getElementById('saveArea').style.display = 'block';
   } catch(e) {
     chatLog[chatLog.length - 1].text = 'エラー: ' + e.message;
