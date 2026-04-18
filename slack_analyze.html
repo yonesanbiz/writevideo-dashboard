@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slack AI分析</title>
+<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0d0d0d;color:#e8e3db;height:100vh;display:flex;flex-direction:column;}
+
+/* ヘッダー */
+.header{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid #1e1e1e;flex-shrink:0;}
+.header a{color:#555;font-size:11px;font-family:monospace;text-decoration:none;}
+.header a:hover{color:#aaa;}
+.header-title{font-size:13px;font-weight:600;color:#e8e3db;}
+.header-sub{font-size:11px;color:#444;font-family:monospace;margin-left:auto;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;}
+
+/* チャット履歴 */
+.chat-area{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:20px;max-width:900px;width:100%;margin:0 auto;}
+.chat-area::-webkit-scrollbar{width:4px;}
+.chat-area::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
+
+.chat-msg{display:flex;flex-direction:column;gap:6px;}
+.chat-msg.user{align-items:flex-end;}
+.chat-msg.ai{align-items:flex-start;}
+.chat-label{font-size:10px;font-family:monospace;color:#444;padding:0 4px;}
+.chat-bubble{max-width:80%;padding:12px 16px;font-size:14px;line-height:1.8;border-radius:14px;}
+.chat-msg.user .chat-bubble{background:#c8460a;color:#fff;border-radius:14px 14px 3px 14px;}
+.chat-msg.ai .chat-bubble{background:#181818;color:#e8e3db;border-radius:14px 14px 14px 3px;border:1px solid #252525;}
+.chat-msg.ai .chat-bubble h1,.chat-msg.ai .chat-bubble h2,.chat-msg.ai .chat-bubble h3{color:#fff;margin:12px 0 6px;font-size:14px;font-weight:700;}
+.chat-msg.ai .chat-bubble h2{font-size:13px;}
+.chat-msg.ai .chat-bubble p{margin-bottom:8px;}
+.chat-msg.ai .chat-bubble ul,.chat-msg.ai .chat-bubble ol{margin:4px 0 8px 18px;}
+.chat-msg.ai .chat-bubble li{margin-bottom:4px;}
+.chat-msg.ai .chat-bubble code{background:#0d0d0d;padding:2px 6px;border-radius:3px;font-family:monospace;font-size:12px;color:#1D9E75;}
+.chat-msg.ai .chat-bubble strong{color:#fff;}
+.chat-msg.ai .chat-bubble table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+.chat-msg.ai .chat-bubble th{background:#111;padding:6px 10px;text-align:left;border:1px solid #2a2a2a;font-weight:700;}
+.chat-msg.ai .chat-bubble td{padding:6px 10px;border:1px solid #2a2a2a;}
+.chat-msg.ai .chat-bubble tr:nth-child(even) td{background:#131313;}
+
+/* 思考ボックス */
+.thinking-box{font-size:11px;font-family:monospace;color:#3a3a3a;background:#0a0a0a;border-left:2px solid #222;padding:8px 12px;margin-bottom:6px;max-height:100px;overflow-y:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-width:80%;border-radius:4px;}
+.thinking-box.active{border-left-color:#1D9E75;color:#3d3d3d;}
+.thinking-label{font-size:10px;color:#333;font-family:monospace;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.thinking-dot{width:6px;height:6px;border-radius:50%;background:#1D9E75;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.streaming-cursor{display:inline-block;width:2px;height:14px;background:#c8460a;animation:blink 0.8s infinite;vertical-align:text-bottom;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* 空状態 */
+.chat-empty{text-align:center;padding:60px 20px;color:#2a2a2a;font-family:monospace;line-height:2.5;font-size:13px;}
+.chat-empty strong{color:#333;display:block;font-size:15px;margin-bottom:8px;}
+.suggestion-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px;}
+.chip{font-size:11px;font-family:monospace;padding:6px 14px;border:1px solid #222;color:#444;border-radius:20px;cursor:pointer;transition:all 0.15s;}
+.chip:hover{border-color:#c8460a;color:#c8460a;}
+
+/* 入力エリア */
+.input-area{border-top:1px solid #1a1a1a;padding:16px 20px;flex-shrink:0;max-width:900px;width:100%;margin:0 auto;}
+.input-row{display:flex;gap:0;background:#141414;border:1px solid #222;border-radius:12px;overflow:hidden;}
+.input-row:focus-within{border-color:#333;}
+textarea#chatInput{flex:1;background:transparent;border:none;padding:12px 16px;font-size:14px;color:#e8e3db;font-family:inherit;resize:none;outline:none;min-height:48px;max-height:160px;line-height:1.6;}
+textarea#chatInput::placeholder{color:#333;}
+.send-btn{padding:12px 20px;background:#c8460a;color:white;border:none;font-size:13px;cursor:pointer;font-family:monospace;white-space:nowrap;transition:background 0.15s;align-self:flex-end;}
+.send-btn:hover{background:#a33808;}
+.send-btn:disabled{background:#1a1a1a;color:#333;cursor:not-allowed;}
+.input-hint{font-size:10px;font-family:monospace;color:#2a2a2a;margin-top:8px;text-align:center;}
+
+/* 保存バー */
+.save-bar{display:none;padding:8px 20px;border-top:1px solid #1a1a1a;flex-direction:row;align-items:center;gap:12px;max-width:900px;width:100%;margin:0 auto;}
+.save-bar.visible{display:flex;}
+.save-btn{font-size:11px;font-family:monospace;padding:5px 12px;background:#1D9E75;color:white;border:none;cursor:pointer;}
+.clear-btn{font-size:11px;font-family:monospace;padding:5px 12px;background:transparent;color:#444;border:1px solid #222;cursor:pointer;}
+.clear-btn:hover{color:#aaa;border-color:#444;}
+</style>
+</head>
+<body>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-18 12:03 JST</div>
+
+<div class="header">
+  <div class="status-dot"></div>
+  <div class="header-title">Slack AI 分析</div>
+  <a href="slack_channel.html">チャンネル閲覧 →</a>
+  <a href="analysis_list.html">分析一覧 →</a>
+  <a href="index.html">← 戻る</a>
+</div>
+
+<div class="chat-area" id="chatArea">
+  <div class="chat-empty" id="chatEmpty">
+    <strong>何でも聞いてください</strong>
+    チャンネル名を指定して質問するだけで<br>
+    Slackの会話を検索・分析します
+    <div class="suggestion-chips">
+      <div class="chip" onclick="setInput('#立ち上がり_日浅 の直近の課題を教えて')"> #立ち上がり_日浅 の直近の課題</div>
+      <div class="chip" onclick="setInput('#writevideo_41_営業ae で最近出た顧客要望をまとめて')">#営業ae の顧客要望まとめ</div>
+      <div class="chip" onclick="setInput('#writevideo_11_dev の直近のバグ一覧')">#dev の直近のバグ</div>
+      <div class="chip" onclick="setInput('#writevideo_52_cs企画 でのアクションアイテムを抽出して')">#cs企画 のアクションアイテム</div>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar" id="saveBar">
+  <button class="save-btn" onclick="saveResult()">💾 保存</button>
+  <button class="clear-btn" onclick="clearChat()">🗑 クリア</button>
+  <a href="analysis_list.html" style="font-size:11px;font-family:monospace;color:#444;text-decoration:underline;margin-left:4px;">一覧を見る →</a>
+</div>
+
+<div style="max-width:900px;width:100%;margin:0 auto;flex-shrink:0;">
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="chatInput" placeholder="チャンネル名と質問を入力してください... (例: #立ち上がり_日浅 の課題をまとめて)" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">送信 →</button>
+    </div>
+    <div class="input-hint">Shift+Enter で改行 / Enter で送信</div>
+  </div>
+</div>
+
+<script>
+let chatLog = [];
+let lastAiResult = '';
+let isComposing = false;
+
+// IME対応
+const input = document.getElementById('chatInput');
+input.addEventListener('compositionstart', () => isComposing = true);
+input.addEventListener('compositionend', () => isComposing = false);
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !isComposing) { e.preventDefault(); send(); }
+});
+// 自動リサイズ
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+});
+
+function setInput(text) {
+  input.value = text;
+  input.focus();
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+  document.getElementById('chatEmpty').style.display = 'none';
+}
+
+function renderChat() {
+  const area = document.getElementById('chatArea');
+  const empty = document.getElementById('chatEmpty');
+  if (chatLog.length === 0) { empty.style.display = 'block'; area.innerHTML = ''; area.appendChild(empty); return; }
+  empty.style.display = 'none';
+
+  const msgs = chatLog.map(m => {
+    const isStreaming = m.text === '__STREAMING__' || m.text.startsWith('__STREAMING__');
+    const displayText = isStreaming ? m.text.slice(14) : m.text;
+    const bubbleContent = m.role === 'ai'
+      ? (isStreaming ? parseMarkdown(displayText) + '<span class="streaming-cursor"></span>' : parseMarkdown(displayText))
+      : displayText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    const thinkingHtml = m.role === 'ai' && m.thinking ? `
+      <div class="thinking-box${isStreaming ? ' active' : ''}">
+        ${isStreaming ? '<div class="thinking-label"><span class="thinking-dot"></span>thinking...</div>' : ''}
+        <div>${m.thinking.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').slice(-600)}</div>
+      </div>` : '';
+
+    return `<div class="chat-msg ${m.role}">
+      <div class="chat-label">${m.role === 'user' ? 'あなた' : 'AI'}</div>
+      ${thinkingHtml}
+      <div class="chat-bubble">${bubbleContent}</div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = msgs;
+  area.scrollTop = area.scrollHeight;
+}
+
+function parseMarkdown(raw) {
+  let t = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t = t.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  t = t.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  t = t.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  t = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t = t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  t = t.replace(/^[-•] (.+)$/gm,'<li>$1</li>');
+  t = t.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+  t = t.replace(/^---$/gm,'<hr>');
+  t = t.split('\n\n').map(p => p.startsWith('<') ? p : `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  return t;
+}
+
+// チャンネル名を抽出してデータ取得
+async function fetchChannelData(channelName) {
+  const res = await fetch('/api/slack-channel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ channel: channelName, limit: 100 })
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.messages || [];
+}
+
+async function send() {
+  const prompt = input.value.trim();
+  if (!prompt) return;
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // チャンネル名を抽出 (#xxx形式)
+  const chMatches = prompt.match(/#([\w\u3000-\u9fff\u30a0-\u30ff\u3040-\u309f_-]+)/g) || [];
+  const channels = chMatches.map(c => c.slice(1));
+
+  chatLog.push({ role: 'user', text: prompt });
+  chatLog.push({ role: 'ai', text: '__STREAMING__', thinking: '' });
+  renderChat();
+
+  // 指定チャンネルのデータを取得
+  let slackContext = '';
+  if (channels.length > 0) {
+    const contextParts = await Promise.all(channels.map(async ch => {
+      const msgs = await fetchChannelData(ch);
+      if (!msgs || msgs.length === 0) return `#${ch}: データなし`;
+      return `=== #${ch} (${msgs.length}件) ===\n` + msgs.slice(0, 80)
+        .map(m => `[${m.date}] ${m.user}: ${m.text.slice(0, 200)}`)
+        .join('\n');
+    }));
+    slackContext = contextParts.join('\n\n');
+  }
+
+  // 会話履歴
+  const chatContext = chatLog.slice(0, -1)
+    .map(m => `${m.role === 'user' ? 'ユーザー' : 'AI'}: ${m.text.replace(/^__STREAMING__/, '').slice(0, 400)}`)
+    .join('\n');
+
+  const context = slackContext
+    ? slackContext + (chatContext ? '\n\n--- 会話履歴 ---\n' + chatContext : '')
+    : chatContext || '（コンテキストなし）';
+
+  const channel = channels[0] || 'general';
+
+  try {
+    const res = await fetch('/api/slack-analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, context, channel })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let thinkingText = '';
+    let answerText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const evt = JSON.parse(line.slice(6));
+          if (evt.type === 'thinking') {
+            thinkingText += evt.text;
+            chatLog[chatLog.length - 1].thinking = thinkingText;
+            renderChat();
+          } else if (evt.type === 'text') {
+            answerText += evt.text;
+            chatLog[chatLog.length - 1].text = '__STREAMING__' + answerText;
+            renderChat();
+          } else if (evt.type === 'done') {
+            chatLog[chatLog.length - 1].text = answerText || '回答を生成できませんでした';
+            chatLog[chatLog.length - 1].thinking = thinkingText;
+            lastAiResult = answerText;
+            renderChat();
+            document.getElementById('saveBar').classList.add('visible');
+          } else if (evt.type === 'error') {
+            chatLog[chatLog.length - 1].text = 'エラー: ' + evt.message;
+            renderChat();
+          }
+        } catch {}
+      }
+    }
+  } catch(e) {
+    chatLog[chatLog.length - 1].text = 'エラー: ' + e.message;
+    renderChat();
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+
+function clearChat() {
+  chatLog = [];
+  lastAiResult = '';
+  renderChat();
+  document.getElementById('saveBar').classList.remove('visible');
+}
+
+async function saveResult() {
+  const channel = (chatLog.find(m => m.role === 'user')?.text.match(/#([\w\u3000-\u9fff\u30a0-\u30ff\u3040-\u309f_-]+)/) || [])[1] || 'general';
+  const prompt = chatLog.filter(m => m.role === 'user').map(m => m.text).join(' / ').slice(0, 100);
+  const result = lastAiResult;
+  if (!result) return;
+  try {
+    await fetch('/api/save-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, prompt, result })
+    });
+    alert('保存しました');
+  } catch(e) {
+    alert('保存失敗: ' + e.message);
+  }
+}
+</script>
+</body>
+</html>

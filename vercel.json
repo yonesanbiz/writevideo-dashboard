@@ -47,6 +47,10 @@
     {
       "source": "/slack_search.html",
       "destination": "/api/page?p=slack_search"
+    },
+    {
+      "source": "/slack_analyze.html",
+      "destination": "/api/page?p=slack_analyze"
     }
   ],
   "headers": [
