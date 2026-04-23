@@ -51,6 +51,10 @@
     {
       "source": "/slack_analyze.html",
       "destination": "/api/page?p=slack_analyze"
+    },
+    {
+      "source": "/writevideo_5year_plan.html",
+      "destination": "/api/page?p=writevideo_5year_plan"
     }
   ],
   "headers": [

@@ -128,7 +128,7 @@ files = [
     'writevideo_final_evaluation','yonekura_analysis','writevideo_customer_analysis',
     'shodan_analysis','exhibition_analysis','writevideo_revaluation',
     'writevideo_sales_analysis','channel_list','salary_dashboard','salary_bonus',
-    'person_dashboard','analysis_list','analysis_detail','slack_channel','slack_search','slack_analyze'
+    'person_dashboard','analysis_list','analysis_detail','slack_channel','slack_search','slack_analyze','writevideo_5year_plan'
 ]
 
 RELEASED_TAG = f'<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: {jst}</div>'

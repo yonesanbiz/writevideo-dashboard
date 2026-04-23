@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteVideo.ai 5カ年計画 FY26-FY30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0a0a0a;
+  --paper: #f5f1ea;
+  --paper-dark: #ebe5d8;
+  --accent: #c2410c;
+  --accent-soft: #fef3c7;
+  --green: #166534;
+  --line: #1a1a1a;
+  --muted: #6b6157;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.7;
+  font-feature-settings: "palt";
+  overflow-x: hidden;
+}
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+header { padding: 56px 24px 40px; border-bottom: 2px solid var(--line); }
+.masthead {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 40px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  flex-wrap: wrap; gap: 8px;
+}
+h1.title {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(44px, 8vw, 108px); line-height: 0.92;
+  letter-spacing: -0.04em; margin-bottom: 24px;
+}
+h1.title .italic { font-style: italic; font-weight: 300; color: var(--accent); }
+.subtitle {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 300;
+  font-size: clamp(17px, 2.3vw, 26px); max-width: 720px; margin-bottom: 32px;
+  color: var(--muted); line-height: 1.5;
+}
+.meta-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px; padding-top: 20px; border-top: 1px solid var(--line);
+}
+.meta-item .label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px; display: block;
+}
+.meta-item .value {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; line-height: 1.2;
+}
+
+section { padding: 72px 0; border-bottom: 1px solid rgba(0,0,0,0.15); }
+.section-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.2em; color: var(--accent); margin-bottom: 16px; display: block;
+}
+h2 {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(32px, 5vw, 56px); line-height: 1;
+  letter-spacing: -0.03em; margin-bottom: 16px;
+}
+h2 .italic { font-style: italic; font-weight: 300; }
+.section-intro {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 19px;
+  color: var(--muted); max-width: 680px; margin-bottom: 48px;
+  font-weight: 300; line-height: 1.5;
+}
+h3 {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px;
+  margin-bottom: 20px; letter-spacing: -0.01em;
+}
+
+/* Track record */
+.track-record { background: var(--ink); color: var(--paper); padding: 40px; margin-top: 32px; overflow-x: auto; }
+.track-record h3 { color: var(--paper); font-size: 22px; margin-bottom: 24px; }
+.track-record .hint {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--accent); margin-bottom: 16px; text-transform: uppercase;
+}
+.fy-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px; }
+.fy-table thead th {
+  text-align: left; padding: 12px 14px; font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(245,241,234,0.6); border-bottom: 2px solid rgba(245,241,234,0.3); font-weight: 400;
+}
+.fy-table thead th.num { text-align: right; }
+.fy-table tbody td { padding: 16px 14px; border-bottom: 1px solid rgba(245,241,234,0.12); }
+.fy-table tbody td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+.fy-table tbody tr.actual td { background: rgba(245,241,234,0.03); }
+.fy-table tbody tr.current td { background: rgba(194,65,12,0.12); border-bottom: 1px solid rgba(194,65,12,0.4); }
+.fy-table tbody tr.projection td { color: rgba(245,241,234,0.85); }
+.fy-table td.fy-label { font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px; }
+.fy-table td.fy-label .period {
+  display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  font-weight: 400; color: rgba(245,241,234,0.5); margin-top: 2px; letter-spacing: 0.1em;
+}
+.fy-table td.revenue {
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--paper);
+}
+.fy-table td.revenue .unit {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: rgba(245,241,234,0.6); margin-left: 4px; font-weight: 400;
+}
+.fy-table td.yoy { color: #86efac; font-weight: 600; }
+.fy-table td.overseas { color: #93c5fd; }
+.status {
+  display: inline-block; padding: 3px 10px; border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.status.done { background: rgba(34,197,94,0.2); color: #86efac; }
+.status.now { background: var(--accent); color: white; }
+.status.plan { background: rgba(147,197,253,0.15); color: #93c5fd; }
+.status.ipo { background: rgba(251,191,36,0.2); color: #fcd34d; }
+
+/* Takeaways */
+.takeaway-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0; margin-top: 32px; border: 2px solid var(--line);
+}
+.takeaway { padding: 28px; border-right: 1px solid var(--line); background: var(--paper); }
+.takeaway:last-child { border-right: none; }
+.takeaway-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--accent); margin-bottom: 10px;
+}
+.takeaway-big {
+  font-family: 'Fraunces', serif; font-weight: 800; font-size: 44px;
+  line-height: 1; letter-spacing: -0.03em; margin-bottom: 8px;
+}
+.takeaway-big .unit { font-size: 22px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+.takeaway-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* MRR Chart */
+.mrr-chart {
+  background: var(--paper-dark); padding: 32px 24px;
+  border: 2px solid var(--line); margin-top: 24px;
+}
+.mrr-chart-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.2em; margin-bottom: 8px; text-transform: uppercase; color: var(--muted);
+}
+.mrr-chart-sub {
+  font-family: 'Fraunces', serif; font-style: italic;
+  color: var(--ink); font-size: 18px; margin-bottom: 24px;
+}
+.mrr-bars {
+  display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px;
+  align-items: end; height: 180px; padding-bottom: 4px; border-bottom: 1px solid var(--line);
+}
+.mrr-bar-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%;
+}
+.mrr-bar { width: 80%; background: var(--ink); min-height: 2px; }
+.mrr-bar.peak { background: var(--accent); }
+.mrr-labels {
+  display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px;
+  margin-top: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--muted); text-align: center;
+}
+.mrr-chart-foot {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  margin-top: 16px; padding-top: 16px; border-top: 1px dashed rgba(0,0,0,0.2);
+  font-size: 12px; color: var(--muted);
+}
+.mrr-chart-foot strong {
+  color: var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: 600;
+}
+
+/* 5-year ARR chart */
+.arr-chart-wrap {
+  margin: 32px 0 32px; padding: 36px 28px;
+  background: var(--ink); color: var(--paper); overflow: hidden;
+}
+.arr-chart-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.2em; margin-bottom: 28px; text-transform: uppercase;
+}
+.arr-chart {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+  align-items: end; height: 340px; margin-bottom: 16px; position: relative;
+}
+.arr-bar-group {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%; position: relative;
+}
+.arr-bar {
+  width: 70%; display: flex; flex-direction: column;
+  justify-content: flex-end; position: relative;
+}
+.arr-bar .seg { width: 100%; min-height: 2px; }
+.arr-bar .seg.domestic { background: var(--paper); }
+.arr-bar .seg.overseas { background: var(--accent); }
+.arr-bar .arr-val {
+  position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px;
+  white-space: nowrap; color: var(--paper);
+}
+.arr-bar .arr-val .total { font-size: 16px; }
+.arr-bar .arr-val .ipo-val { color: #fcd34d; font-size: 18px; }
+.arr-year {
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px;
+  margin-top: 10px; color: var(--paper);
+}
+.arr-year .tag {
+  display: block; font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; font-weight: 400;
+  color: rgba(245,241,234,0.5); margin-top: 2px;
+}
+.arr-chart-legend {
+  display: flex; gap: 24px; padding-top: 16px;
+  border-top: 1px solid rgba(245,241,234,0.2);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; flex-wrap: wrap;
+}
+.arr-chart-legend span { display: flex; align-items: center; gap: 8px; }
+.arr-chart-legend .sw { width: 14px; height: 14px; }
+.arr-chart-legend .sw.dom { background: var(--paper); }
+.arr-chart-legend .sw.ovs { background: var(--accent); }
+
+/* FY26 Monthly table */
+.fy26-monthly { border: 2px solid var(--line); margin-top: 32px; overflow-x: auto; }
+.fy26-monthly table {
+  width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px;
+}
+.fy26-monthly th {
+  text-align: left; padding: 14px 16px; background: var(--ink); color: var(--paper);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400;
+}
+.fy26-monthly th.num { text-align: right; }
+.fy26-monthly td { padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.fy26-monthly td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+.fy26-monthly tr.current td { background: var(--paper-dark); font-weight: 600; }
+.fy26-monthly tr.q-end td { border-bottom: 2px solid var(--line); }
+.fy26-monthly td.mrr { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; }
+.fy26-monthly td.delta { color: var(--accent); font-weight: 600; }
+.fy26-monthly .month {
+  font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.05em;
+}
+.fy26-monthly tr.final-row td {
+  background: var(--accent); color: white; font-weight: 600;
+}
+.fy26-monthly tr.final-row td.mrr,
+.fy26-monthly tr.final-row td.delta { color: white; }
+
+/* Phases */
+.phases {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0; border: 2px solid var(--line); margin-top: 32px;
+}
+.phase {
+  padding: 32px; border-right: 1px solid var(--line);
+  position: relative; background: var(--paper);
+}
+.phase:last-child { border-right: none; }
+.phase-num {
+  font-family: 'Fraunces', serif; font-weight: 800; font-size: 72px;
+  line-height: 0.9; color: var(--paper-dark); position: absolute;
+  top: 20px; right: 24px; letter-spacing: -0.05em;
+}
+.phase-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.15em; color: var(--accent); margin-bottom: 12px;
+  position: relative; z-index: 2;
+}
+.phase-name {
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 26px;
+  margin-bottom: 16px; position: relative; z-index: 2; letter-spacing: -0.02em;
+}
+.phase-acv {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px;
+  color: var(--accent); margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--line); position: relative; z-index: 2;
+}
+.phase-list { list-style: none; font-size: 14px; position: relative; z-index: 2; }
+.phase-list li { padding: 6px 0 6px 20px; position: relative; line-height: 1.5; }
+.phase-list li::before {
+  content: "→"; position: absolute; left: 0; color: var(--accent); font-weight: 700;
+}
+
+/* Criteria */
+.criteria {
+  background: var(--ink); color: var(--paper); padding: 40px;
+  margin-top: 32px; position: relative;
+}
+.criteria::before {
+  content: "SERIES A GO/NO-GO"; position: absolute; top: 20px; right: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--accent);
+}
+.criteria h3 { color: var(--paper); font-size: 26px; margin-bottom: 8px; }
+.criteria .sub {
+  font-family: 'Fraunces', serif; font-style: italic;
+  color: rgba(245,241,234,0.6); margin-bottom: 28px; font-size: 15px;
+}
+.criteria-list {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px; background: rgba(245,241,234,0.15);
+}
+.criteria-item { background: var(--ink); padding: 20px; display: flex; gap: 12px; }
+.criteria-item .num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); min-width: 24px;
+}
+.criteria-item .text { font-size: 14px; line-height: 1.5; }
+.criteria-item .text strong {
+  display: block; font-family: 'Fraunces', serif; font-weight: 600;
+  font-size: 16px; margin-bottom: 4px;
+}
+
+/* Valuation */
+.valuation {
+  background: var(--paper-dark); border: 2px solid var(--line);
+  padding: 36px; margin-top: 32px;
+}
+.val-head { margin-bottom: 24px; }
+.val-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--accent); margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.val-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0; border: 1px solid var(--line); background: var(--paper);
+}
+.val-item {
+  padding: 24px 20px; border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.val-item.accent { background: var(--ink); color: var(--paper); }
+.val-item.accent .val-label { color: var(--accent); }
+.val-item.accent .val-big { color: var(--paper); }
+.val-item.accent .val-note { color: rgba(245,241,234,0.7); }
+.val-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--muted); margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.val-big {
+  font-family: 'Fraunces', serif; font-weight: 800; font-size: 38px;
+  line-height: 1; letter-spacing: -0.03em; margin-bottom: 8px;
+}
+.val-unit { font-size: 16px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+.val-item.accent .val-unit { color: rgba(245,241,234,0.6); }
+.val-note { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.val-foot {
+  margin-top: 20px; padding: 16px 20px; background: var(--ink); color: var(--paper);
+  font-size: 13px; line-height: 1.6;
+}
+.val-foot-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; color: var(--accent); margin-right: 10px;
+  text-transform: uppercase;
+}
+.val-foot-text { font-family: 'Fraunces', serif; font-style: italic; }
+
+/* Narrative */
+.narrative { max-width: 780px; margin: 0 auto; padding: 40px 0 8px; }
+.narrative-kicker {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.3em; color: var(--accent); margin-bottom: 20px; text-align: center;
+}
+.narrative-text {
+  font-family: 'Fraunces', serif; font-size: 18px; line-height: 1.75;
+  margin-bottom: 22px; color: var(--ink); text-align: justify;
+}
+.narrative-text em { font-style: italic; color: var(--accent); font-weight: 500; }
+.narrative-text strong {
+  font-weight: 700;
+  background: linear-gradient(transparent 60%, var(--accent-soft) 60%);
+  padding: 0 2px; font-style: normal;
+}
+.drop {
+  float: left; font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: 72px; line-height: 0.85; padding: 6px 10px 0 0;
+  color: var(--accent); letter-spacing: -0.03em;
+}
+
+/* Finisher */
+.finisher {
+  padding: 96px 24px; text-align: center;
+  background: var(--ink); color: var(--paper); position: relative;
+}
+.finisher::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 33%, transparent 33%, transparent 100%);
+}
+.finisher .kicker {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.3em; color: var(--accent); margin-bottom: 24px;
+}
+.finisher .line {
+  font-family: 'Fraunces', serif; font-weight: 300; font-style: italic;
+  font-size: clamp(26px, 3.5vw, 40px); line-height: 1.3;
+  max-width: 900px; margin: 0 auto; letter-spacing: -0.01em;
+}
+.finisher .line strong { font-weight: 800; font-style: normal; color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 960px) {
+  header { padding: 32px 16px 24px; }
+  .container { padding: 0 16px; }
+  section { padding: 48px 0; }
+  .track-record { padding: 24px 16px; }
+  .takeaway-grid { grid-template-columns: 1fr 1fr; }
+  .takeaway { border-right: none; border-bottom: 1px solid var(--line); padding: 20px; }
+  .takeaway:nth-child(2) { border-right: none; }
+  .takeaway:nth-child(3), .takeaway:nth-child(4) { border-bottom: none; }
+  .takeaway-big { font-size: 32px; }
+  .mrr-chart { padding: 20px 12px; }
+  .mrr-bars { height: 120px; gap: 2px; }
+  .mrr-labels { font-size: 8px; gap: 2px; }
+  .arr-chart-wrap { padding: 20px 12px; }
+  .arr-chart { height: 240px; gap: 4px; }
+  .arr-bar { width: 85%; }
+  .arr-bar .arr-val { font-size: 11px; top: -22px; }
+  .arr-bar .arr-val .total { font-size: 13px; }
+  .arr-bar .arr-val .ipo-val { font-size: 15px; }
+  .arr-year { font-size: 12px; }
+  .arr-chart-legend { gap: 16px; font-size: 10px; }
+  .phases { grid-template-columns: 1fr; }
+  .phase { border-right: none; border-bottom: 1px solid var(--line); }
+  .phase:last-child { border-bottom: none; }
+  .criteria { padding: 24px 16px; }
+  .valuation { padding: 20px 16px; }
+  .val-big { font-size: 28px; }
+  .val-grid { grid-template-columns: 1fr 1fr; }
+  .val-item { padding: 16px 14px; }
+  .val-item:nth-child(even) { border-right: none; }
+  .narrative-text { font-size: 15px; line-height: 1.8; }
+  .drop { font-size: 52px; padding: 4px 8px 0 0; }
+}
+@media (max-width: 520px) {
+  .takeaway-big { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="container">
+    <div class="masthead">
+      <span>WRITEVIDEO.AI · STRATEGIC PLAN FY26–FY30</span>
+      <span>実績ベース · 4月末決算 · 海外込み100億</span>
+    </div>
+    <h1 class="title">実績の、<br><span class="italic">延長線上に。</span></h1>
+    <p class="subtitle">
+      FY24〜FY25の複利成長。<br>
+      この実績の延長線上に、FY31末100億ARRを描く。
+    </p>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="label">FY25 売上実績</span><span class="value">約0.69億円</span></div>
+      <div class="meta-item"><span class="label">FY25 YoY</span><span class="value">+388%</span></div>
+      <div class="meta-item"><span class="label">FY25末 MRR</span><span class="value">481万円</span></div>
+      <div class="meta-item"><span class="label">FY25末 ARR</span><span class="value">5,778万円</span></div>
+      <div class="meta-item"><span class="label">FY31 目標ARR</span><span class="value">100億円</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- §00 Track Record -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 00 — TRACK RECORD</span>
+    <h2>実績<span class="italic">年次推移</span></h2>
+    <p class="section-intro">
+      WriteVideo.aiは2024年10月にリリース、<br>
+      2024年11月から本格的な売上が立ち上がった。
+    </p>
+
+    <div class="track-record">
+      <div class="hint">ANNUAL FISCAL YEAR DATA · 4月末決算</div>
+      <h3>FY別・売上および主要KPI</h3>
+      <table class="fy-table">
+        <thead>
+          <tr>
+            <th>会計年度</th>
+            <th class="num">期末MRR</th>
+            <th class="num">期末ARR</th>
+            <th class="num">年間売上</th>
+            <th class="num">YoY</th>
+            <th class="num">人員</th>
+            <th>状態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="actual">
+            <td class="fy-label">FY24<span class="period">23/5 – 24/4</span></td>
+            <td class="num">〜140万</td>
+            <td class="num">〜1,680万</td>
+            <td class="num revenue">約1,400<span class="unit">万円</span></td>
+            <td class="num">—</td>
+            <td class="num">5 + 委託7</td>
+            <td><span class="status done">実績</span></td>
+          </tr>
+          <tr class="current">
+            <td class="fy-label">FY25<span class="period">24/5 – 25/4</span></td>
+            <td class="num">481万</td>
+            <td class="num">5,778万</td>
+            <td class="num revenue">約6,900<span class="unit">万円</span></td>
+            <td class="num yoy">+388%</td>
+            <td class="num">7 + 委託8</td>
+            <td><span class="status now">現在</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY26<span class="period">25/5 – 26/4</span></td>
+            <td class="num">1,700万</td>
+            <td class="num">2.04億</td>
+            <td class="num revenue">約1.5<span class="unit">億円</span></td>
+            <td class="num yoy">+110%</td>
+            <td class="num">17-19</td>
+            <td><span class="status plan">N-5</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY27<span class="period">26/5 – 27/4</span></td>
+            <td class="num">4,600万</td>
+            <td class="num">5.5億 <span class="overseas">+0.3億</span></td>
+            <td class="num revenue">4-5<span class="unit">億円</span></td>
+            <td class="num yoy">+170%</td>
+            <td class="num">45-55</td>
+            <td><span class="status plan">N-4</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY28<span class="period">27/5 – 28/4</span></td>
+            <td class="num">1.1億</td>
+            <td class="num">13億 <span class="overseas">+2億</span></td>
+            <td class="num revenue">10-13<span class="unit">億円</span></td>
+            <td class="num yoy">+140%</td>
+            <td class="num">100-130</td>
+            <td><span class="status plan">N-3</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY29<span class="period">28/5 – 29/4</span></td>
+            <td class="num">2.1億</td>
+            <td class="num">25億 <span class="overseas">+7億</span></td>
+            <td class="num revenue">22-28<span class="unit">億円</span></td>
+            <td class="num yoy">+110%</td>
+            <td class="num">170-220</td>
+            <td><span class="status plan">N-2</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY30<span class="period">29/5 – 30/4</span></td>
+            <td class="num">3.5億</td>
+            <td class="num">42億 <span class="overseas">+18億</span></td>
+            <td class="num revenue">40-50<span class="unit">億円</span></td>
+            <td class="num yoy">+85%</td>
+            <td class="num">240-310</td>
+            <td><span class="status plan">N-1</span></td>
+          </tr>
+          <tr class="projection">
+            <td class="fy-label">FY31<span class="period">30/5 – 31/4</span></td>
+            <td class="num">5.0億</td>
+            <td class="num">60億 <span class="overseas">+40億</span></td>
+            <td class="num revenue">65-85<span class="unit">億円</span></td>
+            <td class="num yoy">+65%</td>
+            <td class="num">320-420</td>
+            <td><span class="status ipo">IPO</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="takeaway-grid">
+      <div class="takeaway">
+        <div class="takeaway-tag">SELF-FUNDED</div>
+        <div class="takeaway-big">1,500<span class="unit">万円</span></div>
+        <div class="takeaway-desc">自己資金1,500万円のみで立ち上げ、MRR 481万円まで到達。</div>
+      </div>
+      <div class="takeaway">
+        <div class="takeaway-tag">FY25 YoY</div>
+        <div class="takeaway-big">+388<span class="unit">%</span></div>
+        <div class="takeaway-desc">売上1,400万→6,900万円。2年連続の複利成長。</div>
+      </div>
+      <div class="takeaway">
+        <div class="takeaway-tag">UNIT PRICE</div>
+        <div class="takeaway-big">3<span class="unit">倍</span></div>
+        <div class="takeaway-desc">新規獲得平均MRR 1.9万→5.8万。顧客価値が上昇中。</div>
+      </div>
+      <div class="takeaway">
+        <div class="takeaway-tag">PATENT</div>
+        <div class="takeaway-big">登<span class="unit">録済</span></div>
+        <div class="takeaway-desc">2026年1月、独自技術で特許7805608登録。参入障壁確立。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §01 Monthly MRR -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 01 — MONTHLY REVENUE HISTORY</span>
+    <h2>月次<span class="italic">売上推移</span></h2>
+    <p class="section-intro">
+      実データ(2024-11〜2026-04)の18ヶ月。<br>
+      MRR+初期費用で直近月850万円/月の売上規模へ。
+    </p>
+
+    <div class="mrr-chart">
+      <div class="mrr-chart-title">MONTHLY REVENUE · 2024-11 → 2026-04</div>
+      <div class="mrr-chart-sub">積み上げ: MRR(濃)+初期費用(淡)、直近月合計851万円</div>
+      <div class="mrr-bars">
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:0%;"></div><div style="background:var(--ink);height:6%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:11%;"></div><div style="background:var(--ink);height:7%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:11%;"></div><div style="background:var(--ink);height:8%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:15%;"></div><div style="background:var(--ink);height:10%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:19%;"></div><div style="background:var(--ink);height:14%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:16%;"></div><div style="background:var(--ink);height:16%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:22%;"></div><div style="background:var(--ink);height:19%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:15%;"></div><div style="background:var(--ink);height:23%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:18%;"></div><div style="background:var(--ink);height:25%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:25%;"></div><div style="background:var(--ink);height:29%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:24%;"></div><div style="background:var(--ink);height:35%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:38%;"></div><div style="background:var(--ink);height:39%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:29%;"></div><div style="background:var(--ink);height:41%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:27%;"></div><div style="background:var(--ink);height:44%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:34%;"></div><div style="background:var(--ink);height:49%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:49%;"></div><div style="background:var(--ink);height:49%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:#aaa;height:27%;"></div><div style="background:var(--ink);height:52%;"></div>
+          </div>
+        </div>
+        <div class="mrr-bar-wrap">
+          <div style="width:80%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+            <div style="background:var(--accent);opacity:0.5;height:43%;"></div><div style="background:var(--accent);height:57%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mrr-labels">
+        <div>24-11</div><div>24-12</div><div>25-01</div><div>25-02</div>
+        <div>25-03</div><div>25-04</div><div>25-05</div><div>25-06</div>
+        <div>25-07</div><div>25-08</div><div>25-09</div><div>25-10</div>
+        <div>25-11</div><div>25-12</div><div>26-01</div><div>26-02</div>
+        <div>26-03</div><div>26-04</div>
+      </div>
+      <div class="mrr-chart-foot">
+        <span>24-11合計: <strong>50万</strong></span>
+        <span>FY24末合計: <strong>280万</strong></span>
+        <span>FY25末合計: <strong>851万</strong></span>
+        <span>MRR月平均増: <strong>+24万/月</strong></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §02 5 Year ARR -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 02 — 6 YEAR TRAJECTORY</span>
+    <h2>ARR<span class="italic">6年推移</span></h2>
+    <p class="section-intro">
+      国内(高ACV)を軸に、FY28以降に海外(SMBボリューム)が加速。<br>
+      FY31末に合計100億ARRへ到達、その手前のFY30でIPO準備完了。
+    </p>
+
+    <div class="arr-chart-wrap">
+      <div class="arr-chart-title">ANNUAL RECURRING REVENUE · 単位: 億円 · 期末値</div>
+      <div class="arr-chart" style="grid-template-columns: repeat(8, 1fr);">
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val">0.17</div>
+            <div class="seg domestic" style="height:1px;"></div>
+          </div>
+          <div class="arr-year">FY24<span class="tag">実績</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val">0.58</div>
+            <div class="seg domestic" style="height:2px;"></div>
+          </div>
+          <div class="arr-year">FY25<span class="tag">実績</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val">2.0</div>
+            <div class="seg domestic" style="height:6px;"></div>
+          </div>
+          <div class="arr-year">FY26<span class="tag">N-5</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val"><span class="total">5.8</span></div>
+            <div class="seg overseas" style="height:1px;"></div>
+            <div class="seg domestic" style="height:17px;"></div>
+          </div>
+          <div class="arr-year">FY27<span class="tag">N-4</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val"><span class="total">15</span></div>
+            <div class="seg overseas" style="height:6px;"></div>
+            <div class="seg domestic" style="height:39px;"></div>
+          </div>
+          <div class="arr-year">FY28<span class="tag">N-3</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val"><span class="total">32</span></div>
+            <div class="seg overseas" style="height:22px;"></div>
+            <div class="seg domestic" style="height:75px;"></div>
+          </div>
+          <div class="arr-year">FY29<span class="tag">N-2</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val"><span class="total">60</span></div>
+            <div class="seg overseas" style="height:55px;"></div>
+            <div class="seg domestic" style="height:126px;"></div>
+          </div>
+          <div class="arr-year">FY30<span class="tag">N-1</span></div>
+        </div>
+        <div class="arr-bar-group">
+          <div class="arr-bar">
+            <div class="arr-val"><span class="ipo-val">100</span></div>
+            <div class="seg overseas" style="height:120px;"></div>
+            <div class="seg domestic" style="height:180px;"></div>
+          </div>
+          <div class="arr-year">FY31<span class="tag">IPO</span></div>
+        </div>
+      </div>
+      <div class="arr-chart-legend">
+        <span><span class="sw dom"></span>国内(JP · 高ACV)</span>
+        <span><span class="sw ovs"></span>海外(US/APAC · SMB)</span>
+      </div>
+    </div>
+
+    <p style="font-family:'Fraunces',serif;font-style:italic;color:var(--muted);font-size:15px;margin-top:16px;text-align:center;">
+      国内はFY29から大型顧客のPhase 3本契約化が進み、成長率は鈍化しつつもNRRで底支え。海外はFY28のPMF検証後、FY29〜31で本格立ち上がり。
+    </p>
+  </div>
+</section>
+
+<!-- §03 FY26 Monthly Plan -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 03 — FY26 MONTHLY PLAN</span>
+    <h2>FY26<span class="italic">月次計画</span></h2>
+    <p class="section-intro">
+      2026年5月〜2027年4月。MRR 481万→1,700万への12ヶ月。<br>
+      上期は緩やかに、下期で加速させる現実的カーブ。
+    </p>
+
+    <div class="fy26-monthly">
+      <table>
+        <thead>
+          <tr>
+            <th>月</th>
+            <th class="num">MRR目標</th>
+            <th class="num">前月比</th>
+            <th>キードライバー</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="current">
+            <td class="month">26-04</td>
+            <td class="num mrr">481万</td>
+            <td class="num delta">現在地</td>
+            <td>FY25最終月・ベースライン</td>
+          </tr>
+          <tr>
+            <td class="month">26-05</td>
+            <td class="num mrr">500万</td>
+            <td class="num delta">+19万</td>
+            <td>FY26開始、既存ペース維持</td>
+          </tr>
+          <tr>
+            <td class="month">26-06</td>
+            <td class="num mrr">525万</td>
+            <td class="num delta">+25万</td>
+            <td>Phase A β版、既存アップセル</td>
+          </tr>
+          <tr class="q-end">
+            <td class="month">26-07</td>
+            <td class="num mrr">555万</td>
+            <td class="num delta">+30万</td>
+            <td>Phase A完成、NRR改善本格化</td>
+          </tr>
+          <tr>
+            <td class="month">26-08</td>
+            <td class="num mrr">600万</td>
+            <td class="num delta">+45万</td>
+            <td>展示会Q2立ち上がり</td>
+          </tr>
+          <tr>
+            <td class="month">26-09</td>
+            <td class="num mrr">660万</td>
+            <td class="num delta">+60万</td>
+            <td>Satoru米国拠点化、受講ロック本番</td>
+          </tr>
+          <tr class="q-end">
+            <td class="month">26-10</td>
+            <td class="num mrr">750万</td>
+            <td class="num delta">+90万</td>
+            <td>Phase 2アップセル開始、展示会効果</td>
+          </tr>
+          <tr>
+            <td class="month">26-11</td>
+            <td class="num mrr">870万</td>
+            <td class="num delta">+120万</td>
+            <td>プラント初受注、代理店覚書</td>
+          </tr>
+          <tr>
+            <td class="month">26-12</td>
+            <td class="num mrr">1,000万</td>
+            <td class="num delta">+130万</td>
+            <td>年末クロージング、MRR 1,000万到達</td>
+          </tr>
+          <tr class="q-end">
+            <td class="month">27-01</td>
+            <td class="num mrr">1,150万</td>
+            <td class="num delta">+150万</td>
+            <td>新年度予算取り、ISMS認証</td>
+          </tr>
+          <tr>
+            <td class="month">27-02</td>
+            <td class="num mrr">1,320万</td>
+            <td class="num delta">+170万</td>
+            <td>シリーズB準備、加速期</td>
+          </tr>
+          <tr>
+            <td class="month">27-03</td>
+            <td class="num mrr">1,500万</td>
+            <td class="num delta">+180万</td>
+            <td>決算前クロージング</td>
+          </tr>
+          <tr class="final-row">
+            <td class="month">27-04</td>
+            <td class="num mrr">1,700万</td>
+            <td class="num delta">+200万</td>
+            <td>FY26期末 · ARR 2.04億</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-top:16px;letter-spacing:0.05em;">
+      ※ 上期(5-9月)は既存ペース+Phase A仕上げ、下期(10月-)展示会・プラント・アップセルで加速
+    </p>
+  </div>
+</section>
+
+<!-- §04 Phase Strategy -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 04 — PHASE STRATEGY</span>
+    <h2>ACV<span class="italic">3段階</span></h2>
+    <p class="section-intro">
+      国内エンプラ路線の核。小さく入って、必須化させて、育てる。
+    </p>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">01</div>
+        <div class="phase-tag">LIMITED ROLLOUT</div>
+        <div class="phase-name">限定導入</div>
+        <div class="phase-acv">ACV 60-150万</div>
+        <ul class="phase-list">
+          <li>1部署・1現場単位</li>
+          <li>必須化テスト</li>
+          <li>受講完了ロック</li>
+          <li>課長クラス決裁</li>
+          <li>3-6ヶ月で効果判定</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">02</div>
+        <div class="phase-tag">EXPANSION</div>
+        <div class="phase-name">横展開</div>
+        <div class="phase-acv">ACV 200-400万</div>
+        <ul class="phase-list">
+          <li>複数拠点・部署</li>
+          <li>監査ログ・法定研修</li>
+          <li>外部システム連携</li>
+          <li>部長クラス決裁</li>
+          <li>Phase 1→2 移行率 30-50%</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">03</div>
+        <div class="phase-tag">ENTERPRISE</div>
+        <div class="phase-name">全契約</div>
+        <div class="phase-acv">ACV 500-2,000万</div>
+        <ul class="phase-list">
+          <li>全社・全現場契約</li>
+          <li>教育インフラ化</li>
+          <li>SLA保証・SSO</li>
+          <li>経営層決裁</li>
+          <li>解約コスト &gt; 導入コスト</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §05 Series A Gate -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 05 — SERIES A GATE</span>
+    <h2>シリーズA<span class="italic">実行条件</span></h2>
+    <p class="section-intro">
+      FY26決算時点(2027年4月末)の状態で、<br>
+      シリーズA 2-4億の調達を実行する。
+    </p>
+
+    <div class="criteria">
+      <h3>6 CONDITIONS</h3>
+      <div class="sub">FY26期末(2027年4月末)時点で全て達成していること</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-23 23:00 JST</div>
+      <div class="criteria-list">
+        <div class="criteria-item">
+          <div class="num">01</div>
+          <div class="text"><strong>期末MRR 1,700万以上</strong>ARR 2.04億、FY26売上1.5億以上。</div>
+        </div>
+        <div class="criteria-item">
+          <div class="num">02</div>
+          <div class="text"><strong>NRR 105%以上</strong>既存顧客基盤の健全性を証明。</div>
+        </div>
+        <div class="criteria-item">
+          <div class="num">03</div>
+          <div class="text"><strong>受講完了ロック 10社以上</strong>必須化メカニズムの本番運用実績。</div>
+        </div>
+        <div class="criteria-item">
+          <div class="num">04</div>
+          <div class="text"><strong>プラント初受注</strong>高単価業界での実績1社以上。</div>
+        </div>
+        <div class="criteria-item">
+          <div class="num">05</div>
+          <div class="text"><strong>YoY +110%以上</strong>前年度の+388%から鈍化しても高成長維持。</div>
+        </div>
+        <div class="criteria-item">
+          <div class="num">06</div>
+          <div class="text"><strong>米国テスト導入 3-5社</strong>海外展開の初期検証完了。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="valuation">
+      <div class="val-head">
+        <div class="val-tag">VALUATION METRICS</div>
+        <h3 style="color:var(--ink);margin-bottom:8px;">バリュエーション目安</h3>
+        <p style="font-family:'Fraunces',serif;font-style:italic;color:var(--muted);font-size:15px;margin-bottom:24px;">
+          FY26決算ベース · 直近日本SaaS相場参照
+        </p>
+      </div>
+
+      <div class="val-grid">
+        <div class="val-item">
+          <div class="val-label">PSR(株価売上高倍率)</div>
+          <div class="val-big">15-20<span class="val-unit">倍</span></div>
+          <div class="val-note">高成長SaaS(YoY+100%超)の相場感</div>
+        </div>
+        <div class="val-item">
+          <div class="val-label">ARR倍率</div>
+          <div class="val-big">15-20<span class="val-unit">倍</span></div>
+          <div class="val-note">ARR 2億 × 倍率 = 30-40億</div>
+        </div>
+        <div class="val-item">
+          <div class="val-label">想定プレ評価額</div>
+          <div class="val-big">30-40<span class="val-unit">億円</span></div>
+          <div class="val-note">シリーズA水準、成長率次第で+評価</div>
+        </div>
+        <div class="val-item accent">
+          <div class="val-label">調達額</div>
+          <div class="val-big">2-4<span class="val-unit">億円</span></div>
+          <div class="val-note">希薄化 6-10%、ランウェイ18-24ヶ月</div>
+        </div>
+      </div>
+
+      <div class="val-foot">
+        <div class="val-foot-item">
+          <span class="val-foot-label">比較参考:</span>
+          <span class="val-foot-text">
+            Magic Number 0.7-1.0 / LTV:CAC 3以上 / Rule of 40達成(成長率+利益率≧40%)を目指す
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §06 Narrative -->
+<section>
+  <div class="container">
+    <span class="section-num">§ 06 — NARRATIVE</span>
+    <h2>これまで、<span class="italic">これから。</span></h2>
+
+    <div class="narrative">
+      <div class="narrative-kicker">THE STORY SO FAR</div>
+      <p class="narrative-text">
+        <span class="drop">W</span>riteVideo.aiは2024年10月のリリース以来、<em>「資料を入れるだけでAIが動画を作る」</em>という唯一無二のプロダクトで市場を開拓してきた。医療・介護・製造業・自治体と業種を問わず実績を積み上げ、顧客の声から多言語対応(100ヶ国語超)、AI音声、テンプレート機能など現場ニーズに即した機能拡充を続けた。
+      </p>
+      <p class="narrative-text">
+        2026年1月には独自技術の特許登録が完了し、技術的な参入障壁を確立。<strong>自己資金1,500万円のみで立ち上げ、MRR 481.5万円・ARR 5,778万円まで到達</strong>し、月次収支はトントンで安定。NRR 92.4%という高い継続率がプロダクトの本質的な価値を示している。FY25単年で+388%という成長率は、AI動画市場の拡大とプロダクトの市場適合が重なって生まれたものだ。
+      </p>
+      <p class="narrative-text">
+        今後はシリーズA(FY27想定)を経て代理店展開・海外展開・プラットフォーム化を加速させ、<strong>FY31末に国内60億＋海外40億で100億ARR、IPO到達</strong>を目指す。FY26はその礎を築く年。Phase A機能の完成、NRR 100%超への復帰、プラント初受注、米国パイロット開始。この4つが次の6年を決める。
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="finisher">
+  <div class="kicker">THE ONE LINE</div>
+  <div class="line">
+    実績の延長線上に、<br>
+    <strong>100億</strong>がある。<br>
+    FY26は、その最初の1年。
+  </div>
+</div>
+
+</body>
+</html>
