@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>個人別ダッシュボード</title>
-<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script>
+<script>document.documentElement.style.visibility="hidden";fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}else{document.documentElement.style.visibility="";}}).catch(()=>{window.location.href="/index.html";});</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -62,7 +62,7 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px;padding-left:180px}
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 <h1>個人別ダッシュボード</h1>
 <div class="sub">実績：21/02〜26/04　予測：26/05〜26/12</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-23 23:01 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-23 23:05 JST</div>
 
 <!-- 人物タブ -->
 <div class="tabs" id="personTabs"></div>

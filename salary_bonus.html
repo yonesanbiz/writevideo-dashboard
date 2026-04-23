@@ -30,9 +30,9 @@ td{padding:8px;border-bottom:1px solid #f0ede8}
 tr:last-child td{border-bottom:none}
 .amount{font-weight:500;text-align:right}
 </style>
-<script>fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}}).catch(()=>{window.location.href="/index.html";});</script></head>
+<script>document.documentElement.style.visibility="hidden";fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}else{document.documentElement.style.visibility="";}}).catch(()=>{window.location.href="/index.html";});</script></head>
 <body>
-<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-23 23:01 JST</div>
+<div style="position:fixed;bottom:12px;right:16px;font-size:10px;font-family:monospace;color:#aaa;z-index:9998;pointer-events:none;background:rgba(245,242,236,0.85);padding:2px 6px;border-radius:3px;">Released: 2026-04-23 23:05 JST</div>
 <div class="back"><a href="index.html">← ダッシュボードに戻る</a></div>
 
 <h1>ボーナス推移</h1>
