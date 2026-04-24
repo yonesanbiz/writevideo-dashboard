@@ -47,6 +47,13 @@ h1 { font-size: 24px; font-weight: 700; }
 .card-desc { font-size: 12px; color: #888; line-height: 1.5; }
 .section-label { font-size: 10px; font-family: monospace; color: #c8460a; letter-spacing: 0.15em; text-transform: uppercase; margin: 32px 0 10px; border-bottom: 1px solid #e5e0d8; padding-bottom: 6px; }
 .section-label:first-of-type { margin-top: 0; }
+.card { cursor: grab; user-select: none; transition: border-color 0.15s, transform 0.15s, opacity 0.15s; }
+.card:active { cursor: grabbing; }
+.card.dragging { opacity: 0.35; border-style: dashed; transform: scale(0.97); }
+.card.drag-over { border-color: #c8460a; background: #fff8f5; transform: scale(1.02); }
+.drag-hint { font-size: 10px; font-family: monospace; color: #bbb; text-align: right; margin-bottom: 12px; }
+.reset-btn { cursor: pointer; text-decoration: underline; margin-left: 8px; color: #bbb; }
+.reset-btn:hover { color: #c8460a; }
 .card-wide { grid-column: span 2; }
 .footer { margin-top: 40px; font-size: 11px; color: #aaa; font-family: monospace; text-align: center; }
 </style>
@@ -101,25 +108,26 @@ h1 { font-size: 24px; font-weight: 700; }
       </div>
     </div>
     <div class="sub">Strategic Dashboard — Confidential — 2026.04</div>
+    <div class="drag-hint">ドラッグで並び替え <span class="reset-btn" onclick="resetOrder()">リセット</span></div>
     <!-- STRATEGY -->
     <div class="section-label">STRATEGY</div>
     <div class="grid">
-      <a class="card card-wide" href="writevideo_5year_plan.html">
+      <a class="card" data-id="writevideo_5year_plan" card-wide" href="writevideo_5year_plan.html">
         <div class="card-label">5カ年計画</div>
         <div class="card-title">📈 FY26–FY30 成長シナリオ</div>
         <div class="card-desc">財務計画・調達シナリオ・IPO目標</div>
       </a>
-      <a class="card" href="writevideo_final_evaluation.html">
+      <a class="card" data-id="writevideo_final_evaluation"" href="writevideo_final_evaluation.html">
         <div class="card-label">総合評価</div>
         <div class="card-title">最終総合評価</div>
         <div class="card-desc">評価の変化・18ヶ月ロードマップ</div>
       </a>
-      <a class="card" href="writevideo_revaluation.html">
+      <a class="card" data-id="writevideo_revaluation"" href="writevideo_revaluation.html">
         <div class="card-label">再評価</div>
         <div class="card-title">総合再評価</div>
         <div class="card-desc">全データを踏まえた事業再評価</div>
       </a>
-      <a class="card" href="yonekura_analysis.html">
+      <a class="card" data-id="yonekura_analysis"" href="yonekura_analysis.html">
         <div class="card-label">創業者</div>
         <div class="card-title">米倉暁 キャリア分析</div>
         <div class="card-desc">キャリア軌跡・行動パターン</div>
@@ -129,27 +137,27 @@ h1 { font-size: 24px; font-weight: 700; }
     <!-- SALES & FINANCE -->
     <div class="section-label">SALES & FINANCE</div>
     <div class="grid">
-      <a class="card" href="writevideo_customer_analysis.html">
+      <a class="card" data-id="writevideo_customer_analysis"" href="writevideo_customer_analysis.html">
         <div class="card-label">顧客分析</div>
         <div class="card-title">契約顧客分析</div>
         <div class="card-desc">MRR推移・平均単価・業種別分布</div>
       </a>
-      <a class="card" href="writevideo_sales_analysis.html">
+      <a class="card" data-id="writevideo_sales_analysis"" href="writevideo_sales_analysis.html">
         <div class="card-label">売上</div>
         <div class="card-title">売上分析</div>
         <div class="card-desc">月次売上・MRR・初期費用の推移</div>
       </a>
-      <a class="card" href="shodan_analysis.html">
+      <a class="card" data-id="shodan_analysis"" href="shodan_analysis.html">
         <div class="card-label">営業</div>
         <div class="card-title">商談履歴分析</div>
         <div class="card-desc">1,208件の商談データ・受注率</div>
       </a>
-      <a class="card" href="exhibition_analysis.html">
+      <a class="card" data-id="exhibition_analysis"" href="exhibition_analysis.html">
         <div class="card-label">展示会</div>
         <div class="card-title">展示会ROI分析</div>
         <div class="card-desc">34件の展示会投資対効果</div>
       </a>
-      <a class="card" href="channel_list.html">
+      <a class="card" data-id="channel_list"" href="channel_list.html">
         <div class="card-label">チャネル</div>
         <div class="card-title">チャネル別分析</div>
         <div class="card-desc">獲得チャネル・CAC・効率比較</div>
@@ -159,22 +167,22 @@ h1 { font-size: 24px; font-weight: 700; }
     <!-- HR & SALARY -->
     <div class="section-label">HR & SALARY</div>
     <div class="grid">
-      <a class="card" href="salary_dashboard.html">
+      <a class="card" data-id="salary_dashboard"" href="salary_dashboard.html">
         <div class="card-label">給与</div>
         <div class="card-title">給与推移ダッシュボード</div>
         <div class="card-desc">月次・累計・個人別（実績＋予測）</div>
       </a>
-      <a class="card" href="person_dashboard.html">
+      <a class="card" data-id="person_dashboard"" href="person_dashboard.html">
         <div class="card-label">個人</div>
         <div class="card-title">個人別ダッシュボード</div>
         <div class="card-desc">給与推移・昇給率・累計受取</div>
       </a>
-      <a class="card" href="salary_bonus.html">
+      <a class="card" data-id="salary_bonus"" href="salary_bonus.html">
         <div class="card-label">ボーナス</div>
         <div class="card-title">ボーナス推移</div>
         <div class="card-desc">個人別ボーナス履歴（実績＋予測）</div>
       </a>
-      <a class="card" href="interview_yamamoto.html">
+      <a class="card" data-id="interview_yamamoto"" href="interview_yamamoto.html">
         <div class="card-label">HR</div>
         <div class="card-title">面談資料 山本</div>
         <div class="card-desc">面談構成資料 — 山本智美様</div>
@@ -184,22 +192,22 @@ h1 { font-size: 24px; font-weight: 700; }
     <!-- SLACK & AI -->
     <div class="section-label">SLACK & AI</div>
     <div class="grid">
-      <a class="card card-wide" href="slack_analyze.html">
+      <a class="card" data-id="slack_analyze" card-wide" href="slack_analyze.html">
         <div class="card-label">AI分析</div>
         <div class="card-title">🤖 Slack AI分析チャット</div>
         <div class="card-desc">チャンネルを指定してAIとチャット・複数チャンネル同時対応</div>
       </a>
-      <a class="card" href="slack_channel.html">
+      <a class="card" data-id="slack_channel"" href="slack_channel.html">
         <div class="card-label">ログ閲覧</div>
         <div class="card-title">チャンネル会話一覧</div>
         <div class="card-desc">チャンネル別にメッセージを閲覧・絞り込み</div>
       </a>
-      <a class="card" href="slack_search.html">
+      <a class="card" data-id="slack_search"" href="slack_search.html">
         <div class="card-label">検索</div>
         <div class="card-title">社内ナレッジ検索</div>
         <div class="card-desc">過去のSlackメッセージをAIで検索</div>
       </a>
-      <a class="card" href="analysis_list.html">
+      <a class="card" data-id="analysis_list"" href="analysis_list.html">
         <div class="card-label">レポート</div>
         <div class="card-title">分析レポート一覧</div>
         <div class="card-desc">保存したAI分析結果を閲覧</div>
@@ -330,7 +338,107 @@ function goBack() {
   document.getElementById('step2Error').textContent = '';
 }
 
-async function logout() {
+async // ===== ドラッグ&ドロップ =====
+let dragSrc = null;
+let saveTimer = null;
+
+function initDrag() {
+  document.querySelectorAll('.card').forEach(card => {
+    card.setAttribute('draggable', 'true');
+
+    card.addEventListener('dragstart', e => {
+      dragSrc = card;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+      scheduleAutoSave();
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (dragSrc && dragSrc !== card) {
+        card.classList.add('drag-over');
+        // 同じgrid内でのみ並び替え
+        const srcGrid = dragSrc.parentNode;
+        const dstGrid = card.parentNode;
+        if (srcGrid === dstGrid) {
+          const cards = [...dstGrid.querySelectorAll('.card')];
+          const srcIdx = cards.indexOf(dragSrc);
+          const dstIdx = cards.indexOf(card);
+          if (srcIdx < dstIdx) card.after(dragSrc);
+          else card.before(dragSrc);
+        }
+      }
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+    });
+    // クリックを妨げない
+    card.addEventListener('click', e => {
+      if (dragSrc) { e.preventDefault(); dragSrc = null; }
+    });
+  });
+}
+
+function getOrder() {
+  const order = {};
+  document.querySelectorAll('.grid').forEach((grid, gi) => {
+    order[gi] = [...grid.querySelectorAll('.card')].map(c => c.dataset.id);
+  });
+  return order;
+}
+
+function applyOrder(order) {
+  if (!order) return;
+  document.querySelectorAll('.grid').forEach((grid, gi) => {
+    const ids = order[gi];
+    if (!ids) return;
+    ids.forEach(id => {
+      const card = grid.querySelector(`[data-id="${id}"]`);
+      if (card) grid.appendChild(card);
+    });
+  });
+}
+
+function scheduleAutoSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveOrder, 800);
+}
+
+async function saveOrder() {
+  const order = getOrder();
+  try {
+    await fetch('/api/save-layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order })
+    });
+  } catch(e) { console.error('保存失敗', e); }
+}
+
+async function loadOrder() {
+  try {
+    const res = await fetch('/api/save-layout');
+    const data = await res.json();
+    if (data.order) applyOrder(data.order);
+  } catch {}
+}
+
+async function resetOrder() {
+  if (!confirm('並び順をリセットしますか？')) return;
+  await fetch('/api/save-layout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order: null })
+  });
+  location.reload();
+}
+
+function logout() {
   await fetch('/api/logout', { method: 'POST' });
   show('step1');
   document.getElementById('emailInput').value = '';

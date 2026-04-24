@@ -59,6 +59,10 @@
     {
       "source": "/interview_yamamoto.html",
       "destination": "/api/page?p=interview_yamamoto"
+    },
+    {
+      "source": "/api/save-layout",
+      "destination": "/api/save-layout"
     }
   ],
   "headers": [
