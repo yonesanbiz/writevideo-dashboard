@@ -10,43 +10,59 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f5f2ec;color:#0f0e0d;min-height:100vh;padding:40px 32px;}
 .back{display:inline-flex;align-items:center;gap:6px;background:#0f0e0d;color:#f5f2ec;text-decoration:none;padding:8px 14px;font-family:monospace;font-size:12px;letter-spacing:0.05em;margin-bottom:32px;}
 .back:hover{background:#333;}
-h1{font-size:22px;font-weight:700;margin-bottom:4px;}
-.sub{font-size:12px;font-family:monospace;color:#999;margin-bottom:32px;}
+.title-row{display:flex;align-items:baseline;gap:16px;margin-bottom:4px;}
+h1{font-size:22px;font-weight:700;}
+.save-status{font-size:11px;font-family:monospace;color:#aaa;}
+.sub{font-size:12px;font-family:monospace;color:#999;margin-bottom:24px;}
+.hint{font-size:11px;font-family:monospace;color:#bbb;margin-bottom:16px;}
 
 /* テーブル */
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;background:white;border:1px solid #e0dbd0;}
-thead th{padding:12px 16px;font-size:11px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;background:#f0ede6;border:1px solid #e0dbd0;text-align:left;font-weight:600;color:#555;white-space:nowrap;}
+thead th{padding:10px 14px;font-size:11px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;background:#f0ede6;border:1px solid #e0dbd0;text-align:left;font-weight:600;color:#555;white-space:nowrap;}
 thead th:first-child{background:#d8ede0;color:#2a6b45;}
-tbody td{padding:14px 16px;border:1px solid #e8e4dc;font-size:14px;vertical-align:middle;}
+tbody td{padding:10px 14px;border:1px solid #e8e4dc;vertical-align:middle;}
 tbody tr:hover td{background:#faf8f4;}
 
-/* 名前列 */
-td.name{font-weight:700;font-size:15px;white-space:nowrap;}
-td.type{font-size:12px;color:#555;font-family:monospace;max-width:200px;}
+/* 編集可能セル */
+.editable{min-width:60px;outline:none;font-size:14px;font-family:inherit;}
+.editable:focus{background:#fffef0;}
+td.name .editable{font-weight:700;font-size:15px;}
+td.type .editable{font-size:12px;color:#555;font-family:monospace;}
+td.start .editable{font-size:12px;font-family:monospace;color:#888;min-width:50px;}
 
-/* バッジ */
-.badge{display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;border-radius:2px;white-space:nowrap;}
+/* バッジセル */
+td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
+.badge{display:inline-block;padding:4px 14px;font-size:12px;font-weight:600;border-radius:2px;white-space:nowrap;}
 .badge-main{background:#e07b00;color:#fff;}
-.badge-sub{background:#f0b84a;color:#fff;}
-.badge-sometimes{background:#f5d9a0;color:#7a5500;}
-.badge-none{color:#ddd;}
+.badge-sub{background:#f5d9a0;color:#7a5500;}
+.badge-none{background:transparent;color:transparent;width:36px;}
 
-/* 職種タグ */
-.role-tag{display:inline-block;padding:3px 10px;font-size:11px;font-family:monospace;background:#f0ede6;border:1px solid #e0dbd0;color:#666;border-radius:2px;}
+/* ポップオーバー */
+.popover{position:absolute;background:white;border:1px solid #e0dbd0;box-shadow:0 4px 12px rgba(0,0,0,0.12);z-index:100;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:120px;}
+.popover-item{padding:6px 12px;font-size:12px;cursor:pointer;font-family:monospace;display:flex;align-items:center;gap:8px;}
+.popover-item:hover{background:#f5f2ec;}
+.pop-badge-main{width:12px;height:12px;background:#e07b00;border-radius:2px;display:inline-block;}
+.pop-badge-sub{width:12px;height:12px;background:#f5d9a0;border:1px solid #e8c870;border-radius:2px;display:inline-block;}
+.pop-badge-none{width:12px;height:12px;background:#eee;border-radius:2px;display:inline-block;}
 </style>
 </head>
 <body>
 <a class="back" href="index.html">← ダッシュボードに戻る</a>
-<h1>営業チーム構成</h1>
+<div class="title-row">
+  <h1>営業チーム構成</h1>
+  <span class="save-status" id="saveStatus"></span>
+</div>
 <div class="sub">Sales Team Matrix — 役割・担当領域</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 11:55 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 12:00 JST</div>
+<div class="hint">セルをクリックで編集 / 色付きセルをクリックで色変更</div>
 
 <div class="table-wrap">
-<table>
+<table id="teamTable">
   <thead>
     <tr>
       <th>名前</th>
+      <th>開始日</th>
       <th>タイプ</th>
       <th>職種</th>
       <th>マーケ</th>
@@ -56,60 +72,134 @@ td.type{font-size:12px;color:#555;font-family:monospace;max-width:200px;}
       <th>パートナー</th>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td class="name">龍河</td>
-      <td class="type">マーケ系コンサル型営業</td>
-      <td><span class="role-tag">企画営業</span></td>
-      <td></td>
-      <td><span class="badge badge-sometimes">たまに</span></td>
-      <td><span class="badge badge-sub">提案型</span></td>
-      <td><span class="badge badge-sub">提案型</span></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td class="name">南部</td>
-      <td class="type">高回転反復型営業</td>
-      <td><span class="role-tag">リード営業</span></td>
-      <td></td>
-      <td></td>
-      <td><span class="badge badge-sub">　</span></td>
-      <td><span class="badge badge-sometimes">たまに</span></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td class="name">菅谷</td>
-      <td class="type">上位自立メンバーレイヤー営業</td>
-      <td><span class="role-tag">商談営業</span></td>
-      <td></td>
-      <td></td>
-      <td><span class="badge badge-sub">　</span></td>
-      <td><span class="badge badge-sometimes">たまに</span></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td class="name">日浅</td>
-      <td class="type">メンバーレイヤー無限時間CS</td>
-      <td><span class="role-tag">サクセス</span></td>
-      <td></td>
-      <td><span class="badge badge-sometimes">たまに</span></td>
-      <td></td>
-      <td><span class="badge badge-main">メイン</span></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td class="name">米倉ゆうすけ</td>
-      <td class="type">超ベテラン飛級営業</td>
-      <td><span class="role-tag">パートナー</span></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td><span class="badge badge-main">メイン</span></td>
-    </tr>
-  </tbody>
+  <tbody id="tableBody"></tbody>
 </table>
 </div>
 
+<div id="popover" class="popover" style="display:none;"></div>
+
+<script>
+// 初期データ
+const DEFAULT_DATA = [
+  { name:'龍河', start:'26/3', type:'マーケ系コンサル型営業', role:'企画営業',
+    cells:['none','sub','sub','sub','none'] },
+  { name:'南部', start:'23/8', type:'高回転反復型営業', role:'リード営業',
+    cells:['none','none','main','sub','none'] },
+  { name:'菅谷', start:'23/1', type:'上位自立メンバーレイヤー営業', role:'商談営業',
+    cells:['none','none','main','sub','none'] },
+  { name:'日浅', start:'25/10', type:'メンバーレイヤー無限時間CS', role:'サクセス',
+    cells:['none','sub','none','main','none'] },
+  { name:'米倉ゆうすけ', start:'26/3', type:'超ベテラン飛級営業', role:'パートナー',
+    cells:['none','none','none','none','main'] },
+];
+
+const BADGE_LABELS = { main:'メイン', sub:'たまに', none:'' };
+const COL_LABELS = ['マーケ','展示会','商談','CS','パートナー'];
+
+let data = JSON.parse(localStorage.getItem('sales_team_data') || 'null') || DEFAULT_DATA;
+let saveTimer = null;
+let activePopover = null;
+
+function renderBadge(val) {
+  if (val === 'main') return `<span class="badge badge-main">メイン</span>`;
+  if (val === 'sub')  return `<span class="badge badge-sub">たまに</span>`;
+  return `<span class="badge badge-none">-</span>`;
+}
+
+function render() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map((row, ri) => `
+    <tr>
+      <td class="name"><span class="editable" contenteditable="true" data-row="${ri}" data-field="name">${row.name}</span></td>
+      <td class="start"><span class="editable" contenteditable="true" data-row="${ri}" data-field="start">${row.start}</span></td>
+      <td class="type"><span class="editable" contenteditable="true" data-row="${ri}" data-field="type">${row.type}</span></td>
+      <td><span class="editable" contenteditable="true" data-row="${ri}" data-field="role">${row.role}</span></td>
+      ${row.cells.map((val, ci) => `
+        <td class="badge-cell" data-row="${ri}" data-col="${ci}">${renderBadge(val)}</td>
+      `).join('')}
+    </tr>
+  `).join('');
+
+  // editableのイベント
+  tbody.querySelectorAll('.editable').forEach(el => {
+    el.addEventListener('input', () => {
+      const ri = +el.dataset.row;
+      const field = el.dataset.field;
+      data[ri][field] = el.textContent.trim();
+      scheduleSave();
+    });
+    el.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();el.blur();} });
+  });
+
+  // badge-cellのクリック
+  tbody.querySelectorAll('.badge-cell').forEach(cell => {
+    cell.addEventListener('click', e => {
+      e.stopPropagation();
+      showPopover(cell, +cell.dataset.row, +cell.dataset.col);
+    });
+  });
+}
+
+function showPopover(cell, ri, ci) {
+  closePopover();
+  const pop = document.getElementById('popover');
+  const options = [
+    { val:'main', icon:'pop-badge-main', label:'メイン（オレンジ）' },
+    { val:'sub',  icon:'pop-badge-sub',  label:'たまに（薄）' },
+    { val:'none', icon:'pop-badge-none', label:'なし' },
+  ];
+  pop.innerHTML = options.map(o =>
+    `<div class="popover-item" data-val="${o.val}"><span class="${o.icon}"></span>${o.label}</div>`
+  ).join('');
+  pop.querySelectorAll('.popover-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      data[ri].cells[ci] = item.dataset.val;
+      render();
+      scheduleSave();
+      closePopover();
+    });
+  });
+  const rect = cell.getBoundingClientRect();
+  pop.style.display = 'flex';
+  pop.style.flexDirection = 'column';
+  pop.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  pop.style.left = (rect.left + window.scrollX) + 'px';
+  activePopover = pop;
+}
+
+function closePopover() {
+  document.getElementById('popover').style.display = 'none';
+  activePopover = null;
+}
+
+document.addEventListener('click', closePopover);
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  document.getElementById('saveStatus').textContent = '保存中...';
+  saveTimer = setTimeout(saveData, 800);
+}
+
+async function saveData() {
+  // localStorageにバックアップ
+  localStorage.setItem('sales_team_data', JSON.stringify(data));
+  // サーバーにも保存
+  try {
+    await fetch('/api/save-layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sales_team: data })
+    });
+    document.getElementById('saveStatus').textContent = '✓ 保存済み';
+    setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
+  } catch {
+    document.getElementById('saveStatus').textContent = '✓ ローカル保存済み';
+    setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
+  }
+}
+
+render();
+</script>
 </body>
 </html>
