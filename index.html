@@ -447,10 +447,12 @@ async function logout() {
 }
 
 // セッションチェック - チラつき防止
-fetch('/api/check-session').then(r => r.json()).then(data => {
+fetch('/api/check-session').then(r => r.json()).then(async data => {
   if (data.auth) {
     document.getElementById('userEmail').textContent = data.email;
     show('mainScreen');
+    await loadOrder();
+    initDrag();
   } else {
     show('step1');
   }
