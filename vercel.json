@@ -55,6 +55,10 @@
     {
       "source": "/writevideo_5year_plan.html",
       "destination": "/api/page?p=writevideo_5year_plan"
+    },
+    {
+      "source": "/interview_yamamoto.html",
+      "destination": "/api/page?p=interview_yamamoto"
     }
   ],
   "headers": [

@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面談構成資料 — 山本智美様</title>
+<script>document.documentElement.style.visibility="hidden";fetch("/api/check-session").then(r=>r.json()).then(d=>{if(!d.auth){window.location.href="/index.html";}else{document.documentElement.style.visibility="";}}).catch(()=>{window.location.href="/index.html";});</script>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --paper: #fbf9f3;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-light: #8a8a8a;
+    --rule: #d9d3c4;
+    --accent: #9b2915;
+    --accent-soft: #c04a2f;
+    --gold: #a8843a;
+    --green: #5a6e3a;
+    --amber: #c08418;
+    --blue: #3a5a75;
+    --purple: #6b4778;
+    --new-bg: #f7efe3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: var(--paper);
+    padding: 60px 70px;
+    box-shadow: 0 2px 40px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  .page::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 30%, var(--ink) 30%, var(--ink) 100%);
+  }
+
+  /* Masthead */
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .masthead-left .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .masthead-left h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+
+  .masthead-left h1 .accent { color: var(--accent); }
+
+  .masthead-right {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.8;
+  }
+
+  .masthead-right .label { color: var(--ink-light); margin-right: 8px; }
+
+  /* Chapter nav */
+  .chapter-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin-bottom: 60px;
+  }
+
+  .nav-cell {
+    padding: 20px 22px;
+    border-right: 1px solid var(--rule);
+    background: white;
+  }
+  .nav-cell:last-child { border-right: none; }
+
+  .nav-cell .nav-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .nav-cell .nav-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .nav-cell .nav-desc {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* Chapter title */
+  .chapter {
+    margin-bottom: 70px;
+  }
+
+  .chapter-title {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 30px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .chapter-title .ch-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .chapter-title h2 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .chapter-title .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.2em;
+    margin-left: auto;
+    text-transform: uppercase;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-title .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+  }
+
+  .section-title h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* Hero stats */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin-bottom: 30px;
+  }
+
+  .hero-cell {
+    padding: 22px 20px;
+    border-right: 1px solid var(--rule);
+  }
+  .hero-cell:last-child { border-right: none; }
+
+  .hero-cell .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .hero-cell .v {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .hero-cell .sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  /* Strength bars */
+  .strength-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 30px;
+  }
+
+  .bar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .bar-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .bar-item .bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+
+  .bar-item .bar-label { font-size: 13px; font-weight: 500; }
+
+  .bar-item .bar-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+
+  .bar-track {
+    height: 4px;
+    background: var(--rule);
+    overflow: hidden;
+  }
+
+  .bar-fill { height: 100%; }
+  .bar-fill.top { background: var(--accent); }
+  .bar-fill.mid { background: var(--gold); }
+  .bar-fill.low { background: var(--ink-light); }
+
+  .bar-note {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Track record table */
+  .record-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: white;
+    margin-bottom: 20px;
+  }
+
+  .record-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .record-table th.num-col { text-align: right; }
+
+  .record-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  .record-table td.num {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .record-table td.year {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 12px;
+  }
+
+  .achieve-pct {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .achieve-pct.excellent { background: var(--accent); color: var(--paper); }
+  .achieve-pct.good { background: var(--gold); color: var(--paper); }
+  .achieve-pct.ok { background: var(--ink-light); color: var(--paper); }
+
+  .award { font-size: 12px; color: var(--ink-soft); font-style: italic; }
+
+  /* Pull quote */
+  .pull-quote {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--ink);
+    padding: 18px 0 18px 22px;
+    border-left: 3px solid var(--accent);
+    margin: 20px 0;
+    font-style: italic;
+  }
+
+  .pull-quote::before {
+    content: '"';
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 0;
+    vertical-align: -10px;
+    margin-right: 5px;
+  }
+
+  /* Career timeline */
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 20px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--rule);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 8px 0 8px 20px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 14px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--accent);
+  }
+
+  .timeline-item.primary::before { background: var(--accent); }
+
+  .timeline-item .t-period {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+
+  .timeline-item .t-company {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .timeline-item .t-role {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  /* Capability cards */
+  .cap-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .cap-card {
+    border: 1px solid var(--rule);
+    padding: 20px 22px;
+    background: #fdfbf6;
+    position: relative;
+  }
+
+  .cap-card.core {
+    border-color: var(--accent);
+    border-width: 1.5px;
+  }
+
+  .cap-card.core::before {
+    content: 'CORE';
+    position: absolute;
+    top: -9px;
+    left: 18px;
+    background: var(--accent);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+  }
+
+  .cap-card h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .cap-card p {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  /* Current state metrics */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin-bottom: 20px;
+  }
+
+  .metric-cell {
+    padding: 20px 22px;
+    border-right: 1px solid var(--rule);
+    background: white;
+  }
+  .metric-cell:last-child { border-right: none; }
+
+  .metric-cell .m-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .metric-cell .m-value {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .metric-cell .m-value .unit {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+
+  .metric-cell .m-note {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ============ FLOW DIAGRAM (SaaS Standard) ============ */
+  .flow-diagram {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 28px 22px 22px;
+    margin-bottom: 20px;
+  }
+
+  .flow-stages {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .flow-stage {
+    padding: 0 6px;
+    position: relative;
+    text-align: center;
+  }
+
+  .flow-stage:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -6px;
+    top: 30px;
+    font-size: 26px;
+    color: var(--ink-light);
+    font-family: 'Shippori Mincho', serif;
+    z-index: 2;
+  }
+
+  .stage-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .stage-label {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: var(--ink);
+  }
+
+  .stage-desc {
+    font-size: 10px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* Position lane mapping */
+  .position-lanes {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  .lane-row { display: contents; }
+
+  .lane-label {
+    padding: 14px 12px;
+    color: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .lane-row:last-child .lane-label,
+  .lane-row:last-child .lane-cells { border-bottom: none; }
+
+  .lane-label .role-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    opacity: 0.75;
+    margin-bottom: 3px;
+  }
+
+  .lane-label .role-name {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .lane-label .role-jp {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  .lane-cells {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .lane-cell {
+    padding: 11px 9px;
+    border-right: 1px solid var(--rule);
+    min-height: 52px;
+    font-size: 10.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .lane-cell:last-child { border-right: none; }
+
+  .lane-cell.active { background: #f7f2e4; }
+  .lane-cell.primary {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .lane-row.mkt .lane-label { background: var(--gold); }
+  .lane-row.is .lane-label { background: var(--blue); }
+  .lane-row.fs .lane-label { background: var(--accent); }
+  .lane-row.cs .lane-label { background: var(--green); }
+
+  .lane-row.mkt .lane-cell.primary { background: #f5e8c9; }
+  .lane-row.is .lane-cell.primary { background: #dce5ee; }
+  .lane-row.fs .lane-cell.primary { background: #f0d6d0; }
+  .lane-row.cs .lane-cell.primary { background: #dce4d0; }
+
+  /* ============ Chevron Rail (矢羽根職種配置) ============ */
+  .chevron-rail {
+    margin-top: 4px;
+    padding: 18px 0 6px;
+    position: relative;
+  }
+
+  .chevron-grid-bg {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .chevron-grid-bg .col-bg {
+    border-right: 1px dashed var(--rule);
+  }
+  .chevron-grid-bg .col-bg:last-child { border-right: none; }
+
+  .chevron-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .chevron-row:last-child { margin-bottom: 0; }
+
+  .chevron-arrow {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px 0 14px;
+    color: var(--paper);
+    position: relative;
+    /* Chevron shape: pointing right, with a notch on the left */
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+    font-size: 11.5px;
+    line-height: 1.3;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  /* First chevron that starts at column 1: flat left edge */
+  .chevron-arrow.start-left {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+    padding-left: 16px;
+  }
+
+  .chevron-arrow .ch-role {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .chevron-arrow .ch-task {
+    font-size: 10px;
+    opacity: 0.92;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .chevron-arrow.mkt { background: var(--gold); }
+  .chevron-arrow.is  { background: var(--blue); }
+  .chevron-arrow.fs  { background: var(--accent); }
+  .chevron-arrow.cs  { background: var(--green); }
+
+  .chevron-arrow.muted {
+    opacity: 0.55;
+  }
+
+  .chevron-arrow.sub {
+    opacity: 0.85;
+    height: 36px;
+  }
+
+  /* Question callout under flow diagram */
+  .question-callout {
+    margin-top: 22px;
+    padding: 20px 24px;
+    background: #fdf6f3;
+    border: 1px solid var(--accent);
+    border-left-width: 5px;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .question-callout .q-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .question-callout .q-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .question-callout .q-body p {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+  }
+
+  .question-callout .q-body p strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* WV Current positions */
+  .wv-positions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .wv-pos-card {
+    padding: 16px 18px;
+    border: 1px solid var(--rule);
+    background: #fdfbf6;
+  }
+
+  .wv-pos-card .pos-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+  }
+
+  .wv-pos-card h5 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .wv-pos-card p {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+
+  .wv-pos-card .pos-color {
+    height: 3px;
+    margin-bottom: 12px;
+  }
+
+  .wv-pos-card.is .pos-color { background: var(--blue); }
+  .wv-pos-card.fs .pos-color { background: var(--accent); }
+  .wv-pos-card.cs .pos-color { background: var(--green); }
+
+  .gap-callout {
+    padding: 14px 18px;
+    background: #fdf6f3;
+    border-left: 3px solid var(--accent);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.75;
+    margin-bottom: 10px;
+  }
+
+  .gap-callout strong { color: var(--accent); font-weight: 600; }
+
+  /* ============ NEW DIVISION ============ */
+  .new-division {
+    background: var(--new-bg);
+    border: 2px solid var(--accent);
+    padding: 30px 30px;
+    position: relative;
+    margin-top: 20px;
+  }
+
+  .new-division::before {
+    content: 'NEW DIVISION / 新規事業部門';
+    position: absolute;
+    top: -12px;
+    left: 22px;
+    background: var(--accent);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    padding: 4px 14px;
+  }
+
+  .new-division h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-top: 4px;
+  }
+
+  .new-division .caption {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    line-height: 1.8;
+  }
+
+  .ht-flow-stages {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    margin-bottom: 26px;
+    position: relative;
+  }
+
+  .ht-stage {
+    padding: 0 4px;
+    position: relative;
+    text-align: center;
+  }
+
+  .ht-stage:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -4px;
+    top: 26px;
+    font-size: 22px;
+    color: var(--accent);
+    font-family: 'Shippori Mincho', serif;
+    z-index: 2;
+    opacity: 0.6;
+  }
+
+  .ht-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    font-weight: 700;
+  }
+
+  .ht-label {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: var(--ink);
+  }
+
+  .ht-desc {
+    font-size: 9.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* New positions grid */
+  .new-positions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .new-pos-card {
+    padding: 18px 20px;
+    background: white;
+    border: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .new-pos-card.candidate {
+    border: 2px solid var(--accent);
+    background: #fff8f4;
+  }
+
+  .new-pos-card.existing-plus {
+    border: 1.5px dashed var(--blue);
+    background: #f4f8fb;
+  }
+
+  .new-positions.two-col {
+    grid-template-columns: 1.1fr 1fr;
+  }
+
+  .role-structure-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    margin: 22px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--rule);
+  }
+
+  /* Approach steps (Phase 1/2/3) */
+  .approach-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .approach-step {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 20px;
+    padding: 18px 20px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--green);
+    align-items: start;
+  }
+
+  .approach-step .step-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--green);
+    padding-top: 4px;
+    font-weight: 600;
+  }
+
+  .approach-step .step-content h5 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .approach-step .step-content p {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.8;
+  }
+
+  .approach-step .step-content p strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .new-pos-card .new-pos-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .new-pos-card h5 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 9px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .new-pos-card p {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .new-pos-card .skill-tags {
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px dashed var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .skill-tag {
+    display: inline-block;
+    padding: 3px 7px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+
+  .skill-tag.match {
+    background: #e5e8dd;
+    border-color: var(--green);
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  .compare-box {
+    padding: 20px 24px;
+    background: white;
+    border: 1px solid var(--accent);
+    border-left-width: 4px;
+  }
+
+  .compare-box h5 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .compare-col {
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+  }
+
+  .compare-col .col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .compare-col .col-head {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .compare-col p {
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* Challenge list */
+  .challenge-list { margin-bottom: 20px; }
+
+  .challenge-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .challenge-item:last-child { border-bottom: none; }
+
+  .challenge-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .challenge-text h5 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .challenge-text p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* Condition matrix */
+  .condition-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .cond-card {
+    padding: 20px 22px;
+    background: white;
+    border: 1px solid var(--rule);
+  }
+
+  .cond-card.wish { border-top: 3px solid var(--blue); }
+  .cond-card.offer { border-top: 3px solid var(--green); }
+
+  .cond-card h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cond-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed var(--rule);
+  }
+
+  .cond-row:last-child { border-bottom: none; }
+
+  .cond-row .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    padding-top: 2px;
+  }
+
+  .cond-row .v {
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  .gap-box {
+    background: #fdf6f3;
+    border: 1px solid var(--accent);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .gap-box h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .gap-box p {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+  }
+
+  /* ============ Vision Slide (CHAPTER 00) ============ */
+  .vision-slide {
+    margin: 0 -70px 70px;
+    padding: 70px 70px 60px;
+    background: linear-gradient(160deg, #1a1a1a 0%, #2c2018 60%, #1a1a1a 100%);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vision-slide::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 340px;
+    height: 340px;
+    background: radial-gradient(circle, rgba(155,41,21,0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .vision-slide::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(168,132,58,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .vision-eyebrow {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 38px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(245,242,234,0.2);
+    position: relative;
+    z-index: 2;
+  }
+
+  .vision-chapter-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--accent-soft);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .vision-eyebrow-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: rgba(245,242,234,0.7);
+    text-transform: uppercase;
+  }
+
+  .vision-main {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 32px;
+    padding-left: 30px;
+  }
+
+  .vision-quote-mark {
+    position: absolute;
+    top: -20px;
+    left: -12px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 140px;
+    color: var(--accent-soft);
+    opacity: 0.35;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .vision-headline {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--paper);
+    font-size: 36px;
+    letter-spacing: 0.03em;
+  }
+
+  .vision-line-1 {
+    display: block;
+    font-size: 42px;
+    color: #f0c4a0;
+    line-height: 1.35;
+    margin-bottom: 18px;
+  }
+
+  .vision-line-2 {
+    display: block;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.65;
+    color: rgba(245,242,234,0.88);
+  }
+
+  .vision-line-2 em {
+    font-style: normal;
+    color: var(--accent-soft);
+    font-weight: 700;
+    border-bottom: 1px solid rgba(192,74,47,0.4);
+    padding-bottom: 2px;
+  }
+
+  .vision-sub {
+    position: relative;
+    z-index: 2;
+    padding: 22px 26px 24px 30px;
+    border-left: 3px solid var(--accent-soft);
+    background: rgba(245,242,234,0.04);
+    margin-bottom: 50px;
+    font-family: 'Shippori Mincho', serif;
+  }
+
+  .vision-sub p {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(245,242,234,0.92);
+  }
+
+  .vision-sub strong {
+    color: var(--accent-soft);
+    font-weight: 600;
+  }
+
+
+  /* Why fits */
+    position: relative;
+    z-index: 2;
+    padding: 26px 30px;
+    background: rgba(245,242,234,0.05);
+    border: 1px solid rgba(245,242,234,0.15);
+    margin-bottom: 36px;
+  }
+
+  .why-fits-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--paper);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(245,242,234,0.2);
+  }
+
+  .why-fits-title .why-mark {
+    color: var(--accent-soft);
+    margin-right: 10px;
+    font-size: 13px;
+  }
+
+  .why-fits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+
+  .why-fits-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .why-fits-item .why-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-soft);
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .why-fits-item .why-text {
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(245,242,234,0.88);
+  }
+
+  .why-fits-item .why-text strong {
+    color: var(--paper);
+    font-weight: 600;
+  }
+
+  .vision-closing {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    line-height: 2;
+    color: rgba(245,242,234,0.75);
+    padding-top: 24px;
+    border-top: 1px solid rgba(245,242,234,0.15);
+  }
+
+  .vision-closing strong {
+    color: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  /* Footer */
+  .footer-note {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.15em;
+  }
+
+  @media (max-width: 1000px) {
+    .page { padding: 30px 24px; }
+    .chapter-nav { grid-template-columns: 1fr; }
+    .nav-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+    .hero { grid-template-columns: 1fr 1fr; }
+    .strength-grid { grid-template-columns: 1fr; }
+    .cap-wrap { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .metric-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+    /* Keep flow-stages and chevron-rail aligned: both remain 5-column with horizontal scroll */
+    .flow-diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .flow-stages, .chevron-row, .chevron-grid-bg { min-width: 640px; }
+    .ht-flow-stages { grid-template-columns: 1fr 1fr; row-gap: 16px; }
+    .ht-stage::after { display: none; }
+    .lane-cells { grid-template-columns: 1fr 1fr; }
+    .chevron-arrow { padding: 0 14px 0 12px; font-size: 10px; }
+    .chevron-arrow .ch-role { font-size: 11px; }
+    .chevron-arrow .ch-task { font-size: 9px; }
+    .wv-positions, .new-positions { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .condition-grid { grid-template-columns: 1fr; }
+    .qc-split { grid-template-columns: 1fr; }
+    /* Vision slide mobile */
+    .vision-slide { margin: 0 -24px 40px; padding: 40px 28px 36px; }
+    .vision-main { padding-left: 10px; }
+    .vision-quote-mark { font-size: 80px; top: -10px; left: -5px; }
+    .vision-headline { font-size: 24px; }
+    .vision-line-1 { font-size: 28px; margin-bottom: 12px; }
+    .vision-line-2 { font-size: 17px; }
+    .why-fits-grid { grid-template-columns: 1fr; gap: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div class="masthead-left">
+      <div class="eyebrow">Interview Structure &middot; 3 Chapters</div>
+      <h1>面談構成資料 <span class="accent">|</span> 山本 智美 様</h1>
+    </div>
+    <div class="masthead-right">
+      <div><span class="label">PREPARED FOR</span>株式会社X / 米倉 暁</div>
+      <div><span class="label">DATE</span>2026.04.22</div>
+      <div><span class="label">DOC ID</span>WV-HR-2026-0422 v2.0</div>
+    </div>
+  </header>
+
+  <!-- Chapter nav -->
+  <div class="chapter-nav">
+    <div class="nav-cell">
+      <div class="nav-num">CHAPTER 01</div>
+      <div class="nav-title">山本様のキャリア整理</div>
+      <div class="nav-desc">これまでのご経歴・強み・実績を構造化し、認識合わせを行う</div>
+    </div>
+    <div class="nav-cell">
+      <div class="nav-num">CHAPTER 02</div>
+      <div class="nav-title">弊社の業務内容</div>
+      <div class="nav-desc">事業内容・営業フロー・現行組織と、医療セグメントの深耕余地を共有</div>
+    </div>
+    <div class="nav-cell">
+      <div class="nav-num">CHAPTER 03</div>
+      <div class="nav-title">希望条件と仕事のすり合わせ</div>
+      <div class="nav-desc">ご希望を踏まえた新規事業ポジションのご提案と、進め方の相談</div>
+    </div>
+  </div>
+
+  <!-- =================== CHAPTER 00 / VISION SLIDE =================== -->
+  <section class="vision-slide">
+    <div class="vision-eyebrow">
+      <span class="vision-chapter-num">00</span>
+      <span class="vision-eyebrow-text">VISION &middot; 今日お話したいこと</span>
+    </div>
+
+    <div class="vision-main">
+      <div class="vision-quote-mark">"</div>
+      <h2 class="vision-headline">
+        <span class="vision-line-1">腰を据えて、裁量高く、<br>興味の赴くままに働く。</span>
+        <span class="vision-line-2">— そんな<em>人生プラン</em>を、<br>ご一緒に描けないでしょうか。</span>
+      </h2>
+    </div>
+
+    <div class="vision-sub">
+      <p>
+        山本様のご経歴とご実績であれば、<strong>ご自身の求める年収水準</strong>は、<br>
+        長期的に十分築いていけると考えています。今日ご相談したいのは、今回のオファー額ではなく —— <br>
+        その水準を<strong>長く安定して維持しながら</strong>、ご自身のペースで裁量を持ち、<br>
+        興味の赴くままに働ける設計を、一緒に考えたい、ということです。
+      </p>
+    </div>
+
+    <!-- Why This Fits -->
+    <div class="why-fits">
+      <div class="why-fits-title">
+        <span class="why-mark">◆</span>
+        そういう働き方を、なぜ弊社で描けると考えているか
+      </div>
+      <div class="why-fits-grid">
+        <div class="why-fits-item">
+          <div class="why-num">01</div>
+          <div class="why-text"><strong>積み上げた医療営業の専門性</strong>が、そのまま次の土台になる設計です。リクメディで築いてきた型やスタイルを、捨てずに活かせます。</div>
+        </div>
+        <div class="why-fits-item">
+          <div class="why-num">02</div>
+          <div class="why-text"><strong>子育てと両立できる自己マネジメント</strong>型の働き方。フルリモート可で、稼働の仕方もご自身で設計いただけます。</div>
+        </div>
+        <div class="why-fits-item">
+          <div class="why-num">03</div>
+          <div class="why-text"><strong>一社に縛られない選択肢</strong>が、長期的には手の中に。独立、緩い所属、経営層入り —— その時々でご自身が選べる状態を見据えています。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vision-closing">
+      ここからの3つの章は、この絵を描くために必要な情報を、<br>
+      <strong>一緒に確認・ディスカッションしていく</strong>プロセスとしてお聞きいただければと思います。
+    </div>
+  </section>
+
+  <!-- =================== CHAPTER 01 =================== -->
+  <section class="chapter">
+    <div class="chapter-title">
+      <span class="ch-num">01</span>
+      <h2>山本様のキャリア整理</h2>
+      <span class="en">CAREER ANALYSIS</span>
+    </div>
+
+    <div class="hero">
+      <div class="hero-cell">
+        <div class="k">Career Span</div>
+        <div class="v">15<span style="font-size:14px;">年+</span></div>
+        <div class="sub">うちリクルートグループ13年</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 10:29 JST</div>
+      </div>
+      <div class="hero-cell">
+        <div class="k">Core Domain</div>
+        <div class="v">医師HH</div>
+        <div class="sub">10年連続・全国対応</div>
+      </div>
+      <div class="hero-cell">
+        <div class="k">Deal Size</div>
+        <div class="v">¥900-1,500<span style="font-size:14px;">万</span></div>
+        <div class="sub">フィー単価 / 1決定</div>
+      </div>
+      <div class="hero-cell">
+        <div class="k">Rank</div>
+        <div class="v">社内4名</div>
+        <div class="sub">エグゼクティブエージェント選抜</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="num">1-1</span>
+        <h3>キャリア年表</h3>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item primary">
+          <div class="t-period">2016.04 — 現在</div>
+          <div class="t-company">株式会社リクルートメディカルキャリア</div>
+          <div class="t-role">エグゼクティブエージェント / ハイクラス医師ヘッドハンティング(2022.12〜) / キャリアアドバイザー(2016.04〜2022.11)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="t-period">2012.12 — 2016.04</div>
+          <div class="t-company">株式会社リクルート住まいカンパニー</div>
+          <div class="t-role">SUUMO 注文住宅領域 広告媒体営業 / 東京本社1年・広島支社2年</div>
+        </div>
+        <div class="timeline-item">
+          <div class="t-period">2012.04 — 2012.11</div>
+          <div class="t-company">株式会社メロン</div>
+          <div class="t-role">ブライダル情報誌 広告掲載提案営業 / 福岡本社</div>
+        </div>
+        <div class="timeline-item">
+          <div class="t-period">2010.04 — 2012.03</div>
+          <div class="t-company">株式会社マイリビング(リクルート100%業務提携)</div>
+          <div class="t-role">SUUMO 住宅広告営業 / 北九州支社</div>
+        </div>
+        <div class="timeline-item">
+          <div class="t-period">2009.04 — 2010.03</div>
+          <div class="t-company">株式会社BSS(富士通コミュニケーションへ出向)</div>
+          <div class="t-role">PC カスタマーサービスセンター / テレアポインター業務</div>
+        </div>
+      </div></div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="num">1-2</span>
+        <h3>強みの構造(5軸評価)</h3>
+      </div>
+
+      <div class="strength-grid">
+        <div class="bar-group">
+          <div class="bar-group-title">STRONG AXIS</div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">ハイタッチ法人営業力</span><span class="bar-score">95 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill top" style="width:95%"></div></div>
+            <div class="bar-note">医療法人経営層(理事長・院長)への直接提案を10年</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">医療業界ドメイン知識</span><span class="bar-score">92 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill top" style="width:92%"></div></div>
+            <div class="bar-note">医師キャリア・医療機関経営・地域医療課題への実務的理解</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">高単価案件のクロージング</span><span class="bar-score">90 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill top" style="width:90%"></div></div>
+            <div class="bar-note">年収3,000万円超の医師招聘・フィー1,500万円案件の実績</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">目標達成の再現性</span><span class="bar-score">88 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill top" style="width:88%"></div></div>
+            <div class="bar-note">直近4年のうち達成率100%超が3年・表彰5回以上</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">アライアンス / PJT設計</span><span class="bar-score">78 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill mid" style="width:78%"></div></div>
+            <div class="bar-note">地銀・薬局チェーンとの代理店契約を主導・KPI管理</div>
+          </div>
+        </div>
+
+        <div class="bar-group">
+          <div class="bar-group-title">AREAS TO EXPLORE</div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">広告営業 / 課題解決提案</span><span class="bar-score">80 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill mid" style="width:80%"></div></div>
+            <div class="bar-note">SUUMO時代に11Q中10Q達成・MVP経験</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">オンライン / インサイドSales</span><span class="bar-score">35 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill low" style="width:35%"></div></div>
+            <div class="bar-note">経歴上、対面・電話中心。Zoom定量営業の経験値は要確認</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">SaaS / プロダクト主導販売</span><span class="bar-score">25 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill low" style="width:25%"></div></div>
+            <div class="bar-note">人材斡旋・広告が中心。PLG型の経験なし</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">ゼロイチ / スタートアップ耐性</span><span class="bar-score">40 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill low" style="width:40%"></div></div>
+            <div class="bar-note">リクルートの仕組み内での成果。無資源環境は未経験</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-label">デジタル / AIリテラシー</span><span class="bar-score">30 / 100</span></div>
+            <div class="bar-track"><div class="bar-fill low" style="width:30%"></div></div>
+            <div class="bar-note">書類上からは確認不可。対話の中で感触を掴みたい</div>
+          </div>
+        </div>
+      </div></div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="num">1-3</span>
+        <h3>実績の再現性(リクメディ時代)</h3>
+      </div>
+
+      <table class="record-table">
+        <thead>
+          <tr>
+            <th>年度</th>
+            <th class="num-col">目標</th>
+            <th class="num-col">実績</th>
+            <th class="num-col">達成率</th>
+            <th>表彰</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="year">2018</td><td class="num">2,558</td><td class="num">2,714</td>
+            <td class="num"><span class="achieve-pct good">106%</span></td>
+            <td class="award">10月・12月 月間MVP / GOOD JOB入賞</td>
+          </tr>
+          <tr>
+            <td class="year">2019</td><td class="num">7,524</td><td class="num">8,344</td>
+            <td class="num"><span class="achieve-pct excellent">111%</span></td>
+            <td class="award">3Q準MVP・4Q準MVP</td>
+          </tr>
+          <tr>
+            <td class="year">2023</td><td class="num">4,800</td><td class="num">5,850</td>
+            <td class="num"><span class="achieve-pct excellent">139%</span></td>
+            <td class="award">表彰制度なし年度</td>
+          </tr>
+          <tr>
+            <td class="year">2024</td><td class="num">4,960</td><td class="num">5,650</td>
+            <td class="num"><span class="achieve-pct excellent">114%</span></td>
+            <td class="award">Star Players of the Year / 個人報奨金</td>
+          </tr>
+          <tr>
+            <td class="year">2025</td><td class="num">5,310</td><td class="num">5,030</td>
+            <td class="num"><span class="achieve-pct ok">95%</span></td>
+            <td class="award">3月MVP・QMVP / 全社表彰エントリー中</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pull-quote">
+        5年のうち4年で達成率100%超。平均達成率は約113%。単年のまぐれではなく、長期にわたる再現性のある数字です。
+      </div></div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="num">1-4</span>
+        <h3>具体的に活きる能力</h3>
+      </div>
+
+      <div class="cap-wrap">
+        <div class="cap-card core">
+          <h4>医療機関経営層への信頼獲得</h4>
+          <p>理事長・院長・事務長クラスへのアポから契約までを一気通貫で実施。医療機関特有の意思決定プロセス(評議員会・理事会)への理解あり。</p>
+        </div>
+        <div class="cap-card core">
+          <h4>全国医療マーケットの土地勘</h4>
+          <p>医師不足エリア・医療過疎地の実情、都道府県別の医療行政動向、地域医療構想への理解を実務で蓄積。</p>
+        </div>
+        <div class="cap-card">
+          <h4>アライアンス・代理店チャネル構築</h4>
+          <p>地銀・大手薬局チェーンとの業務提携を主導。代理店契約の設計、KPI管理、獲得までのシナリオ設計をリード。</p>
+        </div>
+        <div class="cap-card">
+          <h4>条件交渉・先回り型の合意形成</h4>
+          <p>「言いにくいこと」を先回りして整理し、双方の落としどころを設計。クロージング局面での勝率を押し上げる。</p>
+        </div>
+      </div></div></section>
+
+  <!-- =================== CHAPTER 02 =================== -->
+  <section class="chapter">
+    <div class="chapter-title">
+      <span class="ch-num">02</span>
+      <h2>弊社の現状</h2>
+      <span class="en">CURRENT STATE OF WRITEVIDEO</span>
+    </div>
+
+    <!-- 2-1: SaaS Workflow -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">2-1</span>
+        <h3>SaaS営業の標準業務フローとポジション</h3>
+      </div>
+
+      <p style="font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; line-height: 1.8;">
+        一般的なB2B SaaS企業では、営業業務フローを<strong>複数のポジションで分業</strong>しています。5工程を4ポジション(マーケティング / インサイドセールス / フィールドセールス / カスタマーサクセス)が役割分担する構造です。
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-stages">
+          <div class="flow-stage">
+            <div class="stage-circle">1</div>
+            <div class="stage-label">リード獲得</div>
+            <div class="stage-desc">展示会・Web広告<br>SEO・ウェビナー</div>
+          </div>
+          <div class="flow-stage">
+            <div class="stage-circle">2</div>
+            <div class="stage-label">リード選別</div>
+            <div class="stage-desc">テレアポ・メール<br>商談化判定</div>
+          </div>
+          <div class="flow-stage">
+            <div class="stage-circle">3</div>
+            <div class="stage-label">商談</div>
+            <div class="stage-desc">オンライン商談<br>デモ・提案</div>
+          </div>
+          <div class="flow-stage">
+            <div class="stage-circle">4</div>
+            <div class="stage-label">クロージング</div>
+            <div class="stage-desc">条件交渉<br>契約締結</div>
+          </div>
+          <div class="flow-stage">
+            <div class="stage-circle">5</div>
+            <div class="stage-label">活用支援・深耕</div>
+            <div class="stage-desc">オンボーディング<br>解約抑止・拡販</div>
+          </div>
+        </div>
+
+        <!-- Chevron arrows: each role's coverage across the 5 stages -->
+        <div class="chevron-rail">
+          <!-- 5-column grid background for alignment -->
+          <div class="chevron-grid-bg">
+            <div class="col-bg"></div>
+            <div class="col-bg"></div>
+            <div class="col-bg"></div>
+            <div class="col-bg"></div>
+            <div class="col-bg"></div>
+          </div>
+
+          <!-- Marketing: stage 1 and stage 5 -->
+          <div class="chevron-row">
+            <div class="chevron-arrow mkt muted start-left" style="grid-column: 1 / span 1;">
+              <span class="ch-role">マーケティング</span>
+              <span class="ch-task">展示会・Web広告・SEO</span>
+            </div>
+            <div class="chevron-arrow mkt muted" style="grid-column: 5 / span 1;">
+              <span class="ch-role">マーケ</span>
+              <span class="ch-task">事例コンテンツ化</span>
+            </div>
+          </div>
+
+          <!-- Inside Sales: stage 2 only -->
+          <div class="chevron-row">
+            <div class="chevron-arrow is muted" style="grid-column: 2 / span 1;">
+              <span class="ch-role">インサイドセールス</span>
+              <span class="ch-task">テレアポ・ナーチャリング・商談化</span>
+            </div>
+          </div>
+
+          <!-- Online Sales: stages 3-5 -->
+          <div class="chevron-row">
+            <div class="chevron-arrow fs" style="grid-column: 3 / span 3;">
+              <span class="ch-role">オンラインセールス</span>
+              <span class="ch-task">オンライン商談・提案・クロージング・CS引き継ぎ</span>
+            </div>
+          </div>
+
+          <!-- Customer Success (Online): stages 4-5 -->
+          <div class="chevron-row">
+            <div class="chevron-arrow cs" style="grid-column: 4 / span 2;">
+              <span class="ch-role">カスタマーサクセス(オンライン)</span>
+              <span class="ch-task">オンボーディング・活用支援・解約抑止・アップセル</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question callout below the chevron diagram -->
+        <div class="question-callout">
+          <div class="q-mark">?</div>
+          <div class="q-body">
+            <div class="q-title">オフライン営業でリーチすることで、ARPUは上がるか</div>
+            <p>
+              医療機関セグメントは既に主要顧客群を形成していますが、オンライン営業99%の現体制では、<strong>経営層への直接提案</strong>や<strong>グループ内複数拠点・他部署への展開</strong>までは手が届いていません。<br>
+              ここに<strong>オフライン営業でリーチ</strong>することで、一社あたりのARPUを引き上げられるか — これが次の成長ドライバーとしての論点です。
+            </p>
+          </div>
+        </div>
+      </div></div>
+
+    <!-- 2-4: WV Current Organization -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">2-2</span>
+        <h3>弊社の現行営業組織</h3>
+      </div>
+
+      <p style="font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; line-height: 1.8;">
+        上記の標準モデルに沿った3ポジション体制です。<strong>全てオンライン中心</strong>の業務で運用しています。
+      </p>
+
+      <div class="wv-positions">
+        <div class="wv-pos-card is">
+          <div class="pos-color"></div>
+          <div class="pos-tag">EXISTING POSITION 01</div>
+          <h5>インサイドセールス(IS)</h5>
+          <p>マーケティングから受け取ったリードに対してテレアポ・メールナーチャリング。商談化したらFSへ引き継ぎ。定量KPI管理の短サイクル業務。</p>
+        </div>
+        <div class="wv-pos-card fs">
+          <div class="pos-color"></div>
+          <div class="pos-tag">EXISTING POSITION 02</div>
+          <h5>フィールドセールス(FS)</h5>
+          <p>IS経由の商談を<strong>Zoomで実施・クロージング</strong>。1商談30-60分の短時間で価値訴求。オンライン99%の運用。</p>
+        </div>
+        <div class="wv-pos-card cs">
+          <div class="pos-color"></div>
+          <div class="pos-tag">EXISTING POSITION 03</div>
+          <h5>カスタマーサクセス(CS)</h5>
+          <p>契約後の活用支援・解約抑止。利用データ起点の定期フォロー。顧客へのハイタッチ対応は例外的。</p>
+        </div>
+      </div></div></section>
+
+  <!-- =================== CHAPTER 03 =================== -->
+  <section class="chapter">
+    <div class="chapter-title">
+      <span class="ch-num">03</span>
+      <h2>希望条件と仕事のすり合わせ</h2>
+      <span class="en">ALIGNMENT</span>
+    </div>
+
+    <!-- 3-1: Proposed Role & New Division -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">3-1</span>
+        <h3>ご希望を踏まえた仕事のご提案</h3>
+      </div>
+
+      <p style="font-size: 13.5px; color: var(--ink-soft); margin-bottom: 18px; line-height: 1.9;">
+        ご希望の年収水準と、既に70社の医療機関顧客を抱えている当社の事業状況を踏まえて、<strong>医療機関向けエンタープライズ営業部門(仮)</strong>を新設する構想が一つの可能性として考えられます。既存の一部業務(展示会・学会出展や、オンラインセールスの一部)も兼任いただきながら、新規事業の立ち上げに関わっていただく形 ——<strong>このあたりを、今日は一緒にディスカッションできればと思っています</strong>。「こういう絵が現実的か」「山本様の視点で足りないものは何か」を率直にお聞かせいただきたい内容です。
+      </p>
+
+      <div class="new-division">
+        <h4>医療機関向けエンタープライズ営業部門(新設構想)</h4>
+        <div class="caption">
+          オンラインだけでは届かない「経営層への直接提案」と「医療法人グループ内の複数拠点展開」を担う専門部隊。<strong>ハイタッチ型・アカウント戦略型のフロー</strong>で、山本様のご経験がそのまま活きる領域です。
+        </div>
+
+        <div class="ht-flow-stages">
+          <div class="ht-stage">
+            <div class="ht-circle">1</div>
+            <div class="ht-label">アカウント選定</div>
+            <div class="ht-desc">狙うべき医療法人・<br>グループの特定</div>
+          </div>
+          <div class="ht-stage">
+            <div class="ht-circle">2</div>
+            <div class="ht-label">経営層接触</div>
+            <div class="ht-desc">理事長・院長・<br>事務長へのアポ</div>
+          </div>
+          <div class="ht-stage">
+            <div class="ht-circle">3</div>
+            <div class="ht-label">対面提案</div>
+            <div class="ht-desc">経営課題起点の<br>提案・稟議設計</div>
+          </div>
+          <div class="ht-stage">
+            <div class="ht-circle">4</div>
+            <div class="ht-label">グループ展開</div>
+            <div class="ht-desc">法人本部を通じた<br>複数拠点一括導入</div>
+          </div>
+          <div class="ht-stage">
+            <div class="ht-circle">5</div>
+            <div class="ht-label">定着・深耕</div>
+            <div class="ht-desc">定期訪問による<br>信頼維持・解約防止</div>
+          </div>
+          <div class="ht-stage">
+            <div class="ht-circle">6</div>
+            <div class="ht-label">パートナー連携</div>
+            <div class="ht-desc">製薬・医療機器商社<br>との代理店設計</div>
+          </div>
+        </div>
+
+        <div class="role-structure-label">想定する役割の構成</div>
+
+        <div class="new-positions two-col">
+          <div class="new-pos-card candidate">
+            <div class="new-pos-tag">NEW POSITION &middot; MAIN</div>
+            <h5>エンタープライズ営業リーダー<br>(医療機関領域・新設)</h5>
+            <p>医療法人経営層への対面提案とグループ展開の責任者。アカウント戦略設計、KPI管理、将来的な部隊の採用・育成を担う立ち上げフェーズの中心人物。製薬・医療機器商社・医療系業界団体との代理店契約設計(医療系アライアンス)も本ポジションに統合。</p>
+            <div class="skill-tags">
+              <span class="skill-tag match">経営層への対面営業</span>
+              <span class="skill-tag match">医療業界ドメイン</span>
+              <span class="skill-tag match">ハイフィー案件</span>
+              <span class="skill-tag match">KPI設計</span>
+              <span class="skill-tag match">代理店契約設計</span>
+            </div>
+          </div>
+
+          <div class="new-pos-card existing-plus">
+            <div class="new-pos-tag">EXISTING ROLE &middot; PARTIAL</div>
+            <h5>既存業務の一部兼務<br>(展示会・学会 / オンラインセールス / CS)</h5>
+            <p>立ち上げ期は本格稼働前の準備期間でもあるため、既存事業の一部業務も兼務いただく想定。具体的には医療系の展示会・学会出展でのリード獲得、オンラインセールスの一部(特に医療機関の高額案件や稟議が複雑なもの)、既存医療機関顧客のカスタマーサクセスの一部を担当。</p>
+            <div class="skill-tags">
+              <span class="skill-tag">展示会・学会出展</span>
+              <span class="skill-tag">オンライン商談(医療)</span>
+              <span class="skill-tag">既存医療顧客CS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-box">
+          <h5>■ 既存の営業職と新規ポジションの違い</h5>
+          <div class="compare-grid">
+            <div class="compare-col">
+              <div class="col-label">CURRENT ROLE</div>
+              <div class="col-head">既存のオンラインセールス</div>
+              <p>ISから引き継いだ商談をZoomで30-60分のクロージング。短サイクル・定量重視・1人あたり月20-30商談の運用。</p>
+            </div>
+            <div class="compare-col">
+              <div class="col-label">NEW ROLE</div>
+              <div class="col-head">エンタープライズ営業リーダー(新設)</div>
+              <p>1アカウントを半年〜1年かけて深く掘り、経営層との関係性でグループ展開を勝ち取る。長期サイクル・アカウント戦略型。山本様がリクメディで10年やってこられた型と同じ構造です。</p>
+            </div>
+          </div>
+        </div>
+      </div></div>
+
+    <!-- 3-2: Position & Work Style (no salary) -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">3-2</span>
+        <h3>ポジションと働き方</h3>
+      </div>
+
+      <div class="condition-grid">
+        <div class="cond-card wish">
+          <h4>山本様のご希望(書類記載より)</h4>
+          <div class="cond-row"><div class="k">WORK STYLE</div><div class="v">リモート勤務への理解</div></div>
+          <div class="cond-row"><div class="k">FAMILY</div><div class="v">未就学児の子育て中</div></div>
+          <div class="cond-row"><div class="k">MOTIVATION</div><div class="v">本人からの転職希望でご連絡</div></div>
+        </div>
+
+        <div class="cond-card offer">
+          <h4>弊社からご提示する仕事・働き方</h4>
+          <div class="cond-row"><div class="k">POSITION</div><div class="v">エンタープライズ営業リーダー(医療機関領域・新設)<br>+ 展示会/学会出展 + オンラインセールスの一部兼務</div></div>
+          <div class="cond-row"><div class="k">WORK STYLE</div><div class="v">フルリモート可 / 必要時の顧客訪問・出張あり</div></div>
+          <div class="cond-row"><div class="k">TIMING</div><div class="v">新規事業部門の本格稼働は半年〜1年後<br>それまでは既存業務兼務しつつ準備期間</div></div>
+          <div class="cond-row"><div class="k">GROWTH</div><div class="v">医療領域の事業責任者 → 執行役員候補の道筋</div></div>
+        </div>
+      </div></div></section>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <div>WRITEVIDEO.AI &middot; INTERVIEW STRUCTURE v2.0</div>
+    <div>INTERNAL USE ONLY &middot; 2026.04.22</div>
+  </div>
+
+</div>
+
+</body>
+</html>
