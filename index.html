@@ -438,7 +438,7 @@ async function resetOrder() {
   location.reload();
 }
 
-function logout() {
+async function logout() {
   await fetch('/api/logout', { method: 'POST' });
   show('step1');
   document.getElementById('emailInput').value = '';
