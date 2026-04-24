@@ -56,7 +56,7 @@ td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
   <span class="save-status" id="saveStatus"></span>
 </div>
 <div class="sub">Sales Team Matrix — 役割・担当領域</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 12:07 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 12:10 JST</div>
 <div class="hint">セルをクリックで編集 / 色付きセルをクリックで色変更</div>
 
 <div class="table-wrap">
@@ -98,7 +98,7 @@ const DEFAULT_DATA = [
 const BADGE_LABELS = { main:'メイン', proposal:'提案型', sub:'たまに', none:'' };
 const COL_LABELS = ['マーケ','展示会','商談','CS','パートナー'];
 
-let data = JSON.parse(localStorage.getItem('sales_team_data') || 'null') || DEFAULT_DATA;
+let data = JSON.parse(JSON.stringify(DEFAULT_DATA)); // 常にデフォルトから開始
 let saveTimer = null;
 let activePopover = null;
 
