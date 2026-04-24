@@ -36,6 +36,7 @@ td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
 .badge{display:inline-block;padding:4px 14px;font-size:12px;font-weight:600;border-radius:2px;white-space:nowrap;}
 .badge-main{background:#e07b00;color:#fff;}
 .badge-sub{background:#f5d9a0;color:#7a5500;}
+.badge-proposal{background:#f5d9a0;color:#7a5500;}
 .badge-none{background:transparent;color:transparent;width:36px;}
 
 /* ポップオーバー */
@@ -44,6 +45,7 @@ td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
 .popover-item:hover{background:#f5f2ec;}
 .pop-badge-main{width:12px;height:12px;background:#e07b00;border-radius:2px;display:inline-block;}
 .pop-badge-sub{width:12px;height:12px;background:#f5d9a0;border:1px solid #e8c870;border-radius:2px;display:inline-block;}
+.pop-badge-proposal{width:12px;height:12px;background:#f5d9a0;border:1px solid #e8c870;border-radius:2px;display:inline-block;}
 .pop-badge-none{width:12px;height:12px;background:#eee;border-radius:2px;display:inline-block;}
 </style>
 </head>
@@ -54,7 +56,7 @@ td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
   <span class="save-status" id="saveStatus"></span>
 </div>
 <div class="sub">Sales Team Matrix — 役割・担当領域</div>
-<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 12:00 JST</div>
+<div style="font-size:10px;font-family:monospace;color:#bbb;margin-bottom:12px;">Released: 2026-04-24 12:07 JST</div>
 <div class="hint">セルをクリックで編集 / 色付きセルをクリックで色変更</div>
 
 <div class="table-wrap">
@@ -82,7 +84,7 @@ td.badge-cell{cursor:pointer;user-select:none;min-width:80px;text-align:center;}
 // 初期データ
 const DEFAULT_DATA = [
   { name:'龍河', start:'26/3', type:'マーケ系コンサル型営業', role:'企画営業',
-    cells:['none','sub','sub','sub','none'] },
+    cells:['none','sub','proposal','proposal','none'] },
   { name:'南部', start:'23/8', type:'高回転反復型営業', role:'リード営業',
     cells:['none','none','main','sub','none'] },
   { name:'菅谷', start:'23/1', type:'上位自立メンバーレイヤー営業', role:'商談営業',
@@ -93,7 +95,7 @@ const DEFAULT_DATA = [
     cells:['none','none','none','none','main'] },
 ];
 
-const BADGE_LABELS = { main:'メイン', sub:'たまに', none:'' };
+const BADGE_LABELS = { main:'メイン', proposal:'提案型', sub:'たまに', none:'' };
 const COL_LABELS = ['マーケ','展示会','商談','CS','パートナー'];
 
 let data = JSON.parse(localStorage.getItem('sales_team_data') || 'null') || DEFAULT_DATA;
@@ -101,8 +103,9 @@ let saveTimer = null;
 let activePopover = null;
 
 function renderBadge(val) {
-  if (val === 'main') return `<span class="badge badge-main">メイン</span>`;
-  if (val === 'sub')  return `<span class="badge badge-sub">たまに</span>`;
+  if (val === 'main')     return `<span class="badge badge-main">メイン</span>`;
+  if (val === 'proposal') return `<span class="badge badge-proposal">提案型</span>`;
+  if (val === 'sub')      return `<span class="badge badge-sub">たまに</span>`;
   return `<span class="badge badge-none">-</span>`;
 }
 
@@ -144,9 +147,10 @@ function showPopover(cell, ri, ci) {
   closePopover();
   const pop = document.getElementById('popover');
   const options = [
-    { val:'main', icon:'pop-badge-main', label:'メイン（オレンジ）' },
-    { val:'sub',  icon:'pop-badge-sub',  label:'たまに（薄）' },
-    { val:'none', icon:'pop-badge-none', label:'なし' },
+    { val:'main',     icon:'pop-badge-main',     label:'メイン（オレンジ）' },
+    { val:'proposal', icon:'pop-badge-proposal',  label:'提案型（薄オレンジ）' },
+    { val:'sub',      icon:'pop-badge-sub',       label:'たまに（薄黄）' },
+    { val:'none',     icon:'pop-badge-none',      label:'なし' },
   ];
   pop.innerHTML = options.map(o =>
     `<div class="popover-item" data-val="${o.val}"><span class="${o.icon}"></span>${o.label}</div>`
