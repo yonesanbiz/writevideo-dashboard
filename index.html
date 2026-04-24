@@ -343,43 +343,56 @@ let dragSrc = null;
 let saveTimer = null;
 
 function initDrag() {
+  let pointerMoved = false;
+
   document.querySelectorAll('.card').forEach(card => {
+    // タッチ・マウス両対応のためpointereventsを使う
+    card.addEventListener('mousedown', () => { pointerMoved = false; });
+    card.addEventListener('mousemove', () => { pointerMoved = true; });
+
     card.setAttribute('draggable', 'true');
 
     card.addEventListener('dragstart', e => {
       dragSrc = card;
-      card.classList.add('dragging');
+      setTimeout(() => card.classList.add('dragging'), 0);
       e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', ''); // Firefox対応
     });
+
     card.addEventListener('dragend', () => {
       card.classList.remove('dragging');
       document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+      dragSrc = null;
       scheduleAutoSave();
     });
+
     card.addEventListener('dragover', e => {
       e.preventDefault();
-      if (dragSrc && dragSrc !== card) {
-        card.classList.add('drag-over');
-        // 同じgrid内でのみ並び替え
-        const srcGrid = dragSrc.parentNode;
-        const dstGrid = card.parentNode;
-        if (srcGrid === dstGrid) {
-          const cards = [...dstGrid.querySelectorAll('.card')];
-          const srcIdx = cards.indexOf(dragSrc);
-          const dstIdx = cards.indexOf(card);
-          if (srcIdx < dstIdx) card.after(dragSrc);
-          else card.before(dragSrc);
-        }
+      e.dataTransfer.dropEffect = 'move';
+      if (!dragSrc || dragSrc === card) return;
+      card.classList.add('drag-over');
+      const srcGrid = dragSrc.parentNode;
+      const dstGrid = card.parentNode;
+      if (srcGrid === dstGrid) {
+        const rect = card.getBoundingClientRect();
+        const mid = rect.left + rect.width / 2;
+        if (e.clientX < mid) card.before(dragSrc);
+        else card.after(dragSrc);
       }
     });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+
+    card.addEventListener('dragleave', e => {
+      card.classList.remove('drag-over');
+    });
+
     card.addEventListener('drop', e => {
       e.preventDefault();
       card.classList.remove('drag-over');
     });
-    // クリックを妨げない
+
+    // クリックとドラッグを区別
     card.addEventListener('click', e => {
-      if (dragSrc) { e.preventDefault(); dragSrc = null; }
+      if (pointerMoved) { e.preventDefault(); }
     });
   });
 }
